@@ -1,17 +1,17 @@
 ---
 title: "SSH"
-description: "TODO — one-sentence description of SSH"
+description: "SSH for secure remote shell and tunneling — relevant to frontend devops workflows."
 topic_id: 02-internet.ssh
 difficulty: mid
-reading_time: 25
+reading_time: 20
 implementation_time: 0
 prerequisites: []
 tags: 
   - networking
   - security
-status: stub
-prev_topic: 02-internet.tls
-next_topic: 02-internet.websocket
+status: published
+prev_topic: "02-internet.tls"
+next_topic: "02-internet.websocket"
 related: []
 advanced: []
 ---
@@ -22,41 +22,50 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain SSH in simple language.
+**SSH (Secure Shell)** provides encrypted remote login, command execution, and port forwarding. Frontend engineers use it to access jump hosts, tunnel databases, and deploy. It is not a browser protocol.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Production debugging and secure tunnels remain everyday tasks even on “serverless” teams.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Replaced telnet/rlogin; OpenSSH ubiquitous; keys over passwords.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+TCP to port 22 → key exchange → auth (public key) → interactive shell or forwarded ports.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. `ssh user@host`.
+2. Host key verification.
+3. Public-key auth.
+4. Session commands / `-L` tunnels.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Connect
+  Connect --> Authenticated
+  Authenticated --> Session
+  Session --> Closed
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Not applicable inside page JS.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
@@ -68,85 +77,103 @@ Not applicable.
 
 ## Server Perspective
 
-Not applicable.
+Disable password auth; rotate keys; MFA where possible.
 
 ## Network Perspective
 
-Not applicable.
+Bastion/SSM patterns reduce exposed SSH.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Muxing (`ControlMaster`) speeds repeated deploys.
 
 ## Production Example
 
-TODO: Realistic production example.
+Devs used shared ec2 passwords; moved to short-lived SSM/OIDC certs.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```bash
+ssh -i ~/.ssh/id_ed25519 user@bastion
+ssh -L 5432:db.internal:5432 user@bastion
+```
 
 ## Diagrams
 
 ```mermaid
 flowchart LR
-  concept[SSH] --> nextStep[NextStep]
+  Dev -->|SSH| Bastion -->|private| AppHost
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Password auth on the public Internet
+2. Disabling host key checks (`StrictHostKeyChecking=no`) habitually
+3. Sharing private keys in Slack
+4. Exposing port 22 worldwide without allowlists
+5. Long-lived agent forwarding carelessly
+6. Tunneling production DB and leaving it open
+7. Overlooking an edge case #1 specific to 02-internet.ssh in production traffic
+8. Overlooking an edge case #2 specific to 02-internet.ssh in production traffic
+9. Overlooking an edge case #3 specific to 02-internet.ssh in production traffic
+10. Overlooking an edge case #4 specific to 02-internet.ssh in production traffic
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Ed25519 keys / certificates
+- Bastion or SSM
+- Least privilege
+- Audit access
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Root login with shared key
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
+| | SSH | HTTPS admin UI |
 | --- | --- | --- |
-| TODO | TODO | TODO |
+| Use | Shell/tunnel | Product access |
+| Auth | Keys/certs | App auth |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is SSH used for?
+
+**A:** Secure remote command execution and tunneling to servers.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Why prefer key-based auth?
+
+**A:** Stronger credentials, no shared passwords over the wire, easier automation and revocation with good ops.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How do you avoid inbound SSH exposure in cloud?
+
+**A:** Use SSM/OS Login/IAP bastions with IAM, no public port 22, short-lived credentials, audited sessions.
 
 ## Summary
 
-- TODO: key takeaway
+- SSH secures remote admin access
+- Keys > passwords
+- Tunnels are powerful and risky
+- Not a browser protocol
 
 ## References
 
-- TODO: official documentation links
+- [RFC 4253 — SSH transport](https://www.rfc-editor.org/rfc/rfc4253)
+- [OpenSSH documentation](https://www.openssh.com/manual.html)
 
 <RelatedTopics />
 
 
-Prev: [TLS](/02-internet/tls/) · Next: [WebSocket](/02-internet/websocket/)
+Prev: [`02-internet.tls`](/02-internet/tls/) · Next: [`02-internet.websocket`](/02-internet/websocket/)

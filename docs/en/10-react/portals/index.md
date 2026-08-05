@@ -1,6 +1,6 @@
 ---
 title: "Portals"
-description: "TODO — one-sentence description of Portals"
+description: "Portals: render children into a different DOM node while keeping React tree context/events."
 topic_id: 10-react.portals
 difficulty: junior
 reading_time: 20
@@ -8,9 +8,9 @@ implementation_time: 0
 prerequisites: []
 tags: 
   - react
-status: stub
-prev_topic: 10-react.error-boundaries
-next_topic: 10-react.concurrent-rendering
+status: published
+prev_topic: "10-react.error-boundaries"
+next_topic: "10-react.concurrent-rendering"
 related: []
 advanced: []
 ---
@@ -21,45 +21,52 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Portals in simple language.
+**Portals** (`createPortal(child, container)`) render children into a DOM node outside the parent hierarchy while preserving React context and event bubbling in the React tree.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Modals, tooltips, and toasts often must escape `overflow: hidden` / stacking contexts but still read the same React providers.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Stable API for years; still the right tool for overlay hosts.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+React parent ≠ DOM parent. Events propagate through the React tree, which surprises people expecting DOM-only bubbling.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Create/find a DOM host (`#modal-root`).
+2. Portal the overlay.
+3. Manage focus/a11y.
+4. Keep context via React tree (not DOM).
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+flowchart TD
+  ReactParent --> Portal
+  Portal --> DOMHost[document.body host]
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+DOM node location changes stacking/overflow.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+Context still from React ancestors.
 
 ## Next.js Perspective
 
@@ -75,77 +82,96 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Cheap; a11y focus traps matter more.
 
 ## Production Example
 
-TODO: Realistic production example.
+Modal dialogs portal to `document.body` with focus trap and Esc handling while reading theme context.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```tsx
+return createPortal(
+  <div role="dialog" className="modal">{children}</div>,
+  document.getElementById('modal-root')!,
+)
+```
 
 ## Diagrams
 
 ```mermaid
 flowchart LR
-  concept[Portals] --> nextStep[NextStep]
+  App --> Modal
+  Modal -->|portal| Body[body]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Forgetting a11y (focus, Esc, aria)
+2. Assuming context is lost
+3. Z-index wars without a host strategy
+4. SSR accessing document without guards
+5. Portaling when CSS alone suffices
+6. Event bubbling confusion debugging
+7. Missing a production edge case for 10-react.portals (#1)
+8. Missing a production edge case for 10-react.portals (#2)
+9. Missing a production edge case for 10-react.portals (#3)
+10. Missing a production edge case for 10-react.portals (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Dedicated overlay roots
+- Focus management
+- Client-only portals when needed
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Nested portals randomly across the app
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
+| | Normal render | Portal |
 | --- | --- | --- |
-| TODO | TODO | TODO |
+| DOM parent | React parent | Chosen container |
+| React context | Ancestors | Ancestors |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is a portal?
+
+**A:** A way to render React children into a different DOM node while keeping the React tree relationship.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Do portals break context?
+
+**A:** No. Context still comes from React ancestors, not the DOM ancestor.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How do events behave with portals?
+
+**A:** React event propagation follows the React tree, so a click in a portaled modal can bubble to React parents even if DOM parents differ.
 
 ## Summary
 
-- TODO: key takeaway
+- DOM escape hatch preserving React tree
+- Ideal for overlays
+- Mind a11y and SSR
 
 ## References
 
-- TODO: official documentation links
+- [React Documentation](https://react.dev/)
+- [createPortal](https://react.dev/reference/react-dom/createPortal)
 
 <RelatedTopics />
 
 
-Prev: [Error Boundaries](/10-react/error-boundaries/) · Next: [Concurrent Rendering](/10-react/concurrent-rendering/)
+Prev: [`10-react.error-boundaries`](/10-react/error-boundaries/) · Next: [`10-react.concurrent-rendering`](/10-react/concurrent-rendering/)

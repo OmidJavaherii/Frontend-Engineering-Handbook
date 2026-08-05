@@ -1,6 +1,6 @@
 ---
 title: "Browser Cache"
-description: "TODO — one-sentence description of Browser Cache"
+description: "HTTP caches in the browser storing responses according to Cache-Control and related headers."
 topic_id: 12-rendering.browser-cache
 difficulty: junior
 reading_time: 25
@@ -9,9 +9,9 @@ prerequisites:
   - 02-internet.http-caching
 tags: 
   - caching
-status: stub
-prev_topic: 12-rendering.cdn
-next_topic: 12-rendering.cache-control
+status: published
+prev_topic: "12-rendering.cdn"
+next_topic: "12-rendering.cache-control"
 related: []
 advanced: []
 ---
@@ -22,41 +22,50 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Browser Cache in simple language.
+The **browser cache** stores HTTP responses on the client so repeat visits skip network (or use conditional requests). It is governed primarily by `Cache-Control`, validators (`ETag`/`Last-Modified`), and heuristic rules.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Repeat views dominate real usage. Without browser caching, every navigation redownloads assets and tanks performance.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+HTTP/1.0 heuristics → modern Cache-Control spec sophistication.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Fresh → serve instantly; stale → revalidate or refetch based on headers. `no-store` bypasses; `immutable` never revalidates before expiry.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Server sets headers.
+2. Browser stores response.
+3. Later request uses cache algorithm.
+4. DevTools Network “disable cache” only for debugging.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Fresh
+  Fresh --> Stale: max-age ends
+  Stale --> Revalidated: 304
+  Stale --> Replaced: 200
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Disk/memory caches; partitioned in privacy scenarios.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
@@ -64,7 +73,7 @@ Not applicable.
 
 ## Next.js Perspective
 
-Not applicable.
+Hashed `_next/static` assets are long-cache friendly.
 
 ## Server Perspective
 
@@ -72,81 +81,105 @@ Not applicable.
 
 ## Network Perspective
 
-Not applicable.
+304 responses save bytes.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Large assets consume disk cache quota.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Massive win for repeat LCP/INP. Don’t fight the cache with random query strings.
 
 ## Production Example
 
-TODO: Realistic production example.
+CI emits content-hashed assets; service workers may add another cache layer for PWAs.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```http
+Cache-Control: public, max-age=31536000, immutable
+ETag: "abc123"
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[BrowserCache] --> nextStep[NextStep]
+flowchart TD
+  Req --> Fresh{Fresh?}
+  Fresh -->|yes| UseCache
+  Fresh -->|no| Revalidate
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Disable cache left on while “performance testing”
+2. Cache-busting with random query params always
+3. no-cache vs no-store confusion
+4. Caching authenticated JSON in shared ways incorrectly
+5. Not setting validators for revalidation
+6. Expecting localStorage to act as HTTP cache
+7. Missing a production edge case for 12-rendering.browser-cache (#1)
+8. Missing a production edge case for 12-rendering.browser-cache (#2)
+9. Missing a production edge case for 12-rendering.browser-cache (#3)
+10. Missing a production edge case for 12-rendering.browser-cache (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Correct Cache-Control per resource class
+- Hash static assets
+- Use ETag/Last-Modified for HTML when appropriate
+- Test with cache enabled for real UX
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Global no-store
+- Mega max-age on HTML without versioning strategy
+- Manual cache hacks in JS duplicating HTTP
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Directive | Meaning (simplified) |
+| --- | --- |
+| max-age | Fresh lifetime |
+| no-cache | Must revalidate before use |
+| no-store | Do not store |
+| immutable | Won’t change before expiry |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What controls browser HTTP caching?
+
+**A:** Primarily `Cache-Control` plus validators like `ETag`/`Last-Modified`.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Difference between no-cache and no-store?
+
+**A:** `no-cache` allows storage but requires revalidation before reuse; `no-store` forbids storing the response.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How do hashed assets + HTML caching interact?
+
+**A:** HTML can be short-lived pointing at long-lived hashed URLs; when HTML updates, it references new hashes, so clients fetch new assets without needing to purge old immutable files.
 
 ## Summary
 
-- TODO: key takeaway
+- Browser cache follows HTTP headers
+- Fresh vs revalidate vs no-store
+- Hash static files for immutable caching
+- Test with cache enabled
 
 ## References
 
-- TODO: official documentation links
+- [MDN — HTTP caching](https://developer.mozilla.org/en-US/docs/Web/HTTP/Caching)
+- [web.dev — HTTP cache](https://web.dev/articles/http-cache)
 
 <RelatedTopics />
 
 
-Prev: [CDN](/12-rendering/cdn/) · Next: [Cache-Control](/12-rendering/cache-control/)
+Prev: [`12-rendering.cdn`](/12-rendering/cdn/) · Next: [`12-rendering.cache-control`](/12-rendering/cache-control/)

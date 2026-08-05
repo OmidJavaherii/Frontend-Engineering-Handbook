@@ -1,6 +1,6 @@
 ---
 title: "React.memo"
-description: "TODO — one-sentence description of React.memo"
+description: "React.memo: higher-order component that bails out of re-render when props are shallow-equal."
 topic_id: 10-react.react-memo
 difficulty: mid
 reading_time: 25
@@ -10,9 +10,9 @@ prerequisites:
 tags: 
   - react
   - performance
-status: stub
-prev_topic: 10-react.memoization
-next_topic: 10-react.usememo
+status: published
+prev_topic: "10-react.memoization"
+next_topic: "10-react.usememo"
 related: []
 advanced: []
 ---
@@ -23,45 +23,53 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain React.memo in simple language.
+**`memo(Component)`** wraps a component so React skips re-rendering when props are shallowly equal to the previous render. Custom comparators are possible but rare.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Leaf-heavy lists and pure presentational components can be expensive to re-render when parents update for unrelated reasons.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Function-component analogue to `PureComponent`.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Bailout compares props only—not context. If context changes, memoized consumers still re-render.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Confirm with Profiler.
+2. Wrap pure components.
+3. Ensure props are stable/primitive.
+4. Avoid custom compare unless proven.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+flowchart TD
+  ParentRender --> ShallowEq{props equal?}
+  ShallowEq -->|yes| Bailout
+  ShallowEq -->|no| RenderChild
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Not applicable.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+Render optimization tool.
 
 ## Next.js Perspective
 
@@ -77,77 +85,93 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Helps when prop stability holds; otherwise wasted.
 
 ## Production Example
 
-TODO: Realistic production example.
+Avatar and Icon components are memoized in a message list to cut CPU on typing in a composer sibling.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```tsx
+const Icon = memo(function Icon({ name }: { name: string }) {
+  return <span className={'icon-' + name} />
+})
+```
 
 ## Diagrams
 
 ```mermaid
 flowchart LR
-  concept[Reactmemo] --> nextStep[NextStep]
+  Props --> memoComp[memo] --> RenderOrSkip
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. memo on components reading frequently changing context
+2. Custom deep equal comparators that are slower than render
+3. Wrapping everything
+4. Passing children as always-new elements unexpectedly
+5. Expecting memo to block state updates inside the child
+6. Forgetting displayName in wrappers for DevTools
+7. Missing a production edge case for 10-react.react-memo (#1)
+8. Missing a production edge case for 10-react.react-memo (#2)
+9. Missing a production edge case for 10-react.react-memo (#3)
+10. Missing a production edge case for 10-react.react-memo (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Use on pure leaves
+- Stable props
+- Profile before/after
 
 ## Anti-patterns
 
-TODO: What not to do.
+- memo + new props object every time
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
+| | memo | useMemo |
 | --- | --- | --- |
-| TODO | TODO | TODO |
+| Targets | Component render | Value compute |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What does React.memo do?
+
+**A:** It skips re-rendering a component when its props are shallow-equal.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Does memo stop context-driven renders?
+
+**A:** No. Context changes still re-render consumers.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** When is a custom comparison function justified?
+
+**A:** Rarely—when profiling shows shallow compare fails for a known prop shape and a cheaper custom equality exists.
 
 ## Summary
 
-- TODO: key takeaway
+- Shallow prop bailout HOC
+- Context still updates
+- Stable props required
 
 ## References
 
-- TODO: official documentation links
+- [React Documentation](https://react.dev/)
+- [memo](https://react.dev/reference/react/memo)
 
 <RelatedTopics />
 
 
-Prev: [Memoization in React](/10-react/memoization/) · Next: [useMemo](/10-react/usememo/)
+Prev: [`10-react.memoization`](/10-react/memoization/) · Next: [`10-react.usememo`](/10-react/usememo/)

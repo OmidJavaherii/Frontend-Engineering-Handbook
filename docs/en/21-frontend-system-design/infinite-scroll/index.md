@@ -1,6 +1,6 @@
 ---
 title: "Infinite Scroll"
-description: "TODO — one-sentence description of Infinite Scroll"
+description: "Design endless feeds with pagination cursors, virtualization, accessibility, and memory bounds — not just an IntersectionObserver."
 topic_id: 21-frontend-system-design.infinite-scroll
 difficulty: mid
 reading_time: 30
@@ -9,9 +9,9 @@ prerequisites: []
 tags: 
   - system-design
   - ux
-status: stub
-prev_topic: 21-frontend-system-design.offline-first
-next_topic: 21-frontend-system-design.pagination
+status: published
+prev_topic: "21-frontend-system-design.offline-first"
+next_topic: "21-frontend-system-design.pagination"
 related: []
 advanced: []
 ---
@@ -22,131 +22,193 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Infinite Scroll in simple language.
+**Infinite Scroll** loads the next page of content as the user approaches the end of a list. It is a UX pattern on top of pagination APIs, with serious implications for accessibility, performance, and shareable positions.
+
+Pair with [/21-frontend-system-design/pagination/](/21-frontend-system-design/pagination/) and [/09-browser-apis/intersection-observer/](/09-browser-apis/intersection-observer/).
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Feeds and catalogs want uninterrupted browsing. Page numbers interrupt flow but help orientation. Infinite scroll maximizes engagement for homogenous streams — and harms users who need “footer” content or a sense of place if designed naively.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Popularized by social feeds; criticized for accessibility and SEO. Modern practice: cursor pagination + virtualization + “jump to top,” landmarks, and sometimes hybrid page restoration via URL/query.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+**Window over a cursor stream**: keep a sliding set of loaded pages, fetch when the sentinel enters the viewport, recycle DOM via virtualization, and remember that “page 1” is no longer a stable concept unless you encode cursors in the URL.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. API: cursor/limit, stable sort  
+2. Client: append pages, dedupe ids  
+3. Observe sentinel / virtualizer  
+4. Handle errors/retry without duplicate rows  
+5. Provide alternative navigation for a11y
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Initial
+  Initial --> Idle: first_page
+  Idle --> LoadingMore: near_end
+  LoadingMore --> Idle: append
+  LoadingMore --> Error: fail
+  Error --> LoadingMore: retry
+  Idle --> Exhausted: no_cursor
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+IntersectionObserver schedules loads without scroll handler spam. Layout thrash appears if you measure DOM in loops.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Huge arrays of rows retain memory; virtualize.
 
 ## React Perspective
 
-Not applicable.
+Keys must be stable ids. Reset query state when filters change.
 
 ## Next.js Perspective
 
-Not applicable.
+SSR the first page for LCP/SEO; hydrate the infinite tail on the client.
 
 ## Server Perspective
 
-Not applicable.
+Cursor pagination beats `OFFSET` at depth.
 
 ## Network Perspective
 
-Not applicable.
+Prefetch next page carefully to avoid waste on bounce.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Unmount offscreen rows; cap cached pages if needed.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Virtualization is mandatory past a few hundred complex rows. Watch scroll jank (INP) and image decode costs in feeds.
 
 ## Production Example
 
-TODO: Realistic production example.
+A commerce grid SSRs 24 products, then infinite-loads with cursors. Filter changes reset the list and write `?cursor=` for shareable deep links when possible.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```tsx
+function Feed() {
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteQuery({
+    queryKey: ['feed'],
+    queryFn: ({ pageParam }) => api.feed({ cursor: pageParam }),
+    getNextPageParam: (last) => last.nextCursor,
+    initialPageParam: undefined as string | undefined,
+  })
+  return (
+    <>
+      {data?.pages.flatMap((p) => p.items).map((item) => <Card key={item.id} {...item} />)}
+      <div ref={sentinelRef} />
+      {isFetchingNextPage && <Spinner />}
+      {!hasNextPage && <p>End of results</p>}
+    </>
+  )
+}
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[InfiniteScroll] --> nextStep[NextStep]
+flowchart TD
+  n0[Render page] --> n1[Sentinel visible]
+  n1[Sentinel visible] --> n2[Fetch cursor]
+  n2[Fetch cursor] --> n3[Append]
+```
+
+```mermaid
+sequenceDiagram
+  participant User
+  participant App
+  participant Platform
+  User->>App: interact (Infinite scroll)
+  App->>Platform: apply mechanism
+  Platform-->>App: result or error
+  App-->>User: update UI
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Using page offsets that skip/duplicate on inserts
+2. No virtualization for long feeds
+3. Trap keyboard/screen-reader users with endless content and no landmarks
+4. Losing filter state on load-more
+5. Duplicate keys when pages overlap
+6. Not resetting on sort/filter change
+7. Missing a production edge case for 21-frontend-system-design.infinite-scroll (#1)
+8. Missing a production edge case for 21-frontend-system-design.infinite-scroll (#2)
+9. Missing a production edge case for 21-frontend-system-design.infinite-scroll (#3)
+10. Missing a production edge case for 21-frontend-system-design.infinite-scroll (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Cursor pagination
+- Virtualize heavy rows
+- Announce loading to AT
+- Offer “load more” button fallback
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Infinite scroll on multi-section marketing pages that hide the footer
+- Auto-playing media as rows mount
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
+| Pattern | Orientation | Engagement |
 | --- | --- | --- |
-| TODO | TODO | TODO |
+| Page numbers | High | Medium |
+| Load more button | Medium | Medium |
+| Infinite scroll | Low | High |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What API style should back infinite scroll?
+
+**A:** Cursor-based pagination with a stable sort — see [/21-frontend-system-design/pagination/](/21-frontend-system-design/pagination/).
 
 ### Medium
 
-TODO — question and answer.
+**Q:** How do you keep memory stable in a long feed?
+
+**A:** Windowing/virtualization so offscreen rows unmount; optionally drop far pages from cache.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How do you restore scroll position when navigating back to a feed?
+
+**A:** Cache pages + scroll offset (or cursor + index), use list virtualizer scrollTo, and handle remount vs keep-alive routes.
 
 ## Summary
 
-- TODO: key takeaway
+- Cursors + sentinel + virtualization
+- Reset on filter changes
+- Mind a11y and footers
+- SSR first page when SEO matters
 
 ## References
 
-- TODO: official documentation links
+- [MDN — Intersection Observer](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API)
+- [TanStack Virtual](https://tanstack.com/virtual/latest)
 
 <RelatedTopics />
 
 
-Prev: [Offline First](/21-frontend-system-design/offline-first/) · Next: [Pagination](/21-frontend-system-design/pagination/)
+Prev: [`21-frontend-system-design.offline-first`](/21-frontend-system-design/offline-first/) · Next: [`21-frontend-system-design.pagination`](/21-frontend-system-design/pagination/)

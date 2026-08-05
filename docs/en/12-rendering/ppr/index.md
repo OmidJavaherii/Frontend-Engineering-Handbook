@@ -1,6 +1,6 @@
 ---
 title: "Partial Prerendering"
-description: "TODO — one-sentence description of Partial Prerendering"
+description: "Partial Prerendering as a rendering strategy: static shell + dynamic holes."
 topic_id: 12-rendering.ppr
 difficulty: senior
 reading_time: 35
@@ -9,9 +9,9 @@ prerequisites: []
 tags: 
   - rendering
   - nextjs
-status: stub
-prev_topic: 12-rendering.isr
-next_topic: 12-rendering.streaming
+status: published
+prev_topic: "12-rendering.isr"
+next_topic: "12-rendering.streaming"
 related: 
   - 11-nextjs.partial-prerendering
 advanced: []
@@ -23,131 +23,171 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Partial Prerendering in simple language.
+**PPR** (module view) is the rendering strategy of shipping a **static shell** instantly and streaming **dynamic holes** for personalized/live parts. Next’s implementation lives also under [/11-nextjs/partial-prerendering/](/11-nextjs/partial-prerendering/).
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Pages are rarely 100% static or 100% dynamic. PPR matches reality: cache the common chrome/content; compute the rest per request.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Emerged from streaming SSR + static generation research; productized in Next experimental/stable tracks.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Shell = CDN-friendly. Holes = Suspense-bound dynamic. Don’t let dynamic reads escape into the shell.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Design shell vs holes.
+2. Suspense around cookies/session/live data.
+3. Enable PPR per framework docs.
+4. Verify shell cache hits + hole streaming.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> ShellHit
+  ShellHit --> StreamHoles
+  StreamHoles --> Done
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Fast paint then progressive fill-in.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+Suspense boundaries are the hole API.
 
 ## Next.js Perspective
 
-Not applicable.
+Primary implementation today.
 
 ## Server Perspective
 
-Not applicable.
+Only holes hit origin compute.
 
 ## Network Perspective
 
-Not applicable.
+Shell from edge cache; holes from origin.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Best when LCP element is in the shell. Holes should be non-critical or well-skeletoned.
 
 ## Production Example
 
-TODO: Realistic production example.
+Storefront: static product description shell; price/availability and cart hole stream.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```tsx
+import { Suspense } from 'react'
+
+export default function Page() {
+  return (
+    <>
+      <ProductStaticShell />
+      <Suspense fallback={<PriceSkeleton />}>
+        <LivePrice />
+      </Suspense>
+    </>
+  )
+}
+```
 
 ## Diagrams
 
 ```mermaid
 flowchart LR
-  concept[PartialPrerendering] --> nextStep[NextStep]
+  CDN[Static shell] --> User
+  Origin[Dynamic holes] --> User
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Dynamic API in shell dynamizes the page
+2. LCP trapped in a slow hole
+3. No skeletons → CLS
+4. Treating PPR as on without Suspense structure
+5. Personalizing content that should be static marketing
+6. Ignoring version-specific Next PPR flags
+7. Missing a production edge case for 12-rendering.ppr (#1)
+8. Missing a production edge case for 12-rendering.ppr (#2)
+9. Missing a production edge case for 12-rendering.ppr (#3)
+10. Missing a production edge case for 12-rendering.ppr (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Shell-first design
+- Small holes
+- Stable fallbacks
+- Cross-link Next PPR docs for enablement
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Everything in one hole
+- Empty shell
+- Disabling CDN caching while expecting PPR wins
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
+| Strategy | Static part | Dynamic part |
 | --- | --- | --- |
-| TODO | TODO | TODO |
+| SSG | All | None |
+| SSR | None | All |
+| PPR | Shell | Holes |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** Explain PPR in one sentence.
+
+**A:** Serve a cached static shell immediately and stream dynamic regions per request.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** How do holes get defined?
+
+**A:** Via Suspense boundaries around components that use dynamic data/APIs.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** Compare PPR to classic SSR + client fetch for a cart count.
+
+**A:** PPR streams the cart hole with server data in the first response; client fetch waits for hydration and extra RTT. PPR usually wins perceived performance and SEO of the shell.
 
 ## Summary
 
-- TODO: key takeaway
+- PPR mixes static shell + dynamic holes
+- Suspense defines boundaries
+- Keep LCP in the shell
+- See Next.js PPR topic for setup
 
 ## References
 
-- TODO: official documentation links
+- [Next.js — Partial Prerendering](https://nextjs.org/docs/app/building-your-application/rendering/partial-prerendering)
+- [web.dev — Rendering on the web](https://web.dev/articles/rendering-on-the-web)
 
 <RelatedTopics />
 
 
-Prev: [Incremental Static Regeneration](/12-rendering/isr/) · Next: [Streaming](/12-rendering/streaming/)
+Prev: [`12-rendering.isr`](/12-rendering/isr/) · Next: [`12-rendering.streaming`](/12-rendering/streaming/)

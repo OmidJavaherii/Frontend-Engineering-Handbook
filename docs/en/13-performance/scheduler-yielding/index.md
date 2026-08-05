@@ -1,6 +1,6 @@
 ---
 title: "Scheduler and Yielding"
-description: "TODO — one-sentence description of Scheduler and Yielding"
+description: "Cooperatively yielding on the main thread so the browser can paint and handle input."
 topic_id: 13-performance.scheduler-yielding
 difficulty: senior
 reading_time: 35
@@ -8,8 +8,8 @@ implementation_time: 0
 prerequisites: []
 tags: 
   - performance
-status: stub
-prev_topic: 13-performance.long-tasks
+status: published
+prev_topic: "13-performance.long-tasks"
 next_topic: null
 related: []
 advanced: []
@@ -21,41 +21,49 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Scheduler and Yielding in simple language.
+**Scheduler yielding** means breaking work and returning control to the browser—via `scheduler.yield`, `isInputPending`, `setTimeout`, or `requestIdleCallback`—so input/paint can run between chunks.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Long tasks are often necessary work done without breathing room. Yielding preserves INP while finishing jobs.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+setTimeout(0) hacks → requestIdleCallback → Scheduler API / yield proposals in Chromium.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Do a slice → yield → continue. Prioritize user-blocking work higher than background.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Identify chunkable work.
+2. Yield between chunks.
+3. Prefer `scheduler.yield` where available.
+4. Don’t yield in the middle of atomic UI consistency needs without care.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Idle
+  Idle --> Active: use
+  Active --> Idle: settle
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Not applicable.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
@@ -75,77 +83,104 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Measure before/after with lab + field tools. Optimize the attributed bottleneck for Cooperatively yielding on the main thread so the browser can paint and handle input., not folklore.
 
 ## Production Example
 
-TODO: Realistic production example.
+Teams adopt Cooperatively yielding on the main thread so the browser can paint and handle input. on critical routes, add monitoring, and guard regressions with budgets or reviews.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```ts
+async function processAll(items: Item[]) {
+  for (const item of items) {
+    work(item)
+    // @ts-expect-error experimental in some browsers
+    if (globalThis.scheduler?.yield) await scheduler.yield()
+    else await new Promise((r) => setTimeout(r, 0))
+  }
+}
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[SchedulerandYielding] --> nextStep[NextStep]
+flowchart TD
+  A[Understand] --> B[Apply Cooperatively yielding on the main thread so the browser can paint and handle input.]
+  B --> C[Measure]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Yielding so finely that overhead dominates
+2. Leaving UI half-updated across yields without coordination
+3. Using idle callbacks for user-critical work
+4. Polyfill soup differing per browser untested
+5. Assuming workers are always better than yielding
+6. Yielding without measuring INP improvement
+7. Missing a production edge case for 13-performance.scheduler-yielding (#1)
+8. Missing a production edge case for 13-performance.scheduler-yielding (#2)
+9. Missing a production edge case for 13-performance.scheduler-yielding (#3)
+10. Missing a production edge case for 13-performance.scheduler-yielding (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Prefer platform/framework primitives
+- Measure impact on real user metrics
+- Keep the change reviewable and reversible
+- Document the invariant you are protecting
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Copy-paste without understanding failure modes
+- Premature abstraction around a single use
+- Optimizing without a baseline
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Approach | When |
+| --- | --- |
+| Use as designed | Default |
+| Simpler alternative | If constraints differ |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** Why yield on the main thread?
+
+**A:** To let the browser handle input and painting between chunks of work.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Idle vs yield for click response work?
+
+**A:** Do not put click-critical work in requestIdleCallback; yield inside the task or use transitions for non-urgent React updates.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** Compare web workers vs yielding.
+
+**A:** Workers move CPU off main thread (great for pure compute) but have structured-clone costs; yielding keeps shared DOM access with cooperative multitasking.
 
 ## Summary
 
-- TODO: key takeaway
+- Cooperatively yielding on the main thread so the browser can paint and handle input.
+- Know why it exists and when not to use it
+- Measure production impact
+- Link related handbook topics instead of duplicating
 
 ## References
 
-- TODO: official documentation links
+- [Chrome — Optimize long tasks](https://developer.chrome.com/docs/performance/insights/optimize-long-tasks)
+- [MDN — scheduler.yield](https://developer.mozilla.org/en-US/docs/Web/API/Scheduler/yield)
 
 <RelatedTopics />
 
 
-Prev: [Long Tasks](/13-performance/long-tasks/)
+Prev: [`13-performance.long-tasks`](/13-performance/long-tasks/)

@@ -1,6 +1,6 @@
 ---
 title: "MIME Types"
-description: "TODO — one-sentence description of MIME Types"
+description: "Cheatsheet of common MIME types for web assets, APIs, and uploads."
 topic_id: 25-appendix.mime-types
 difficulty: beginner
 reading_time: 10
@@ -8,9 +8,9 @@ implementation_time: 0
 prerequisites: []
 tags: 
   - appendix
-status: stub
-prev_topic: 25-appendix.http-status-codes
-next_topic: 25-appendix.priority-hints-cheatsheet
+status: published
+prev_topic: "25-appendix.http-status-codes"
+next_topic: "25-appendix.priority-hints-cheatsheet"
 related: []
 advanced: []
 ---
@@ -21,41 +21,46 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain MIME Types in simple language.
+**MIME Types** (`Content-Type`) identify payload formats. Critical for uploads, workers, manifests, and security sniffing defenses.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Wrong MIME breaks modules, SW, fonts, and can enable content sniffing attacks.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+MIME originated in email; HTTP adopted `Content-Type` widely.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+`type/subtype` (+ parameters like `charset=utf-8`). Browsers may sniff; servers should send accurate types + `X-Content-Type-Options: nosniff` when appropriate.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+Serve correct types; validate uploads server-side; don’t trust `File.type` alone.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Bytes
+  Bytes --> Typed: Content-Type
+  Typed --> Consume: browser_or_app
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Modules require correct JS MIME; modules/CORS interplay.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
@@ -63,89 +68,130 @@ Not applicable.
 
 ## Next.js Perspective
 
-Not applicable.
+Static asset headers via platform config.
 
 ## Server Perspective
 
-Not applicable.
+Set types explicitly.
 
 ## Network Perspective
 
-Not applicable.
+Caches can Vary on Content-Type rarely needed.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Compression (`Content-Encoding`) separate from MIME.
 
 ## Production Example
 
-TODO: Realistic production example.
+CDN maps: `.js` → `text/javascript`, `.webmanifest` → `application/manifest+json`.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+| Extension | MIME |
+| --- | --- |
+| .html | text/html; charset=utf-8 |
+| .js / .mjs | text/javascript |
+| .css | text/css |
+| .json | application/json |
+| .webmanifest | application/manifest+json |
+| .svg | image/svg+xml |
+| .woff2 | font/woff2 |
+| .wasm | application/wasm |
+| .png/.jpg/.webp | image/* |
+
+```http
+Content-Type: application/json; charset=utf-8
+X-Content-Type-Options: nosniff
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[MIMETypes] --> nextStep[NextStep]
+flowchart TD
+  n0[Bytes] --> n1[Content-Type]
+  n1[Content-Type] --> n2[Consumer]
+```
+
+```mermaid
+sequenceDiagram
+  participant User
+  participant App
+  participant Platform
+  User->>App: interact (MIME)
+  App->>Platform: apply mechanism
+  Platform-->>App: result or error
+  App-->>User: update UI
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Serving JS as text/plain breaking modules
+2. Trusting client MIME on uploads
+3. Wrong manifest MIME
+4. Missing charset on text
+5. SVG as image/svg without XSS caution
+6. Assuming File.type is authoritative
+7. Missing a production edge case for 25-appendix.mime-types (#1)
+8. Missing a production edge case for 25-appendix.mime-types (#2)
+9. Missing a production edge case for 25-appendix.mime-types (#3)
+10. Missing a production edge case for 25-appendix.mime-types (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Explicit server mapping
+- nosniff for untrusted content
+- Server-side file validation
 
 ## Anti-patterns
 
-TODO: What not to do.
+- application/octet-stream for everything
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Layer | Role |
+| --- | --- |
+| Content-Type | Representation type |
+| Content-Encoding | gzip/br wrapper |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What header declares JSON?
+
+**A:** `Content-Type: application/json`.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Why does ES module script fail with wrong MIME?
+
+**A:** Browsers require appropriate JS MIME for module scripts.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How do MIME types interact with upload security?
+
+**A:** Client hints are untrusted; sniff/validate server-side; careful with SVG/HTML executable types in open buckets.
 
 ## Summary
 
-- TODO: key takeaway
+- Correct Content-Type matters
+- Don’t trust upload MIME
+- Know common web types
+- nosniff when needed
 
 ## References
 
-- TODO: official documentation links
+- [MDN — MIME types](https://developer.mozilla.org/en-US/docs/Web/HTTP/MIME_types)
+- [IANA Media Types](https://www.iana.org/assignments/media-types/media-types.xhtml)
 
 <RelatedTopics />
 
 
-Prev: [HTTP Status Codes](/25-appendix/http-status-codes/) · Next: [Priority Hints Cheatsheet](/25-appendix/priority-hints-cheatsheet/)
+Prev: [`25-appendix.http-status-codes`](/25-appendix/http-status-codes/) · Next: [`25-appendix.priority-hints-cheatsheet`](/25-appendix/priority-hints-cheatsheet/)

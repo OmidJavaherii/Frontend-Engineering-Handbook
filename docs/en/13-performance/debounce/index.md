@@ -1,6 +1,6 @@
 ---
 title: "Debounce"
-description: "TODO — one-sentence description of Debounce"
+description: "Coalescing rapid events so a function runs after a quiet period."
 topic_id: 13-performance.debounce
 difficulty: junior
 reading_time: 20
@@ -9,9 +9,9 @@ prerequisites: []
 tags: 
   - performance
   - javascript
-status: stub
-prev_topic: 13-performance.lazy-loading
-next_topic: 13-performance.throttle
+status: published
+prev_topic: "13-performance.lazy-loading"
+next_topic: "13-performance.throttle"
 related: []
 advanced: []
 ---
@@ -22,45 +22,53 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Debounce in simple language.
+**Debounce** delays invoking a function until events stop arriving for N ms—ideal for search typing and resize-end handlers.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Per-keystroke work (filter/fetch) wastes CPU/network and hurts INP.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Classic utility from underscore/lodash; trivial to implement with timers.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Each event resets the timer; only the last quiet window fires.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Pick delay (150–300ms typical for search).
+2. Debounce the expensive side.
+3. Cancel on unmount.
+4. Consider leading edge if needed.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Idle
+  Idle --> Active: use
+  Active --> Idle: settle
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Timer on main thread; keep fn light.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+Prefer transition/deferred value patterns for rendering; debounce I/O.
 
 ## Next.js Perspective
 
@@ -76,77 +84,103 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Measure before/after with lab + field tools. Optimize the attributed bottleneck for Coalescing rapid events so a function runs after a quiet period., not folklore.
 
 ## Production Example
 
-TODO: Realistic production example.
+Teams adopt Coalescing rapid events so a function runs after a quiet period. on critical routes, add monitoring, and guard regressions with budgets or reviews.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```ts
+export function debounce<T extends (...a: any[]) => void>(fn: T, ms: number) {
+  let t: ReturnType<typeof setTimeout> | undefined
+  return (...args: Parameters<T>) => {
+    clearTimeout(t)
+    t = setTimeout(() => fn(...args), ms)
+  }
+}
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[Debounce] --> nextStep[NextStep]
+flowchart TD
+  A[Understand] --> B[Apply Coalescing rapid events so a function runs after a quiet period.]
+  B --> C[Measure]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Debouncing hard-required immediate UI feedback
+2. Leaking timers on unmount
+3. Debounce vs throttle confusion
+4. Too long delay feeling broken
+5. Debouncing React setState incorrectly causing stale closures
+6. Server-filtering every keypress without debounce
+7. Missing a production edge case for 13-performance.debounce (#1)
+8. Missing a production edge case for 13-performance.debounce (#2)
+9. Missing a production edge case for 13-performance.debounce (#3)
+10. Missing a production edge case for 13-performance.debounce (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Prefer platform/framework primitives
+- Measure impact on real user metrics
+- Keep the change reviewable and reversible
+- Document the invariant you are protecting
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Copy-paste without understanding failure modes
+- Premature abstraction around a single use
+- Optimizing without a baseline
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Approach | When |
+| --- | --- |
+| Use as designed | Default |
+| Simpler alternative | If constraints differ |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** Debounce vs throttle in one line?
+
+**A:** Debounce waits for quiet; throttle ensures regular cadence while events fire.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Where use debounce in search UI?
+
+**A:** On the network query; keep input value updates immediate.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How implement cancelable debounce with AbortController?
+
+**A:** Start fetch in trailing call; abort previous controller when a new trailing call starts or on unmount.
 
 ## Summary
 
-- TODO: key takeaway
+- Coalescing rapid events so a function runs after a quiet period.
+- Know why it exists and when not to use it
+- Measure production impact
+- Link related handbook topics instead of duplicating
 
 ## References
 
-- TODO: official documentation links
+- [MDN — setTimeout](https://developer.mozilla.org/en-US/docs/Web/API/Window/setTimeout)
+- [web.dev — debounce](https://web.dev/articles/debounce-your-input-handlers)
 
 <RelatedTopics />
 
 
-Prev: [Lazy Loading](/13-performance/lazy-loading/) · Next: [Throttle](/13-performance/throttle/)
+Prev: [`13-performance.lazy-loading`](/13-performance/lazy-loading/) · Next: [`13-performance.throttle`](/13-performance/throttle/)

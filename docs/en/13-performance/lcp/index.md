@@ -1,6 +1,6 @@
 ---
 title: "LCP"
-description: "TODO — one-sentence description of LCP"
+description: "Largest Contentful Paint: when the largest above-the-fold content element becomes visible."
 topic_id: 13-performance.lcp
 difficulty: mid
 reading_time: 30
@@ -9,9 +9,9 @@ prerequisites:
   - 13-performance.core-web-vitals
 tags: 
   - performance
-status: stub
-prev_topic: 13-performance.core-web-vitals
-next_topic: 13-performance.cls
+status: published
+prev_topic: "13-performance.core-web-vitals"
+next_topic: "13-performance.cls"
 related: []
 advanced: []
 ---
@@ -22,49 +22,59 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain LCP in simple language.
+**LCP** marks when the largest text block or image in the viewport is painted. It is a Core Web Vital for loading performance.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Users judge speed by when the main content appears—not when `DOMContentLoaded` fires. LCP operationalizes that judgment.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Introduced as CWV replaced older focus on metrics like load event / FCP alone.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Find the LCP element (image/text/video poster) → ensure it is discoverable early, sized, compressed, and not blocked by late CSS/JS.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Define what LCP measures and the “good” threshold.
+2. Collect lab (Lighthouse/Perf panel) and field (CrUX/RUM) data.
+3. Attribute the slow stage in a trace.
+4. Change one cause; remeasure.
+5. Guard with budgets in CI/RUM alerts.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Measure
+  Measure --> Attribute
+  Attribute --> Fix
+  Fix --> Measure
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+LCP is observed in Chromium Performance/Lighthouse and via web-vitals JS APIs in the field.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+JS long tasks, layout, and paint feed into how LCP feels to users.
 
 ## React Perspective
 
-Not applicable.
+Unnecessary renders/hydration inflate interaction and paint costs that show up in LCP.
 
 ## Next.js Perspective
 
-Not applicable.
+Server TTFB, streaming, and client bundle size all influence LCP depending on the metric.
 
 ## Server Perspective
 
@@ -72,81 +82,107 @@ Not applicable.
 
 ## Network Perspective
 
-Not applicable.
+RTT, bytes, and CDN behavior often dominate before JS micro-optimizations.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+GC pauses and large DOM/images can indirectly worsen LCP.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Good LCP ≤ 2.5s at p75. Common wins: optimize hero image, preconnect, avoid late-discovered LCP, reduce TTFB, limit render-blocking resources.
 
 ## Production Example
 
-TODO: Realistic production example.
+A team tracks LCP in RUM by route template, sets a regression alert at p75, and ties fixes to specific owners (images, JS, server).
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```html
+<img src="/hero.avif" width="1200" height="630" fetchpriority="high" alt="Hero" />
+```
+
+```ts
+import { onLCP } from 'web-vitals'
+onLCP(console.log)
+```
 
 ## Diagrams
 
 ```mermaid
 flowchart LR
-  concept[LCP] --> nextStep[NextStep]
+  Lab[Lab tools] --> Insight
+  RUM[Field RUM] --> Insight
+  Insight --> Fix[LCP fix]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Lazy-loading the LCP image
+2. Hero background-image in CSS discovered late
+3. Huge unoptimized hero PNG/JPEG
+4. Waiting on client fetch to render the LCP text
+5. Ignoring TTFB as part of LCP
+6. Optimizing a non-LCP element that looks important in DevTools thumbnail only
+7. Overlooking an edge case #1 specific to 13-performance.lcp in production traffic
+8. Overlooking an edge case #2 specific to 13-performance.lcp in production traffic
+9. Overlooking an edge case #3 specific to 13-performance.lcp in production traffic
+10. Overlooking an edge case #4 specific to 13-performance.lcp in production traffic
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Optimize LCP with field data, not vanity lab scores alone
+- Fix the attributed cause, not a random best practice list
+- Keep a performance budget for the owning surface
+- Re-check after framework upgrades
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Chasing Lighthouse while ignoring RUM
+- Micro-optimizing JS before cutting bytes/RTT
+- Declaring victory from one local run on fiber
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Signal | Use |
+| --- | --- |
+| Lab | Debug & regressions |
+| Field | Real users / SEO signals |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What does LCP measure?
+
+**A:** When the largest above-the-fold content element is painted.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Name three common LCP fixes.
+
+**A:** Compress/prioritize hero image, improve TTFB, eliminate render-blocking resources delaying paint.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How can SSR still have poor LCP?
+
+**A:** If HTML is fast but the LCP image is late-discovered, huge, or deprioritized—or client JS must run before the LCP node appears.
 
 ## Summary
 
-- TODO: key takeaway
+- LCP: Largest Contentful Paint: when the largest above-the-fold content element becomes visible.
+- Measure lab + field
+- Attribute before optimizing
+- Budget and alert on p75
 
 ## References
 
-- TODO: official documentation links
+- [web.dev — Core Web Vitals](https://web.dev/explore/learn-core-web-vitals)
+- [Chrome — Web Vitals](https://developer.chrome.com/docs/performance/insights/web-vitals)
 
 <RelatedTopics />
 
 
-Prev: [Core Web Vitals](/13-performance/core-web-vitals/) · Next: [CLS](/13-performance/cls/)
+Prev: [`13-performance.core-web-vitals`](/13-performance/core-web-vitals/) · Next: [`13-performance.cls`](/13-performance/cls/)

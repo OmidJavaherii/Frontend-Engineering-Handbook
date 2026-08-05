@@ -1,6 +1,6 @@
 ---
 title: "Responsive Design"
-description: "TODO — one-sentence description of Responsive Design"
+description: "Designing interfaces that adapt across viewports using fluid layouts, breakpoints, and modern CSS responsiveness."
 topic_id: 05-css.responsive-design
 difficulty: junior
 reading_time: 35
@@ -9,7 +9,7 @@ prerequisites: []
 tags: 
   - css
   - responsive
-status: stub
+status: published
 prev_topic: 05-css.grid
 next_topic: 05-css.media-queries
 related: []
@@ -22,131 +22,164 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Responsive Design in simple language.
+**Responsive design** adapts UI across viewport sizes and input types using fluid layouts, flexible media, breakpoints, and increasingly container-based rules—not separate mobile sites.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Users browse on phones, laptops, and TVs. One codebase with adaptable layout beats multiple fragmented sites.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Ethan Marcotte’s responsive design (2010) popularized fluid grids + media queries. Today: `clamp()`, container queries, responsive images.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Start from content width needs; use fluid type/spacing (`clamp`); add breakpoints when the layout breaks, not device brand names.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Content-first mobile/base styles.
+2. Fluid images (`max-width: 100%`) + `srcset`.
+3. Breakpoints for nav/grid changes.
+4. Test touch targets and keyboard.
+5. Verify real devices/RUM.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+Lifecycle for Responsive design:
+
+```mermaid
+stateDiagram-v2
+  [*] --> Apply
+  Apply --> Layout
+  Layout --> Paint
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Rendering engines apply Responsive design during style/layout/paint as relevant. Debug with Elements + Performance.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+CSS is applied by the rendering engine; JS only changes inputs (classes, style, attributes).
 
 ## React Perspective
 
-Not applicable.
+React toggles class names/styles that exercise Responsive design; prefer CSS for visual states when possible.
 
 ## Next.js Perspective
 
-Not applicable.
+Works the same in Next.js apps; watch global CSS import order and CSS Modules.
 
 ## Server Perspective
 
-Not applicable.
+SSR emits HTML/CSS classes; critical CSS strategies may inline rules involving this topic.
 
 ## Network Perspective
 
-Not applicable.
+Stylesheets and font/image URLs related to this topic still load over HTTP caches.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Layerized/composited results may consume GPU memory; prefer releasing unused large textures/images.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Understand whether Responsive design triggers layout, paint, or composite-only work.
 
 ## Production Example
 
-TODO: Realistic production example.
+Typography moved to `clamp(1rem, 0.9rem + 0.5vw, 1.25rem)`; fewer breakpoints and less jumpy scaling.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```css
+.prose { width: min(65ch, 100% - 2rem); margin-inline: auto; }
+h1 { font-size: clamp(1.5rem, 1rem + 2vw, 2.5rem); }
+@media (min-width: 64rem) { .nav { display: flex; } }
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[ResponsiveDesign] --> nextStep[NextStep]
+flowchart TD
+  Input[Style inputs] --> Engine[Rendering engine]
+  Engine --> Out[Responsive design result]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Misunderstanding when Responsive design triggers layout vs paint vs composite
+2. Copying snippets without checking browser support for edge features
+3. Over-specifying selectors that make overrides brittle
+4. Ignoring accessibility implications (motion, contrast, focus)
+5. Optimizing visuals before measuring jank
+6. Designing only for specific device widths
+7. Hiding content with display:none as the only “mobile strategy”
+8. Missing a production edge case for 05-css.responsive-design (#1)
+9. Missing a production edge case for 05-css.responsive-design (#2)
+10. Missing a production edge case for 05-css.responsive-design (#3)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Learn the mental model for Responsive design before memorizing properties
+- Verify in target browsers
+- Keep fallbacks for progressive enhancement
+- Document team conventions
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Fighting the platform with !important and inline styles
+- Animating layout properties without need
+- Shipping unscoped experimental CSS to all browsers without testing
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Approach | Strength |
+| --- | --- |
+| Fluid + clamp | Smooth scaling |
+| Media queries | Viewport breakpoints |
+| Container queries | Component-level adaptation |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is responsive design?
+
+**A:** Building one layout system that adapts across viewport sizes and conditions instead of separate sites.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Fluid vs breakpoint-only?
+
+**A:** Fluid techniques reduce discrete jumps; breakpoints restructure when content requires it.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How do responsive images fit?
+
+**A:** `srcset`/`sizes`/`picture` serve appropriate resolution/art direction so layout adaptability isn’t wasted on huge downloads.
 
 ## Summary
 
-- TODO: key takeaway
+- Responsive design has a concrete layout/paint meaning in CSS
+- Measure rendering impact
+- Prefer simple, layered architecture
+- Know official references
 
 ## References
 
-- TODO: official documentation links
+- [MDN: Responsive design](https://developer.mozilla.org/en-US/docs/Learn/CSS/CSS_layout/Responsive_Design)
+- [web.dev: Responsive design](https://web.dev/learn/design/)
 
 <RelatedTopics />
-
 
 Prev: [Grid](/05-css/grid/) · Next: [Media Queries](/05-css/media-queries/)

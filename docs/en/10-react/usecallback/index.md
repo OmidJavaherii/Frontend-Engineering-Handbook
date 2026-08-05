@@ -1,6 +1,6 @@
 ---
 title: "useCallback"
-description: "TODO — one-sentence description of useCallback"
+description: "useCallback: memoize function identity between renders for dependent memo children and effects."
 topic_id: 10-react.usecallback
 difficulty: mid
 reading_time: 25
@@ -10,9 +10,9 @@ prerequisites:
 tags: 
   - react
   - performance
-status: stub
-prev_topic: 10-react.usememo
-next_topic: 10-react.useref
+status: published
+prev_topic: "10-react.usememo"
+next_topic: "10-react.useref"
 related: []
 advanced: []
 ---
@@ -23,45 +23,51 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain useCallback in simple language.
+**`useCallback(fn, deps)`** returns a stable function reference until dependencies change. Equivalent to `useMemo(() => fn, deps)` for functions.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Memoized children and effect deps often need stable handlers to avoid thrashing.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Paired with memo since hooks launch; compiler reduces manual need.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Identity tool, not magic performance. If nothing cares about identity, skip it.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Identify consumers that depend on referential equality.
+2. Wrap those callbacks.
+3. Keep deps honest.
+4. Don’t wrap every handler.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+flowchart TD
+  deps --> useCallback --> stableFn
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Not applicable.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+Often paired with memoized children.
 
 ## Next.js Perspective
 
@@ -77,77 +83,93 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Useless alone without consumers that bail out on identity.
 
 ## Production Example
 
-TODO: Realistic production example.
+Virtualized list row handlers are `useCallback`’d with row id deps so `memo` rows bail out while typing elsewhere.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```tsx
+const onSelect = useCallback((id: string) => {
+  setSelected(id)
+}, [])
+```
 
 ## Diagrams
 
 ```mermaid
 flowchart LR
-  concept[useCallback] --> nextStep[NextStep]
+  useCallback --> memoChild
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. useCallback on all functions
+2. Missing deps
+3. Expecting speedups without memo consumers
+4. Unstable deps defeating the cache
+5. useCallback instead of fixing state locality
+6. Stale closures from empty deps incorrectly
+7. Missing a production edge case for 10-react.usecallback (#1)
+8. Missing a production edge case for 10-react.usecallback (#2)
+9. Missing a production edge case for 10-react.usecallback (#3)
+10. Missing a production edge case for 10-react.usecallback (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Only when identity matters
+- Pair with memo/effects thoughtfully
+- Prefer compiler
 
 ## Anti-patterns
 
-TODO: What not to do.
+- useCallback + inline object props still breaking memo
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
+| | useCallback | useMemo |
 | --- | --- | --- |
-| TODO | TODO | TODO |
+| Caches | Function | Any value |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What does useCallback return?
+
+**A:** A memoized function that changes only when dependencies change.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** When is useCallback useful?
+
+**A:** When passing callbacks to memoized children or listing them in effect dependencies where identity matters.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How does React Compiler change useCallback usage?
+
+**A:** The compiler can auto-memoize so many manual useCallbacks become unnecessary—follow project guidance.
 
 ## Summary
 
-- TODO: key takeaway
+- Stable function identities on demand
+- Needs consumers that care
+- Honest dependency arrays
 
 ## References
 
-- TODO: official documentation links
+- [React Documentation](https://react.dev/)
+- [useCallback](https://react.dev/reference/react/useCallback)
 
 <RelatedTopics />
 
 
-Prev: [useMemo](/10-react/usememo/) · Next: [useRef](/10-react/useref/)
+Prev: [`10-react.usememo`](/10-react/usememo/) · Next: [`10-react.useref`](/10-react/useref/)

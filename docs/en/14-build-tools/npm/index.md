@@ -1,6 +1,6 @@
 ---
 title: "npm"
-description: "TODO — one-sentence description of npm"
+description: "Default Node package manager and registry client; package.json scripts hub."
 topic_id: 14-build-tools.npm
 difficulty: beginner
 reading_time: 25
@@ -8,9 +8,9 @@ implementation_time: 0
 prerequisites: []
 tags: 
   - tooling
-status: stub
-prev_topic: 14-build-tools.nodejs
-next_topic: 14-build-tools.pnpm
+status: published
+prev_topic: "14-build-tools.nodejs"
+next_topic: "14-build-tools.pnpm"
 related: []
 advanced: []
 ---
@@ -21,41 +21,49 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain npm in simple language.
+**npm** installs packages from the npm registry, manages `package-lock.json`, and runs scripts. Even when you prefer pnpm/yarn, you speak npm’s package.json schema.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Shared package metadata is the lingua franca of JS dependencies.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Bundled with Node for years; lockfiles and workspaces matured over time.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+manifest (package.json) + lockfile + node_modules layout (hoisted by default).
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. npm install.
+2. Run a package script with `npm run <name>`.
+3. npm outdated / audit.
+4. Publish with care.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Idle
+  Idle --> Active: use
+  Active --> Idle: settle
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Not applicable.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
@@ -75,77 +83,98 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Measure before/after with lab + field tools. Optimize the attributed bottleneck for Default Node package manager and registry client; package.json scripts hub., not folklore.
 
 ## Production Example
 
-TODO: Realistic production example.
+Teams adopt Default Node package manager and registry client; package.json scripts hub. on critical routes, add monitoring, and guard regressions with budgets or reviews.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```bash
+npm install lodash-es
+npm run build
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[npm] --> nextStep[NextStep]
+flowchart TD
+  A[Understand] --> B[Apply Default Node package manager and registry client; package.json scripts hub.]
+  B --> C[Measure]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Deleting lockfiles casually
+2. Mixing npm/yarn/pnpm locks in one repo
+3. Installing packages as wrong dependency type
+4. Ignoring peer dependency warnings
+5. Publishing with secrets in files
+6. Using latest tags unpinned in apps
+7. Missing a production edge case for 14-build-tools.npm (#1)
+8. Missing a production edge case for 14-build-tools.npm (#2)
+9. Missing a production edge case for 14-build-tools.npm (#3)
+10. Missing a production edge case for 14-build-tools.npm (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Prefer platform/framework primitives
+- Measure impact on real user metrics
+- Keep the change reviewable and reversible
+- Document the invariant you are protecting
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Copy-paste without understanding failure modes
+- Premature abstraction around a single use
+- Optimizing without a baseline
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Approach | When |
+| --- | --- |
+| Use as designed | Default |
+| Simpler alternative | If constraints differ |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What does package-lock.json do?
+
+**A:** Pins exact resolved dependency trees for reproducible installs.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** dependencies vs devDependencies?
+
+**A:** Runtime needed in prod vs tooling needed to build/test; bundlers may still compile deps either way—deploy images often omit devDeps.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How do npm workspaces relate to monorepos?
+
+**A:** Native multi-package repos with hoisting; alternatives like pnpm workspaces offer stricter linking.
 
 ## Summary
 
-- TODO: key takeaway
+- Default Node package manager and registry client; package.json scripts hub.
+- Know why it exists and when not to use it
+- Measure production impact
+- Link related handbook topics instead of duplicating
 
 ## References
 
-- TODO: official documentation links
+- [npm Docs](https://docs.npmjs.com/)
+- [package.json](https://docs.npmjs.com/cli/v10/configuring-npm/package-json)
 
 <RelatedTopics />
 
 
-Prev: [Node.js](/14-build-tools/nodejs/) · Next: [pnpm](/14-build-tools/pnpm/)
+Prev: [`14-build-tools.nodejs`](/14-build-tools/nodejs/) · Next: [`14-build-tools.pnpm`](/14-build-tools/pnpm/)

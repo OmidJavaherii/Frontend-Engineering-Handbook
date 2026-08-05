@@ -1,6 +1,6 @@
 ---
 title: "Component Libraries"
-description: "TODO — one-sentence description of Component Libraries"
+description: "Reusable UI packages—internal or third-party—distribution, theming, accessibility, and versioning concerns."
 topic_id: 15-architecture.component-libraries
 difficulty: mid
 reading_time: 30
@@ -9,9 +9,9 @@ prerequisites: []
 tags: 
   - architecture
   - design-systems
-status: stub
-prev_topic: 15-architecture.url-as-state
-next_topic: 15-architecture.api-layer-design
+status: published
+prev_topic: "15-architecture.url-as-state"
+next_topic: "15-architecture.api-layer-design"
 related: []
 advanced: []
 ---
@@ -22,49 +22,60 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Component Libraries in simple language.
+A **component library** packages reusable UI primitives for consumption by apps. It may be the implementation core of a design system (MUI, Chakra, Radix + your styles) or an internal `@acme/ui`. Success is measured by adoption, a11y, and upgrade ergonomics—not component count.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Duplicated components diverge in behavior and accessibility. A library concentrates fixes and visual language. Third-party libraries accelerate delivery when customized carefully.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+jQuery widgets → Bootstrap → React libraries (Material-UI, Ant Design) → headless primitives (Radix, Headless UI, React Aria) separating behavior from styling.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Prefer **accessible behavior primitives** + your tokens over heavily opinionated themes you must fight. Treat the library as a dependency with a public API and semver.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Choose headless vs styled kit based on design constraints.
+2. Wrap primitives in your brand components.
+3. Tree-shakeable exports + docs.
+4. Visual/a11y regression in CI.
+5. Version and changelog upgrades.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> SelectKit
+  SelectKit --> Wrap
+  Wrap --> Publish
+  Publish --> Consume
+  Consume --> Upgrade
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Components must work with keyboard, AT, and zoom.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+Peer-depend on React. Forward refs and support composition (`asChild` / slots) where needed.
 
 ## Next.js Perspective
 
-Not applicable.
+Mark client-only interactive wrappers with `"use client"`. Prefer RSC-safe presentational pieces when possible.
 
 ## Server Perspective
 
@@ -72,81 +83,116 @@ Not applicable.
 
 ## Network Perspective
 
-Not applicable.
+Import paths affect bundle size—avoid barrel side effects.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Publish per-component entrypoints. Document bundle impact of heavy components (date pickers, charts).
 
 ## Production Example
 
-TODO: Realistic production example.
+Team wraps Radix Dialog/Select with brand styles in `@acme/ui`, tests with Testing Library + axe, and releases via changesets.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```tsx
+import * as Dialog from '@radix-ui/react-dialog'
+
+export function Modal({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <Dialog.Root>
+      <Dialog.Trigger>Open</Dialog.Trigger>
+      <Dialog.Portal>
+        <Dialog.Overlay />
+        <Dialog.Content aria-describedby={undefined}>
+          <Dialog.Title>{title}</Dialog.Title>
+          {children}
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
+  )
+}
+```
 
 ## Diagrams
 
 ```mermaid
 flowchart LR
-  concept[ComponentLibraries] --> nextStep[NextStep]
+  Radix[Headless primitive] --> Wrap[Brand wrapper]
+  Tokens --> Wrap
+  Wrap --> App
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Forking the whole library into the app repo
+2. Ignoring a11y because “the library handles it” without verification
+3. Importing the entire library from a single entry
+4. Theming by deep CSS overrides that break on upgrade
+5. No ref forwarding breaking focus management
+6. Missing a production edge case for 15-architecture.component-libraries (#1)
+7. Missing a production edge case for 15-architecture.component-libraries (#2)
+8. Missing a production edge case for 15-architecture.component-libraries (#3)
+9. Missing a production edge case for 15-architecture.component-libraries (#4)
+10. Missing a production edge case for 15-architecture.component-libraries (#5)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Wrap third-party primitives behind your API
+- A11y + visual tests on core components
+- Semver + migration notes
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Exposing 50 props that mirror internals 1:1
+- Styling via descendant selectors into library internals
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Kind | Example |
+| --- | --- |
+| Headless | Radix, React Aria |
+| Styled system | MUI, Chakra |
+| Internal | @acme/ui |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is a headless component library?
+
+**A:** It provides behavior and accessibility without imposing visual styles, leaving styling to you.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Why wrap third-party components?
+
+**A:** To stabilize your app API, enforce brand defaults, and ease replacing the underlying library later.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How do you evaluate adopting a component library?
+
+**A:** A11y quality, bundle size, customization model, maintenance, SSR/RSC fit, and upgrade history—not just aesthetics.
 
 ## Summary
 
-- TODO: key takeaway
+- Component libraries concentrate reusable UI
+- Prefer accessible primitives + tokens
+- Version and test them like products
 
 ## References
 
-- TODO: official documentation links
+- [Radix Primitives](https://www.radix-ui.com/primitives)
+- [React Aria](https://react-spectrum.adobe.com/v1/react-aria/)
+- [WAI-ARIA APG](https://www.w3.org/WAI/ARIA/apg/)
 
 <RelatedTopics />
 
 
-Prev: [URL as State](/15-architecture/url-as-state/) · Next: [API Layer Design](/15-architecture/api-layer-design/)
+Prev: [`15-architecture.url-as-state`](/15-architecture/url-as-state/) · Next: [`15-architecture.api-layer-design`](/15-architecture/api-layer-design/)

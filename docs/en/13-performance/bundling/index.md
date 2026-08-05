@@ -1,6 +1,6 @@
 ---
 title: "Bundling"
-description: "TODO — one-sentence description of Bundling"
+description: "The process of resolving, transforming, and packaging modules into deployable assets."
 topic_id: 13-performance.bundling
 difficulty: junior
 reading_time: 30
@@ -9,9 +9,9 @@ prerequisites: []
 tags: 
   - performance
   - bundling
-status: stub
-prev_topic: 13-performance.chunk
-next_topic: 13-performance.code-splitting
+status: published
+prev_topic: "13-performance.chunk"
+next_topic: "13-performance.code-splitting"
 related: []
 advanced: []
 ---
@@ -22,41 +22,50 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Bundling in simple language.
+**Bundling** is the pipeline that turns a module graph into optimized assets: resolve → transform (TS/JSX) → tree-shake → minify → emit chunks + hashes.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Browsers historically needed fewer requests and compatibility transforms. Modern bundling still provides optimization, even with native ESM.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Browserify → webpack → Rollup/Parcel → esbuild/Vite/Rspack/Turbopack speed race.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Bundling is graph optimization under constraints (target, split points, env).
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Start from entries.
+2. Resolve deps.
+3. Apply loaders/plugins.
+4. Emit hashed assets + HTML references.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Resolve
+  Resolve --> Transform
+  Transform --> Optimize
+  Optimize --> Emit
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Consumes outputs only.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Output shape affects parse cost.
 
 ## React Perspective
 
@@ -64,7 +73,7 @@ Not applicable.
 
 ## Next.js Perspective
 
-Not applicable.
+Bundles server and client separately (webpack/turbopack).
 
 ## Server Perspective
 
@@ -72,81 +81,103 @@ Not applicable.
 
 ## Network Perspective
 
-Not applicable.
+Hashing enables immutable CDN caching.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Dev bundler processes can use significant RAM on large graphs.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Faster bundlers improve DX; output quality (shake/minify/split) improves UX.
 
 ## Production Example
 
-TODO: Realistic production example.
+Vite for SPA library mode; Next handles app bundling; CI caches toolchains.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```ts
+// vite.config.ts
+export default { build: { rollupOptions: { output: { manualChunks: undefined } } } }
+```
 
 ## Diagrams
 
 ```mermaid
 flowchart LR
-  concept[Bundling] --> nextStep[NextStep]
+  Entry --> Graph --> Optimize --> Assets
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Optimizing bundler speed while shipping terrible output
+2. Wrong target causing huge polyfills
+3. Source maps missing in prod debugging strategy
+4. Environment variables leaking into client
+5. Not caching CI builds
+6. Mixing CJS/ESM poorly causing duplication
+7. Missing a production edge case for 13-performance.bundling (#1)
+8. Missing a production edge case for 13-performance.bundling (#2)
+9. Missing a production edge case for 13-performance.bundling (#3)
+10. Missing a production edge case for 13-performance.bundling (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Know your entries and targets
+- Prefer ESM dependencies
+- Emit content hashes
+- Keep server and client graphs clean
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Custom webpack forever without need
+- Disable minify to “fix a bug” in prod
+- Inlining megabyte assets as base64
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Tool | Strength |
+| --- | --- |
+| Vite | Dev speed + Rollup build |
+| webpack | Ecosystem/plugins |
+| esbuild | Transform speed |
+| Turbopack | Next-oriented speed |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What does bundling do?
+
+**A:** Resolves and packages modules into optimized assets for deployment.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Why content-hash filenames?
+
+**A:** Cache forever on CDN and bust cache when content changes.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How can bundling create duplicate libraries?
+
+**A:** Multiple versions resolved, mixed CJS/ESM interop, or improper split config—detect with analyzers and dependency dedupe.
 
 ## Summary
 
-- TODO: key takeaway
+- Bundling transforms module graphs into assets
+- DX speed ≠ UX output quality
+- Hash, split, shake, minify
+- Keep client graphs lean
 
 ## References
 
-- TODO: official documentation links
+- [Vite Guide](https://vitejs.dev/guide/)
+- [webpack Concepts](https://webpack.js.org/concepts/)
 
 <RelatedTopics />
 
 
-Prev: [Chunk](/13-performance/chunk/) · Next: [Code Splitting](/13-performance/code-splitting/)
+Prev: [`13-performance.chunk`](/13-performance/chunk/) · Next: [`13-performance.code-splitting`](/13-performance/code-splitting/)

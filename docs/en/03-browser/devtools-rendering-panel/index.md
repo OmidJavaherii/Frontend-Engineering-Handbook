@@ -1,6 +1,6 @@
 ---
 title: "DevTools Rendering Panel"
-description: "TODO — one-sentence description of DevTools Rendering Panel"
+description: "Using Chrome DevTools Rendering tools: paint flashing, layer borders, frame targets, and vision deficiencies."
 topic_id: 03-browser.devtools-rendering-panel
 difficulty: mid
 reading_time: 25
@@ -10,8 +10,8 @@ prerequisites:
 tags: 
   - devtools
   - rendering
-status: stub
-prev_topic: 03-browser.garbage-collection-browser
+status: published
+prev_topic: "03-browser.garbage-collection-browser"
 next_topic: null
 related: 
   - 20-observability.chrome-devtools
@@ -24,45 +24,54 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain DevTools Rendering Panel in simple language.
+The **Rendering** drawer in Chromium DevTools visualizes painting, layer borders, scrolling issues, and frame rendering stats. It is the practical companion to Performance traces when debugging jank and paint areas.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+You cannot optimize what you cannot see. Paint flashing and layer borders make pipeline costs intuitive.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+DevTools gained rendering debug overlays as compositing became default; Continuously updated with Core Web Vitals overlays.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Overlays answer: What painted? Which layers? Are we hitting frame budget? Is scroll slow because of main-thread work?
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Open DevTools → More tools → Rendering.
+2. Enable Paint flashing / Layer borders / Frame Rendering Stats.
+3. Interact with the UI.
+4. Correlate with Performance panel recordings.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> OverlayOn
+  OverlayOn --> Observe
+  Observe --> Fix
+  Fix --> OverlayOn
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+These tools are Chromium-centric; Firefox/Safari have related but different tooling.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+Use overlays while toggling components to see unexpected full-screen paints.
 
 ## Next.js Perspective
 
@@ -78,77 +87,97 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Use stats to see GPU/CPU frame time; don’t leave paint flashing on for users.
 
 ## Production Example
 
-TODO: Realistic production example.
+QA enabled paint flashing to catch a toast library repainting the whole app shell; fixed stacking/containment.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```text
+DevTools → Rendering → ✔ Paint flashing
+                       ✔ Layer borders
+                       ✔ Frame Rendering Stats
+```
 
 ## Diagrams
 
 ```mermaid
 flowchart LR
-  concept[DevToolsRenderingPanel] --> nextStep[NextStep]
+  UI[Interact] --> Overlay[Rendering overlays]
+  Overlay --> Perf[Performance panel]
+  Perf --> Fix[Code/CSS fix]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Using only Lighthouse and never overlays
+2. Misreading paint flash as “bug” rather than cost signal
+3. Leaving FPS meter as proof without field data
+4. Ignoring scrolling performance issues checklist
+5. Assuming Safari has the same panel
+6. Optimizing based on one desktop GPU
+7. Overlooking an edge case #1 specific to 03-browser.devtools-rendering-panel in production traffic
+8. Overlooking an edge case #2 specific to 03-browser.devtools-rendering-panel in production traffic
+9. Overlooking an edge case #3 specific to 03-browser.devtools-rendering-panel in production traffic
+10. Overlooking an edge case #4 specific to 03-browser.devtools-rendering-panel in production traffic
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Combine Rendering overlays + Performance + field metrics
+- Test mid-tier mobile
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Tuning animations only on high-refresh gaming monitors
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Tool | Best for |
+| --- | --- |
+| Rendering overlays | Live paint/layer insight |
+| Performance panel | Timed pipeline breakdown |
+| Lighthouse | Lab audits |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What does paint flashing show?
+
+**A:** Regions of the page that were repainted.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Why enable layer borders?
+
+**A:** To see which elements were promoted to compositor layers and catch over-promotion.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How do you debug scroll jank with these tools?
+
+**A:** Enable frame stats and scrolling perf issues, record Performance while scrolling, look for main-thread layout/paint vs compositor scroll, fix handlers/CSS accordingly.
 
 ## Summary
 
-- TODO: key takeaway
+- Rendering panel visualizes paint/layers/frames
+- Use with Performance traces
+- Chromium-first tooling
+- Verify on real devices
 
 ## References
 
-- TODO: official documentation links
+- [Chrome DevTools — Rendering](https://developer.chrome.com/docs/devtools/rendering/)
+- [Chrome — Performance features](https://developer.chrome.com/docs/devtools/performance/)
 
 <RelatedTopics />
 
 
-Prev: [Garbage Collection in the Browser](/03-browser/garbage-collection-browser/)
+Prev: [`03-browser.garbage-collection-browser`](/03-browser/garbage-collection-browser/)

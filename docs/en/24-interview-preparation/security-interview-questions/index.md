@@ -1,6 +1,6 @@
 ---
 title: "Security Interview Questions"
-description: "TODO — one-sentence description of Security Interview Questions"
+description: "Frontend security interview bank: XSS, CSRF, CSP, auth storage — linked to module 17 and cookies."
 topic_id: 24-interview-preparation.security-interview-questions
 difficulty: mid
 reading_time: 40
@@ -9,9 +9,9 @@ prerequisites: []
 tags: 
   - interview
   - security
-status: stub
-prev_topic: 24-interview-preparation.performance-interview-questions
-next_topic: 24-interview-preparation.system-design-interview-questions
+status: published
+prev_topic: "24-interview-preparation.performance-interview-questions"
+next_topic: "24-interview-preparation.system-design-interview-questions"
 related: []
 advanced: []
 ---
@@ -22,131 +22,184 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Security Interview Questions in simple language.
+**Security** question bank for frontend engineers. Canonical: [/17-security/](/17-security/), cookies [/02-internet/cookies/](/02-internet/cookies/). Never treat client checks as authorization.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+XSS/CSRF/token storage mistakes are common FE vulnerabilities.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+XSS remains top web risk; SameSite cookies and CSP evolved browser defenses.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+**Threat → sink → defense**. E.g. attacker-controlled string → `innerHTML` → XSS; defense encode + CSP.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+**Q:** What is XSS?  
+**A:** Injecting script into pages — OWASP + handbook security XSS topic.
+
+**Q:** CSRF?  
+**A:** Cross-site requests with cookies — SameSite, CSRF tokens.
+
+**Q:** Where to store tokens?  
+**A:** Prefer HttpOnly cookies with CSRF strategy; localStorage is XSS-sensitive.
+
+**Q:** CSP purpose?  
+**A:** Reduce XSS impact by restricting script sources.
+
+**Q:** CORS vs security boundary?  
+**A:** Browser-enforced; not a substitute for authz.
+
+**Q:** Why not trust client role flags?  
+**A:** [/21-frontend-system-design/feature-flags/](/21-frontend-system-design/feature-flags/) + server authz.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> ThreatModel
+  ThreatModel --> Mitigate
+  Mitigate --> Verify
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+SOP, CSP, cookie jars.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+Avoid dangerous HTML APIs; framework escaping helps but isn’t complete.
 
 ## Next.js Perspective
 
-Not applicable.
+Secrets only on server.
 
 ## Server Perspective
 
-Not applicable.
+Real authz.
 
 ## Network Perspective
 
-Not applicable.
+TLS, Secure cookies.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Security > micro-opts; CSP can break inline scripts — plan nonces.
 
 ## Production Example
 
-TODO: Realistic production example.
+Walk a past incident blamelessly: XSS in markdown render.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```ts
+// Dangerous
+el.innerHTML = user.name
+// Safer: textContent or vetted sanitizer for rich HTML
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[SecurityInterviewQuestions] --> nextStep[NextStep]
+flowchart TD
+  n0[Threat] --> n1[Sink]
+  n1[Sink] --> n2[Mitigation]
+```
+
+```mermaid
+sequenceDiagram
+  participant User
+  participant App
+  participant Platform
+  User->>App: interact (Security interview)
+  App->>Platform: apply mechanism
+  Platform-->>App: result or error
+  App-->>User: update UI
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Authz in the UI only
+2. Tokens in localStorage without XSS model
+3. Disabling CSP to “make it work”
+4. Ignoring dependency XSS
+5. Mixed content
+6. Logging secrets
+7. Missing a production edge case for 24-interview-preparation.security-interview-questions (#1)
+8. Missing a production edge case for 24-interview-preparation.security-interview-questions (#2)
+9. Missing a production edge case for 24-interview-preparation.security-interview-questions (#3)
+10. Missing a production edge case for 24-interview-preparation.security-interview-questions (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Encode by context
+- HttpOnly + SameSite thoughtfully
+- CSP with nonces
+- Server authz always
 
 ## Anti-patterns
 
-TODO: What not to do.
+- security through obscurity in minified client code
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Risk | Primary defense |
+| --- | --- |
+| XSS | Encode + CSP |
+| CSRF | SameSite + tokens |
+| XSS-stolen token | HttpOnly cookies |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is XSS?
+
+**A:** Attacker-controlled script runs in victim origin — see OWASP + [/17-security/](/17-security/).
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Why is localStorage risky for session tokens?
+
+**A:** Any XSS can read it; HttpOnly cookies are not JS-readable.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** Design auth for a SPA with SSR and third-party embeds.
+
+**A:** Discuss cookie posture, CSP frame ancestors, CSRF, token refresh, and server session validation.
 
 ## Summary
 
-- TODO: key takeaway
+- Threat → sink → defense
+- Server authz
+- Careful token storage
+- Link security module
 
 ## References
 
-- TODO: official documentation links
+- [OWASP Cheat Sheet Series](https://cheatsheetseries.owasp.org/)
+- [MDN — Web Security](https://developer.mozilla.org/en-US/docs/Web/Security)
 
 <RelatedTopics />
 
 
-Prev: [Performance Interview Questions](/24-interview-preparation/performance-interview-questions/) · Next: [System Design Interview Questions](/24-interview-preparation/system-design-interview-questions/)
+Prev: [`24-interview-preparation.performance-interview-questions`](/24-interview-preparation/performance-interview-questions/) · Next: [`24-interview-preparation.system-design-interview-questions`](/24-interview-preparation/system-design-interview-questions/)

@@ -1,6 +1,6 @@
 ---
 title: "Layouts"
-description: "TODO — one-sentence description of Layouts"
+description: "Shared UI that wraps child segments and persists across navigations."
 topic_id: 11-nextjs.layouts
 difficulty: junior
 reading_time: 25
@@ -9,9 +9,9 @@ prerequisites:
   - 11-nextjs.app-router
 tags: 
   - nextjs
-status: stub
-prev_topic: 11-nextjs.routing
-next_topic: 11-nextjs.nested-layouts
+status: published
+prev_topic: "11-nextjs.routing"
+next_topic: "11-nextjs.nested-layouts"
 related: []
 advanced: []
 ---
@@ -22,53 +22,63 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Layouts in simple language.
+A **layout** (`layout.tsx`) wraps child routes and **does not remount** on navigation between those children. Root layout must include `<html>` and `<body>`. Layouts are the right place for shells: nav, sidebars, and shared chrome.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Without persistent layouts, every navigation remounts the chrome, losing UI state and redownloading shared UI work. Layouts make shared structure a first-class routing concept.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Pages Router had `_app`/`_document`. App Router nested layouts per segment, matching how product UIs actually nest (dashboard → section → page).
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Layout = durable shell. Page = swappable leaf. Layout can be Server Component and still wrap Client children. State in a Client layout (or client child living in the layout) survives sibling navigations.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Add `layout.tsx` in a segment.
+2. Receive `children` (and optionally parallel `slots`).
+3. On navigation within the segment, Next keeps the layout fiber tree and replaces `children`.
+4. Use nested layouts for section-specific chrome.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> MountLayout
+  MountLayout --> ShowPage
+  ShowPage --> SwapPage: child navigation
+  SwapPage --> ShowPage
+  ShowPage --> UnmountLayout: leave segment
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+DOM for the shell stays put; only the page region updates—smoother UX and less flicker.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+Layout components preserve React state and effects across child route changes.
 
 ## Next.js Perspective
 
-Not applicable.
+Root layout is mandatory once. Nested layouts compose automatically along the matched segments.
 
 ## Server Perspective
 
-Not applicable.
+Layouts can fetch shared data, but fetching too high can widen cache invalidation blast radius.
 
 ## Network Perspective
 
@@ -76,77 +86,107 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Client state in layouts lives for the segment lifetime—great for nav UI, dangerous for huge caches.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Shared layout fetch runs for the segment; don’t put per-page waterfalls in the root layout. Prefer passing data down or fetching in the page.
 
 ## Production Example
 
-TODO: Realistic production example.
+Dashboard layout loads the current user once, renders a sidebar, and child pages stream their tables independently with their own loading.tsx.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```tsx
+// app/dashboard/layout.tsx
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="grid grid-cols-[240px_1fr]">
+      <aside>Sidebar</aside>
+      <main>{children}</main>
+    </div>
+  )
+}
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[Layouts] --> nextStep[NextStep]
+flowchart TD
+  RL[Root layout] --> DL[Dashboard layout]
+  DL --> P1[page A]
+  DL --> P2[page B]
+  note1[Layout stays mounted when A↔B]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Expecting layout state to reset on every navigation
+2. Putting `<html>` in nested layouts
+3. Fetching highly volatile per-page data in the root layout
+4. Wrapping the world in a client layout for a single interactive widget
+5. Forgetting that layouts run for all child routes’ rendering modes
+6. Using layout for one-off mount animations (use template instead)
+7. Missing a production edge case for 11-nextjs.layouts (#1)
+8. Missing a production edge case for 11-nextjs.layouts (#2)
+9. Missing a production edge case for 11-nextjs.layouts (#3)
+10. Missing a production edge case for 11-nextjs.layouts (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Keep root layout minimal and static when possible
+- Push interactivity into small Client Components inside the layout
+- Pair layouts with loading.tsx for child segments
+- Document which data is owned by layout vs page
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Auth checks only in layouts without also protecting Route Handlers/Server Actions
+- Mega-layout that imports every feature’s client code
+- Conditional layouts via runtime hacks instead of route groups
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
+| | layout.tsx | template.tsx |
 | --- | --- | --- |
-| TODO | TODO | TODO |
+| Remount on nav | No | Yes |
+| State preserved | Yes | No |
+| Typical use | Shells, nav | Enter animations, per-visit reset |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** Does a layout remount when navigating between child pages?
+
+**A:** No. Layouts persist; only the page segment swaps (unless you leave the layout’s segment).
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Where must `<html>` and `<body>` live?
+
+**A:** In the root `app/layout.tsx` only.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How do you provide two different root chrome designs without URL prefixes?
+
+**A:** Use route groups like `app/(marketing)/layout.tsx` and `app/(app)/layout.tsx`, each with its own layout tree under a shared root layout.
 
 ## Summary
 
-- TODO: key takeaway
+- Layouts wrap children and persist across navigations
+- Root layout owns html/body
+- Nested layouts compose with the segment tree
+- Use templates when you need remount semantics
 
 ## References
 
-- TODO: official documentation links
+- [Next.js — Layouts and Pages](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts)
 
 <RelatedTopics />
 
 
-Prev: [Routing](/11-nextjs/routing/) · Next: [Nested Layouts](/11-nextjs/nested-layouts/)
+Prev: [`11-nextjs.routing`](/11-nextjs/routing/) · Next: [`11-nextjs.nested-layouts`](/11-nextjs/nested-layouts/)

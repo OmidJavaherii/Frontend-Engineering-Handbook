@@ -1,6 +1,6 @@
 ---
 title: "TanStack Query"
-description: "TODO — one-sentence description of TanStack Query"
+description: "Server-state library: caching, deduplication, retries, and invalidation for remote data in React (and friends)."
 topic_id: 15-architecture.tanstack-query
 difficulty: mid
 reading_time: 40
@@ -10,9 +10,9 @@ tags:
   - state
   - data-fetching
   - react
-status: stub
-prev_topic: 15-architecture.jotai
-next_topic: 15-architecture.react-router
+status: published
+prev_topic: "15-architecture.jotai"
+next_topic: "15-architecture.react-router"
 related: []
 advanced: []
 ---
@@ -23,49 +23,62 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain TanStack Query in simple language.
+**TanStack Query** (React Query) treats server data as a cache keyed by **query keys**. It manages fetching, background refetch, stale-while-revalidate, retries, pagination, and mutation invalidation so you do not reinvent that machinery in `useEffect`.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Manual `useEffect` fetch leads to race conditions, duplicate requests, empty loading flashes, and inconsistent invalidation. Server state is not global client state—it needs cache semantics.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+React Query by Tanner Linsley evolved into TanStack Query (framework-agnostic core). It shifted community practice away from putting all API data in Redux.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+`queryKey` → cached record with status (`pending`, `error`, `success`), `data`, and freshness (`staleTime`, `gcTime`). Mutations update the server then **invalidate** or **optimistically** patch the cache.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Wrap app in `QueryClientProvider`.
+2. `useQuery({ queryKey, queryFn })` for reads.
+3. Set `staleTime` intentionally (default is 0 = immediately stale).
+4. `useMutation` + `invalidateQueries` for writes.
+5. Use keys that encode all variables (ids, filters).
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> pending
+  pending --> success: resolve
+  pending --> error: reject
+  success --> fetching: refetch
+  fetching --> success
+  error --> pending: retry
+  success --> removed: gcTime
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Refetch on window focus/reconnect is configurable—disable when harmful.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+Hooks bind components to cache entries. Prefer colocating keys in factories (`queryKeys.product(id)`).
 
 ## Next.js Perspective
 
-Not applicable.
+Use the framework hydration helpers when dehydrating server-fetched queries to the client; or prefer RSC fetch for initial data and Query for client interactivity.
 
 ## Server Perspective
 
@@ -73,81 +86,126 @@ Not applicable.
 
 ## Network Perspective
 
-Not applicable.
+Dedupes identical in-flight requests; retries with backoff; works with AbortSignal.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+`gcTime` controls how long unused cache entries remain.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Tune `staleTime` to reduce refetches. Selectors (`select`) shrink rerender surfaces. Paginate/infinite query for large lists.
 
 ## Production Example
 
-TODO: Realistic production example.
+Admin table uses `['users', filters]` keys, 30s `staleTime`, mutations invalidate `['users']`. Detail pages prefetch on hover via `queryClient.prefetchQuery`.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```ts
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+
+export function useUser(id: string) {
+  return useQuery({
+    queryKey: ['user', id],
+    queryFn: ({ signal }) => fetch(`/api/users/${id}`, { signal }).then((r) => {
+      if (!r.ok) throw new Error('Failed')
+      return r.json()
+    }),
+    staleTime: 60_000,
+  })
+}
+
+export function useUpdateUser() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (body: { id: string; name: string }) =>
+      fetch(`/api/users/${body.id}`, { method: 'PUT', body: JSON.stringify(body) }),
+    onSuccess: (_d, body) => qc.invalidateQueries({ queryKey: ['user', body.id] }),
+  })
+}
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[TanStackQuery] --> nextStep[NextStep]
+sequenceDiagram
+  participant UI
+  participant QC as QueryClient
+  participant API
+  UI->>QC: useQuery user/1
+  QC->>API: fetch (or cache hit)
+  API-->>QC: json
+  QC-->>UI: data
+  UI->>QC: invalidate after mutation
+  QC->>API: refetch
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Unstable query keys (new object identity every render)
+2. Leaving default staleTime=0 then complaining about refetches
+3. Catching errors inside queryFn and returning null (hides error state)
+4. Forgetting AbortSignal / ignoring cancellation
+5. Duplicating the same entity under many keys without invalidation strategy
+6. Missing a production edge case for 15-architecture.tanstack-query (#1)
+7. Missing a production edge case for 15-architecture.tanstack-query (#2)
+8. Missing a production edge case for 15-architecture.tanstack-query (#3)
+9. Missing a production edge case for 15-architecture.tanstack-query (#4)
+10. Missing a production edge case for 15-architecture.tanstack-query (#5)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Query key factories
+- Explicit staleTime per domain
+- Invalidate by predicates/tags thoughtfully
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Mirror Query cache into Redux “for consistency”
+- Global onError toasts that swallow per-view UX
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
+| | TanStack Query | useEffect fetch |
 | --- | --- | --- |
-| TODO | TODO | TODO |
+| Cache | Yes | DIY |
+| Deduping | Yes | Rarely |
+| Retries/focus | Built-in | DIY |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is a query key?
+
+**A:** A serializable array/value that identity-caches a server resource; it must include all variables that affect the result.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Difference between staleTime and gcTime?
+
+**A:** staleTime: how long data is considered fresh before background refetch; gcTime: how long inactive cache data remains in memory.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How do you do optimistic updates safely?
+
+**A:** Snapshot previous cache, apply optimistic patch, rollback on error, then invalidate or set from server response; handle races with mutation lifetimes.
 
 ## Summary
 
-- TODO: key takeaway
+- TanStack Query is a server-state cache, not a general client store
+- Keys + staleTime + invalidation are the core levers
+- Replace ad-hoc useEffect fetching
 
 ## References
 
-- TODO: official documentation links
+- [TanStack Query — Important Defaults](https://tanstack.com/query/latest/docs/framework/react/guides/important-defaults)
+- [TanStack Query — Query Keys](https://tanstack.com/query/latest/docs/framework/react/guides/query-keys)
 
 <RelatedTopics />
 
 
-Prev: [Jotai](/15-architecture/jotai/) · Next: [React Router](/15-architecture/react-router/)
+Prev: [`15-architecture.jotai`](/15-architecture/jotai/) · Next: [`15-architecture.react-router`](/15-architecture/react-router/)

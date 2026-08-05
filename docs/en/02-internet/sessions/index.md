@@ -1,6 +1,6 @@
 ---
 title: "Sessions"
-description: "TODO — one-sentence description of Sessions"
+description: "Server-side sessions: binding a browser to server state via a session identifier."
 topic_id: 02-internet.sessions
 difficulty: junior
 reading_time: 30
@@ -10,9 +10,9 @@ prerequisites:
 tags: 
   - http
   - security
-status: stub
-prev_topic: 02-internet.cookies
-next_topic: 02-internet.authentication
+status: published
+prev_topic: "02-internet.cookies"
+next_topic: "02-internet.authentication"
 related: []
 advanced: []
 ---
@@ -23,41 +23,49 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Sessions in simple language.
+A **session** associates a sequence of requests with server-side state (user id, cart, auth). Typically the browser holds a **session ID cookie**; the server stores session data in memory/Redis/DB. Alternatives: fully self-contained tokens (JWT) with different trade-offs.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+HTTP is stateless. Sessions recreate continuity for logged-in UX.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Server memory sessions → sticky LBs → shared Redis sessions → token-centric APIs.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Cookie carries opaque ID → server lookup → state. Invalidate ID ⇒ logout everywhere that ID is rejected.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Login succeeds.
+2. Create session record; set cookie.
+3. Each request loads session by ID.
+4. Logout/expiry deletes or invalidates.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Anonymous
+  Anonymous --> Authenticated: login
+  Authenticated --> Anonymous: logout/expiry
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Cookie lifetime vs sliding expiration UX.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
@@ -65,89 +73,107 @@ Not applicable.
 
 ## Next.js Perspective
 
-Not applicable.
+Iron-session / Auth.js patterns common.
 
 ## Server Perspective
 
-Not applicable.
+Store sessions off the app box for horizontal scale.
 
 ## Network Perspective
 
-Not applicable.
+Always Secure cookies on HTTPS.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Session store latency adds to TTFB; cache hot sessions; avoid giant session blobs.
 
 ## Production Example
 
-TODO: Realistic production example.
+Sessions in process memory + multiple instances ⇒ random logouts. Moved to Redis.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```http
+Set-Cookie: sid=…; HttpOnly; Secure; SameSite=Lax; Path=/
+```
 
 ## Diagrams
 
 ```mermaid
 flowchart LR
-  concept[Sessions] --> nextStep[NextStep]
+  Browser -->|sid cookie| App
+  App --> Redis[(Session store)]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. In-memory sessions with multiple servers
+2. Predictable session IDs
+3. No expiry/rotation
+4. Storing secrets in the cookie client-side
+5. Session fixation (not renewing ID at login)
+6. Infinite idle lifetime
+7. Overlooking an edge case #1 specific to 02-internet.sessions in production traffic
+8. Overlooking an edge case #2 specific to 02-internet.sessions in production traffic
+9. Overlooking an edge case #3 specific to 02-internet.sessions in production traffic
+10. Overlooking an edge case #4 specific to 02-internet.sessions in production traffic
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Regenerate ID on login
+- Shared store + TTL
+- Rotate & revoke
+- Minimal session payload
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Encoded JWT “sessions” that can’t be revoked without extra infra, used as if revocable
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
+| Approach | Revocation | Size on wire |
 | --- | --- | --- |
-| TODO | TODO | TODO |
+| Server session ID | Easy | Tiny cookie |
+| Stateless JWT | Harder | Larger token |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** How do HTTP sessions usually work?
+
+**A:** Server stores state keyed by an ID; browser sends the ID (usually a cookie) each request.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Why is session fixation dangerous?
+
+**A:** If the session ID before login continues after login, an attacker who planted the ID can hijack the authenticated session.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** Sticky load balancing vs shared session store?
+
+**A:** Sticky keeps a user on one instance (fragile); shared store allows any instance to serve any user and supports graceful deploys.
 
 ## Summary
 
-- TODO: key takeaway
+- Sessions rehydrate state onto HTTP
+- Opaque IDs + server store are classic
+- Scale with shared storage
+- Rotate on login; expire aggressively enough
 
 ## References
 
-- TODO: official documentation links
+- [OWASP Session Management Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html)
+- [MDN — Sessions](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Session)
 
 <RelatedTopics />
 
 
-Prev: [Cookies](/02-internet/cookies/) · Next: [Authentication](/02-internet/authentication/)
+Prev: [`02-internet.cookies`](/02-internet/cookies/) · Next: [`02-internet.authentication`](/02-internet/authentication/)

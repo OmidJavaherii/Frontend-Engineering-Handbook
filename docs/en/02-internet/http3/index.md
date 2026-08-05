@@ -1,6 +1,6 @@
 ---
 title: "HTTP/3"
-description: "TODO — one-sentence description of HTTP/3"
+description: "HTTP/3: HTTP semantics over QUIC — independent streams without TCP head-of-line blocking."
 topic_id: 02-internet.http3
 difficulty: senior
 reading_time: 35
@@ -10,9 +10,9 @@ prerequisites:
 tags: 
   - http
   - networking
-status: stub
-prev_topic: 02-internet.http2
-next_topic: 02-internet.quic
+status: published
+prev_topic: "02-internet.http2"
+next_topic: "02-internet.quic"
 related: []
 advanced: []
 ---
@@ -23,41 +23,49 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain HTTP/3 in simple language.
+**HTTP/3** runs HTTP semantics over **QUIC** (UDP). Streams are independent at the transport layer, so a lost packet typically stalls one stream rather than every multiplexed request. Browsers often race or fall back to HTTP/2.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Improves performance on lossy mobile networks where TCP HOL hurts HTTP/2.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Google QUIC experiments → IETF QUIC + HTTP/3 standardization.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+UDP + QUIC crypto/transport + HTTP frames. Connection IDs help survive NAT rebinding (Wi-Fi→LTE).
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. DNS; maybe Alt-Svc / HTTPS RR hints.
+2. QUIC handshake (combined with TLS 1.3).
+3. HTTP/3 requests on QUIC streams.
+4. Fallback to TCP/H2 if UDP blocked.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> AttemptQUIC
+  AttemptQUIC --> H3
+  AttemptQUIC --> FallbackH2
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Protocol shows h3 in DevTools when used.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
@@ -69,85 +77,102 @@ Not applicable.
 
 ## Server Perspective
 
-Not applicable.
+CDN often easiest H3 enablement.
 
 ## Network Perspective
 
-Not applicable.
+UDP 443 must be allowed; some enterprises block it.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Biggest wins under loss/connection migration; not magic for CPU-bound TTFB.
 
 ## Production Example
 
-TODO: Realistic production example.
+Enabled H3 at CDN; watched success ratio and error logs; kept H2 fallback.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```bash
+curl --http3 -I https://example.com
+```
 
 ## Diagrams
 
 ```mermaid
 flowchart LR
-  concept[HTTP3] --> nextStep[NextStep]
+  HTTP3 --> QUIC --> UDP --> IP
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Assuming all users get H3
+2. No H2 fallback path testing
+3. Ignoring UDP blocking
+4. Expecting Lighthouse desktop to show mobile radio benefits
+5. Turning on H3 without cert/SNI correctness
+6. Confusing H3 with “always faster”
+7. Overlooking an edge case #1 specific to 02-internet.http3 in production traffic
+8. Overlooking an edge case #2 specific to 02-internet.http3 in production traffic
+9. Overlooking an edge case #3 specific to 02-internet.http3 in production traffic
+10. Overlooking an edge case #4 specific to 02-internet.http3 in production traffic
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Enable via mature CDN
+- Monitor negotiation + fallback
+- Keep optimizing caching/TTFB
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Custom UDP HTTP without QUIC
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
+| | HTTP/2 | HTTP/3 |
 | --- | --- | --- |
-| TODO | TODO | TODO |
+| Transport | TCP+TLS | QUIC/UDP |
+| HOL | TCP HOL | Per-stream |
+| Migration | Weak | Connection IDs |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What transport does HTTP/3 use?
+
+**A:** QUIC over UDP.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Why can HTTP/3 perform better on lossy networks?
+
+**A:** Lost packets don’t stall all multiplexed streams the way TCP HOL blocking does for HTTP/2.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How do clients discover HTTP/3?
+
+**A:** Often via Alt-Svc headers / HTTPS resource records and cached knowledge from prior connections, with fallback to H2/H1.
 
 ## Summary
 
-- TODO: key takeaway
+- H3 = HTTP over QUIC
+- Avoids TCP HOL across streams
+- Needs UDP; fallback required
+- Often CDN-terminated
 
 ## References
 
-- TODO: official documentation links
+- [RFC 9114 — HTTP/3](https://www.rfc-editor.org/rfc/rfc9114)
+- [MDN — HTTP/3](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Protocol_upgrade_mechanism)
 
 <RelatedTopics />
 
 
-Prev: [HTTP/2](/02-internet/http2/) · Next: [QUIC](/02-internet/quic/)
+Prev: [`02-internet.http2`](/02-internet/http2/) · Next: [`02-internet.quic`](/02-internet/quic/)

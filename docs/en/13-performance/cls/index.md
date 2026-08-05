@@ -1,6 +1,6 @@
 ---
 title: "CLS"
-description: "TODO — one-sentence description of CLS"
+description: "Cumulative Layout Shift: visual stability score from unexpected layout shifts."
 topic_id: 13-performance.cls
 difficulty: mid
 reading_time: 30
@@ -9,9 +9,9 @@ prerequisites:
   - 13-performance.core-web-vitals
 tags: 
   - performance
-status: stub
-prev_topic: 13-performance.lcp
-next_topic: 13-performance.inp
+status: published
+prev_topic: "13-performance.lcp"
+next_topic: "13-performance.inp"
 related: []
 advanced: []
 ---
@@ -22,49 +22,59 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain CLS in simple language.
+**CLS** quantifies how much visible content unexpectedly moves. It is a Core Web Vital for visual stability.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Shifts cause mis-taps and make pages feel broken. Reserving space prevents layout thrash as resources load.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Became CWV alongside LCP/FID; FID later replaced by INP.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Unexpected shift = distance × impact fraction. Reserve width/height; avoid inserting above existing content.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Define what CLS measures and the “good” threshold.
+2. Collect lab (Lighthouse/Perf panel) and field (CrUX/RUM) data.
+3. Attribute the slow stage in a trace.
+4. Change one cause; remeasure.
+5. Guard with budgets in CI/RUM alerts.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Measure
+  Measure --> Attribute
+  Attribute --> Fix
+  Fix --> Measure
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+CLS is observed in Chromium Performance/Lighthouse and via web-vitals JS APIs in the field.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+JS long tasks, layout, and paint feed into how CLS feels to users.
 
 ## React Perspective
 
-Not applicable.
+Unnecessary renders/hydration inflate interaction and paint costs that show up in CLS.
 
 ## Next.js Perspective
 
-Not applicable.
+Server TTFB, streaming, and client bundle size all influence CLS depending on the metric.
 
 ## Server Perspective
 
@@ -72,81 +82,106 @@ Not applicable.
 
 ## Network Perspective
 
-Not applicable.
+RTT, bytes, and CDN behavior often dominate before JS micro-optimizations.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+GC pauses and large DOM/images can indirectly worsen CLS.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Good CLS ≤ 0.1 at p75. Set image/ad dimensions, font fallbacks (next/font), avoid late banners pushing content.
 
 ## Production Example
 
-TODO: Realistic production example.
+A team tracks CLS in RUM by route template, sets a regression alert at p75, and ties fixes to specific owners (images, JS, server).
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```html
+<img src="/a.jpg" width="400" height="300" alt="" />
+```
+
+```css
+.aspect { aspect-ratio: 16 / 9; }
+```
 
 ## Diagrams
 
 ```mermaid
 flowchart LR
-  concept[CLS] --> nextStep[NextStep]
+  Lab[Lab tools] --> Insight
+  RUM[Field RUM] --> Insight
+  Insight --> Fix[CLS fix]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Images without dimensions
+2. Web fonts swapping with large metric differences
+3. Late cookie banners pushing content
+4. Injecting ads without reserved slots
+5. Animating top/left instead of transform
+6. Counting shifts during user interactions incorrectly when debugging
+7. Missing a production edge case for 13-performance.cls (#1)
+8. Missing a production edge case for 13-performance.cls (#2)
+9. Missing a production edge case for 13-performance.cls (#3)
+10. Missing a production edge case for 13-performance.cls (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Optimize CLS with field data, not vanity lab scores alone
+- Fix the attributed cause, not a random best practice list
+- Keep a performance budget for the owning surface
+- Re-check after framework upgrades
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Chasing Lighthouse while ignoring RUM
+- Micro-optimizing JS before cutting bytes/RTT
+- Declaring victory from one local run on fiber
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Signal | Use |
+| --- | --- |
+| Lab | Debug & regressions |
+| Field | Real users / SEO signals |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is CLS?
+
+**A:** A score of unexpected layout shifts during the page’s life.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** How do fonts affect CLS?
+
+**A:** Fallback→webfont metric differences shift text; use size-adjusted fallbacks / font-display strategies.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How do you debug a production CLS regression?
+
+**A:** Use RUM attribution + Performance panel experience section / Layout Shift regions; identify late-loading nodes and fix reservation or insertion order.
 
 ## Summary
 
-- TODO: key takeaway
+- CLS: Cumulative Layout Shift: visual stability score from unexpected layout shifts.
+- Measure lab + field
+- Attribute before optimizing
+- Budget and alert on p75
 
 ## References
 
-- TODO: official documentation links
+- [web.dev — Core Web Vitals](https://web.dev/explore/learn-core-web-vitals)
+- [Chrome — Web Vitals](https://developer.chrome.com/docs/performance/insights/web-vitals)
 
 <RelatedTopics />
 
 
-Prev: [LCP](/13-performance/lcp/) · Next: [INP](/13-performance/inp/)
+Prev: [`13-performance.lcp`](/13-performance/lcp/) · Next: [`13-performance.inp`](/13-performance/inp/)

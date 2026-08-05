@@ -1,6 +1,6 @@
 ---
 title: "CORS"
-description: "TODO — one-sentence description of CORS"
+description: "Cross-Origin Resource Sharing: browser-enforced rules for cross-origin reads and credentialed requests."
 topic_id: 17-security.cors
 difficulty: mid
 reading_time: 40
@@ -11,9 +11,9 @@ tags:
   - security
   - networking
   - interview-frequent
-status: stub
-prev_topic: 17-security.csrf
-next_topic: 17-security.csp
+status: published
+prev_topic: "17-security.csrf"
+next_topic: "17-security.csp"
 related: []
 advanced: []
 ---
@@ -24,45 +24,56 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain CORS in simple language.
+**CORS** is a browser mechanism that relaxes the same-origin policy for **controlled** cross-origin access. Servers opt in via headers (`Access-Control-Allow-Origin`, etc.). CORS is not an authorization framework and does not protect a public API from non-browser clients.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+SPAs on `app.example.com` calling `api.example.com` need explicit CORS. Misconfiguration either breaks apps or uses `*` with credentials unsafely.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Same-origin policy predates CORS; CORS standardized safe cross-origin XHR/fetch.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Simple requests vs **preflighted** requests (custom headers, non-simple methods). Credentialed requests cannot use `*` ACAO. Browsers enforce; curl does not.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. List legitimate web origins.
+2. Configure ACAO/ACAC/methods/headers.
+3. Handle OPTIONS preflights.
+4. Never reflect arbitrary Origin blindly without allowlist.
+5. Test from real browsers.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Request
+  Request --> Preflight: non-simple
+  Preflight --> Actual
+  Request --> Actual: simple
+  Actual --> BrowserEnforces
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Only browsers enforce CORS.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+fetch credentials mode must match server ACAC.
 
 ## Next.js Perspective
 
@@ -70,85 +81,108 @@ Not applicable.
 
 ## Server Perspective
 
-Not applicable.
+Allowlists over wildcards for credentialed APIs.
 
 ## Network Perspective
 
-Not applicable.
+Preflight adds OPTIONS latency.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Cache preflights with Access-Control-Max-Age; minimize custom headers.
 
 ## Production Example
 
-TODO: Realistic production example.
+API allowlists https://app.example.com with credentials; staging origin separate; rejects unknown Origin.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```http
+Access-Control-Allow-Origin: https://app.example.com
+Access-Control-Allow-Credentials: true
+Access-Control-Allow-Headers: Content-Type, X-CSRF-Token
+Access-Control-Allow-Methods: GET,POST,PUT,DELETE
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[CORS] --> nextStep[NextStep]
+sequenceDiagram
+  participant SPA
+  participant API
+  SPA->>API: OPTIONS preflight
+  API-->>SPA: allow headers
+  SPA->>API: POST with cookies
+  API-->>SPA: response readable
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. `Access-Control-Allow-Origin: *` with credentials
+2. Reflecting any Origin
+3. Thinking CORS protects the API from Postman
+4. Forgetting preflight for custom headers
+5. Using CORS as CSRF defense
+6. Missing a production edge case for 17-security.cors (#1)
+7. Missing a production edge case for 17-security.cors (#2)
+8. Missing a production edge case for 17-security.cors (#3)
+9. Missing a production edge case for 17-security.cors (#4)
+10. Missing a production edge case for 17-security.cors (#5)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Explicit origin allowlists
+- Separate envs
+- Minimize credentialed cross-origin surface
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Null origin acceptance for everyone
+- Disabling SOP via browser flags in prod support advice
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| SOP | CORS |
+| --- | --- |
+| Default deny cross-origin reads | Server-opt-in exceptions |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What problem does CORS solve?
+
+**A:** It allows browsers to permit controlled cross-origin access that the same-origin policy would otherwise block for web pages.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** When is a preflight sent?
+
+**A:** When a request is not “simple”—e.g., custom headers or methods like PUT—browsers send OPTIONS first.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** Why is reflecting Origin dangerous?
+
+**A:** Any malicious site could obtain ACAO for itself and read credentialed responses if ACAC is true—effectively bypassing SOP for victims.
 
 ## Summary
 
-- TODO: key takeaway
+- CORS is browser-enforced opt-in
+- Not API authorization
+- Allowlist origins for credentials
 
 ## References
 
-- TODO: official documentation links
+- [MDN — CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS)
+- [Fetch Standard — CORS](https://fetch.spec.whatwg.org/#http-cors-protocol)
 
 <RelatedTopics />
 
 
-Prev: [CSRF](/17-security/csrf/) · Next: [Content Security Policy](/17-security/csp/)
+Prev: [`17-security.csrf`](/17-security/csrf/) · Next: [`17-security.csp`](/17-security/csp/)

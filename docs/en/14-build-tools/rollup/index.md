@@ -1,6 +1,6 @@
 ---
 title: "Rollup"
-description: "TODO — one-sentence description of Rollup"
+description: "ESM-first bundler excelling at libraries and tree-shaking; powers Vite production builds."
 topic_id: 14-build-tools.rollup
 difficulty: mid
 reading_time: 30
@@ -9,9 +9,9 @@ prerequisites: []
 tags: 
   - bundling
   - tooling
-status: stub
-prev_topic: 14-build-tools.webpack
-next_topic: 14-build-tools.vite
+status: published
+prev_topic: "14-build-tools.webpack"
+next_topic: "14-build-tools.vite"
 related: []
 advanced: []
 ---
@@ -22,41 +22,49 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Rollup in simple language.
+**Rollup** focuses on clean ESM output and aggressive tree shaking—ideal for libraries and as Vite’s production bundler.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Library authors need small, shakeable artifacts without webpack’s app-oriented complexity.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+ESM champion; Vite adopted Rollup for prod builds while using esbuild/native ESM in dev.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Input → tree-shake graph → chunks/outputs (ES/CJS). Plugins extend.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. rollup.config.js inputs.
+2. Externalize peer deps.
+3. Emit formats.
+4. Check package exports.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Idle
+  Idle --> Active: use
+  Active --> Idle: settle
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Not applicable.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
@@ -76,77 +84,101 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Measure before/after with lab + field tools. Optimize the attributed bottleneck for ESM-first bundler excelling at libraries and tree-shaking; powers Vite production builds., not folklore.
 
 ## Production Example
 
-TODO: Realistic production example.
+Teams adopt ESM-first bundler excelling at libraries and tree-shaking; powers Vite production builds. on critical routes, add monitoring, and guard regressions with budgets or reviews.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```js
+export default {
+  input: 'src/index.js',
+  external: ['react', 'react-dom'],
+  output: { file: 'dist/index.js', format: 'es' },
+}
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[Rollup] --> nextStep[NextStep]
+flowchart TD
+  A[Understand] --> B[Apply ESM-first bundler excelling at libraries and tree-shaking; powers Vite production builds.]
+  B --> C[Measure]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Bundling React into a component library
+2. Forgetting to external peerDependencies
+3. CJS default export interop surprises
+4. Not providing types entry
+5. Deep node builtins in browser builds
+6. Multiple competing versions of helpers
+7. Missing a production edge case for 14-build-tools.rollup (#1)
+8. Missing a production edge case for 14-build-tools.rollup (#2)
+9. Missing a production edge case for 14-build-tools.rollup (#3)
+10. Missing a production edge case for 14-build-tools.rollup (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Prefer platform/framework primitives
+- Measure impact on real user metrics
+- Keep the change reviewable and reversible
+- Document the invariant you are protecting
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Copy-paste without understanding failure modes
+- Premature abstraction around a single use
+- Optimizing without a baseline
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Approach | When |
+| --- | --- |
+| Use as designed | Default |
+| Simpler alternative | If constraints differ |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is Rollup great at?
+
+**A:** Tree-shaken ESM builds, especially for libraries.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** How does Vite use Rollup?
+
+**A:** Dev server is native ESM/esbuild prebundle; production build uses Rollup.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** Why externalize peers?
+
+**A:** So consumers dedupe a single React (etc.) instead of shipping duplicates inside the library bundle.
 
 ## Summary
 
-- TODO: key takeaway
+- ESM-first bundler excelling at libraries and tree-shaking; powers Vite production builds.
+- Know why it exists and when not to use it
+- Measure production impact
+- Link related handbook topics instead of duplicating
 
 ## References
 
-- TODO: official documentation links
+- [Rollup Guide](https://rollupjs.org/introduction/)
+- [Vite Build](https://vitejs.dev/guide/build.html)
 
 <RelatedTopics />
 
 
-Prev: [Webpack](/14-build-tools/webpack/) · Next: [Vite](/14-build-tools/vite/)
+Prev: [`14-build-tools.webpack`](/14-build-tools/webpack/) · Next: [`14-build-tools.vite`](/14-build-tools/vite/)

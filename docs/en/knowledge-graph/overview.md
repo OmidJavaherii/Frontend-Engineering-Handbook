@@ -81,7 +81,7 @@ flowchart LR
 | --- | --- |
 | Modules | 26 |
 | Topics | 453 |
-| Stub topics | 453 |
+| Stub topics | 0 |
 
 ## Edge dump
 

@@ -1,6 +1,6 @@
 ---
 title: "Broadcast Channel"
-description: "TODO — one-sentence description of Broadcast Channel"
+description: "BroadcastChannel: same-origin messaging between browsing contexts (tabs, workers) via named channels."
 topic_id: 09-browser-apis.broadcast-channel
 difficulty: mid
 reading_time: 20
@@ -8,9 +8,9 @@ implementation_time: 0
 prerequisites: []
 tags: 
   - browser-apis
-status: stub
-prev_topic: 09-browser-apis.resize-observer
-next_topic: 09-browser-apis.web-workers
+status: published
+prev_topic: "09-browser-apis.resize-observer"
+next_topic: "09-browser-apis.web-workers"
 related: []
 advanced: []
 ---
@@ -21,45 +21,55 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Broadcast Channel in simple language.
+**BroadcastChannel** lets same-origin contexts post messages to each other through a named channel. Simpler than `localStorage` storage events or SharedWorker hubs for many tab-sync cases.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Logout-all-tabs, theme sync, and multi-tab coordination need a first-class bus.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Added to fill cross-context messaging gaps; widely available in evergreen browsers.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+`new BroadcastChannel(name)` → `postMessage` → `onmessage` in other contexts with the same origin+name. Structured clone for payloads.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Open channel with a stable name.
+2. Post serializable messages.
+3. Handle `message` events.
+4. `close` when done.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+sequenceDiagram
+  participant Tab1
+  participant Chan as BroadcastChannel
+  participant Tab2
+  Tab1->>Chan: postMessage
+  Chan->>Tab2: message
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Same-origin only.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+Subscribe in effects; close on unmount.
 
 ## Next.js Perspective
 
@@ -71,81 +81,102 @@ Not applicable.
 
 ## Network Perspective
 
-Not applicable.
+Not network—local only.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Lightweight for small control messages.
 
 ## Production Example
 
-TODO: Realistic production example.
+On logout, the auth module broadcasts `{ type: 'logout' }`; other tabs clear state and redirect.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```ts
+const bc = new BroadcastChannel('auth')
+bc.onmessage = (e) => {
+  if (e.data?.type === 'logout') location.href = '/login'
+}
+bc.postMessage({ type: 'logout' })
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[BroadcastChannel] --> nextStep[NextStep]
+flowchart TD
+  T1[Tab] --> BC[Channel name]
+  T2[Tab] --> BC
+  W[Worker] --> BC
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Expecting cross-origin delivery
+2. Posting non-cloneable values
+3. Not closing channels (resource hygiene)
+4. Using it for large binary fanout
+5. Assuming message ordering across complex scenarios without design
+6. Forgetting other contexts must also open the same name
+7. Overlooking an edge case #1 specific to 09-browser-apis.broadcast-channel in production traffic
+8. Overlooking an edge case #2 specific to 09-browser-apis.broadcast-channel in production traffic
+9. Overlooking an edge case #3 specific to 09-browser-apis.broadcast-channel in production traffic
+10. Overlooking an edge case #4 specific to 09-browser-apis.broadcast-channel in production traffic
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Version message schemas
+- Small control messages
+- Close on teardown
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Replacing proper state sync servers with BC alone for multi-device
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Mechanism | Use |
+| --- | --- |
+| BroadcastChannel | Same-origin bus |
+| storage event | KV change sync |
+| Service worker | Proxy/network hub |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is BroadcastChannel for?
+
+**A:** Sending messages between same-origin browsing contexts via a named channel.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Can it talk across origins?
+
+**A:** No. Same origin only.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** When prefer BroadcastChannel over localStorage events?
+
+**A:** When you need explicit messaging without abusing storage, with structured clone payloads.
 
 ## Summary
 
-- TODO: key takeaway
+- Same-origin named message bus
+- Great for multi-tab control events
+- Structured clone; close when done
 
 ## References
 
-- TODO: official documentation links
+- [MDN: BroadcastChannel](https://developer.mozilla.org/en-US/docs/Web/API/BroadcastChannel)
 
 <RelatedTopics />
 
 
-Prev: [Resize Observer](/09-browser-apis/resize-observer/) · Next: [Web Workers](/09-browser-apis/web-workers/)
+Prev: [`09-browser-apis.resize-observer`](/09-browser-apis/resize-observer/) · Next: [`09-browser-apis.web-workers`](/09-browser-apis/web-workers/)

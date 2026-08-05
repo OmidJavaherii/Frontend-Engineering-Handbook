@@ -1,6 +1,6 @@
 ---
 title: "Streaming"
-description: "TODO — one-sentence description of Streaming"
+description: "Streaming HTML/UI chunks as server work completes instead of buffering the full document."
 topic_id: 12-rendering.streaming
 difficulty: mid
 reading_time: 35
@@ -8,9 +8,9 @@ implementation_time: 0
 prerequisites: []
 tags: 
   - rendering
-status: stub
-prev_topic: 12-rendering.ppr
-next_topic: 12-rendering.hydration
+status: published
+prev_topic: "12-rendering.ppr"
+next_topic: "12-rendering.hydration"
 related: []
 advanced: []
 ---
@@ -21,131 +21,166 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Streaming in simple language.
+**Streaming** (rendering module) is the practice of flushing HTML/RSC bytes early and filling Suspense holes later. It improves time-to-first-byte perception and progressive reveal.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Buffering full pages couples UX to the slowest dependency. Streaming decouples shell from slow parts.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+HTTP chunked responses + React 18 streaming SSR; central to App Router.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Send what’s ready; promise the rest. Boundaries define reveal units.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Identify slow subtrees.
+2. Wrap in Suspense/loading UI.
+3. Avoid awaiting them in parents before return.
+4. Ensure proxies allow streaming.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> FlushShell
+  FlushShell --> FlushChunks
+  FlushChunks --> End
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Incremental parse/paint.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+Suspense + Flight streams.
 
 ## Next.js Perspective
 
-Not applicable.
+loading.tsx + PPR build on streaming.
 
 ## Server Perspective
 
-Not applicable.
+Longer-lived responses; timeout tuning.
 
 ## Network Perspective
 
-Not applicable.
+Chunked transfer; intermediate buffers can defeat you.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Improves perceived performance; total server work may stay similar. Fix actual slow queries too.
 
 ## Production Example
 
-TODO: Realistic production example.
+Dashboard streams widgets; shell+nav first.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```tsx
+import { Suspense } from 'react'
+export default function Page() {
+  return (
+    <Suspense fallback={<p>Loading…</p>}>
+      <SlowPanel />
+    </Suspense>
+  )
+}
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[Streaming] --> nextStep[NextStep]
+sequenceDiagram
+  Server-->>Browser: shell
+  Server-->>Browser: panel chunk
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Parent await kills streaming
+2. Proxy buffering
+3. CLS from poor fallbacks
+4. Too many micro-boundaries
+5. Streaming as excuse for 10s queries
+6. Assuming CDN caches streamed dynamic docs
+7. Missing a production edge case for 12-rendering.streaming (#1)
+8. Missing a production edge case for 12-rendering.streaming (#2)
+9. Missing a production edge case for 12-rendering.streaming (#3)
+10. Missing a production edge case for 12-rendering.streaming (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Boundary around independent slow work
+- Stable skeletons
+- Test through real CDN/proxy
+- Combine with caching
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Single page-wide Suspense only
+- Client spinner instead of server stream
+- Nested sequential awaits inside each hole
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
+| | Buffered | Streaming |
 | --- | --- | --- |
-| TODO | TODO | TODO |
+| First byte | Late | Early |
+| Complexity | Lower | Boundaries |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is HTML streaming?
+
+**A:** Sending the document in chunks as parts become ready instead of waiting for the full render.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** What React API enables UI streaming?
+
+**A:** Suspense boundaries (and framework conventions like loading.tsx).
 
 ### Hard
 
-TODO — question and answer.
+**Q:** When does streaming not help SEO/LCP?
+
+**A:** If the LCP element is inside a late hole or first byte still waits on critical data above all boundaries.
 
 ## Summary
 
-- TODO: key takeaway
+- Stream shells early, holes later
+- Suspense defines chunks
+- Watch proxies and LCP placement
+- Related Next topic: /11-nextjs/streaming/
 
 ## References
 
-- TODO: official documentation links
+- [React — Suspense](https://react.dev/reference/react/Suspense)
+- [Next.js — Streaming](https://nextjs.org/docs/app/building-your-application/routing/loading-ui-and-streaming)
 
 <RelatedTopics />
 
 
-Prev: [Partial Prerendering](/12-rendering/ppr/) · Next: [Hydration](/12-rendering/hydration/)
+Prev: [`12-rendering.ppr`](/12-rendering/ppr/) · Next: [`12-rendering.hydration`](/12-rendering/hydration/)

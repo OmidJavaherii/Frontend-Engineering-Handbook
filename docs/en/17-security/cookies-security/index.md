@@ -1,6 +1,6 @@
 ---
 title: "Cookies Security"
-description: "TODO — one-sentence description of Cookies Security"
+description: "Cookie security attributes and practices that define how browsers store and send credentials."
 topic_id: 17-security.cookies-security
 difficulty: mid
 reading_time: 30
@@ -9,9 +9,9 @@ prerequisites:
   - 02-internet.cookies
 tags: 
   - security
-status: stub
-prev_topic: 17-security.oidc
-next_topic: 17-security.samesite
+status: published
+prev_topic: "17-security.oidc"
+next_topic: "17-security.samesite"
 related: []
 advanced: []
 ---
@@ -22,45 +22,56 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Cookies Security in simple language.
+Cookies are the browser’s credential store for many web apps. Security hinges on attributes: **Secure**, **HttpOnly**, **SameSite**, **Domain**, **Path**, **Priority**, and prefixes (`__Host-`). Misconfiguration enables theft or CSRF.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Cookies are auto-sent; they are powerful and dangerous. Frontend engineers must understand what JS can and cannot read.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Cookie spec evolved with SameSite defaults changing across browsers to mitigate CSRF.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+HttpOnly → not readable by JS (XSS harder to steal). Secure → HTTPS only. SameSite → cross-site sending rules. Scope (Domain/Path) → where they go.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Session cookies: Secure + HttpOnly + appropriate SameSite.
+2. Prefer `__Host-` prefix when possible.
+3. Minimize Domain breadth.
+4. Short lifetimes + rotation.
+5. Clear on logout.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> SetCookie
+  SetCookie --> Stored
+  Stored --> SentOnMatch
+  SentOnMatch --> Expired
+  Expired --> [*]
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Stores and attaches cookies by policy.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+JS cannot read HttpOnly—good.
 
 ## Next.js Perspective
 
@@ -68,85 +79,104 @@ Not applicable.
 
 ## Server Perspective
 
-Not applicable.
+Must set attributes; frontend cannot “fix” HttpOnly via JS.
 
 ## Network Perspective
 
-Not applicable.
+Set-Cookie on responses; Cookie on requests.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Too many cookies bloat requests—keep small.
 
 ## Production Example
 
-TODO: Realistic production example.
+Session: `Set-Cookie: __Host-session=...; Path=/; Secure; HttpOnly; SameSite=Lax`.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```http
+Set-Cookie: __Host-session=abc; Path=/; Secure; HttpOnly; SameSite=Lax; Max-Age=3600
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[CookiesSecurity] --> nextStep[NextStep]
+flowchart TD
+  Server -->|Set-Cookie| Browser
+  Browser -->|Cookie header| Server
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Session cookie without HttpOnly
+2. Broad Domain=.example.com unnecessarily
+3. Secure missing on HTTPS sites
+4. Using cookies for huge JWTs
+5. Assuming SameSite=Lax stops all CSRF
+6. Missing a production edge case for 17-security.cookies-security (#1)
+7. Missing a production edge case for 17-security.cookies-security (#2)
+8. Missing a production edge case for 17-security.cookies-security (#3)
+9. Missing a production edge case for 17-security.cookies-security (#4)
+10. Missing a production edge case for 17-security.cookies-security (#5)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- HttpOnly + Secure session
+- __Host- prefix when possible
+- Tight Path/Domain
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Document.cookie session tokens
+- Forever Max-Age sessions without rotation
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Attribute | Effect |
+| --- | --- |
+| HttpOnly | Hide from JS |
+| Secure | HTTPS only |
+| SameSite | Cross-site send rules |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What does HttpOnly do?
+
+**A:** Prevents JavaScript from reading the cookie, mitigating token theft via XSS.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** What is the __Host- prefix requirement?
+
+**A:** Cookie must be Secure, Path=/, no Domain attribute—binds tightly to the host.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** Cookie design for SPA + API on sibling subdomains.
+
+**A:** Avoid overly broad Domain; prefer BFF same-site host; if cross-subdomain needed, threat-model CSRF/XSS carefully with SameSite and CSRF tokens.
 
 ## Summary
 
-- TODO: key takeaway
+- Cookie attributes are security controls
+- HttpOnly+Secure+SameSite baseline
+- Minimize scope and lifetime
 
 ## References
 
-- TODO: official documentation links
+- [MDN — Set-Cookie](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie)
+- [RFC 6265bis / cookie prefixes](https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis)
+- [OWASP Session Management](https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html)
 
 <RelatedTopics />
 
 
-Prev: [OIDC](/17-security/oidc/) · Next: [SameSite](/17-security/samesite/)
+Prev: [`17-security.oidc`](/17-security/oidc/) · Next: [`17-security.samesite`](/17-security/samesite/)

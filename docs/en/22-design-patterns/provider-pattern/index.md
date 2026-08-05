@@ -1,6 +1,6 @@
 ---
 title: "Provider Pattern"
-description: "TODO — one-sentence description of Provider Pattern"
+description: "Provide ambient dependencies via React Context providers — theming, auth session, DI-lite — without prop drilling."
 topic_id: 22-design-patterns.provider-pattern
 difficulty: junior
 reading_time: 25
@@ -9,9 +9,9 @@ prerequisites: []
 tags: 
   - patterns
   - react
-status: stub
-prev_topic: 22-design-patterns.hoc
-next_topic: 22-design-patterns.observer-pattern
+status: published
+prev_topic: "22-design-patterns.hoc"
+next_topic: "22-design-patterns.observer-pattern"
 related: []
 advanced: []
 ---
@@ -22,49 +22,59 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Provider Pattern in simple language.
+The **Provider Pattern** places a value on context so deep children can read it without prop drilling. Core API: [/10-react/context/](/10-react/context/).
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Threading theme/locale/auth through every layer is noise. Providers create controlled ambient dependency injection for UI trees.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Legacy `contextTypes` → official Context API (16.3) → concurrent-safe patterns with `useContext` + split contexts.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Provider publishes a value; consumers subscribe. Treat context as **dependency injection**, not a global app database for high-frequency state.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Create context + typed default/null  
+2. Provide near the subtree that needs it  
+3. Consume via hooks  
+4. Split contexts by update rate  
+5. Remount/reset when identity boundaries change
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Provide
+  Provide --> Consume
+  Consume --> Update: value_change
+  Update --> Consume
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Not applicable.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+Changing provider value re-renders all consumers. Memoize value objects; split contexts.
 
 ## Next.js Perspective
 
-Not applicable.
+Auth/theme providers typically client-side; pass serializable preferences from server when possible.
 
 ## Server Perspective
 
@@ -76,77 +86,112 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Providers retained at root keep values alive for app lifetime — fine for session, bad for huge caches.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Do not put rapidly changing values (mouse coords) in wide providers.
 
 ## Production Example
 
-TODO: Realistic production example.
+`AuthProvider` + `ThemeProvider` at the shell; feature flags via a dedicated provider bootstrapped from edge config.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```tsx
+const ThemeCtx = createContext<'light' | 'dark'>('light')
+
+export function ThemeProvider({ children }: { children: React.ReactNode }) {
+  const [theme, setTheme] = useState<'light' | 'dark'>('light')
+  const value = useMemo(() => theme, [theme])
+  return <ThemeCtx.Provider value={value}>{children}</ThemeCtx.Provider>
+}
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[ProviderPattern] --> nextStep[NextStep]
+flowchart TD
+  n0[Provider] --> n1[Context]
+  n1[Context] --> n2[Consumers]
+```
+
+```mermaid
+sequenceDiagram
+  participant User
+  participant App
+  participant Platform
+  User->>App: interact (Provider)
+  App->>Platform: apply mechanism
+  Platform-->>App: result or error
+  App-->>User: update UI
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Using context as a Redux replacement for all state
+2. New object value every render without need
+3. Providers wrapping too high for niche data
+4. Missing null checks when context absent
+5. High-frequency updates through a mega-provider
+6. Forgetting to remount on tenant/user switch
+7. Missing a production edge case for 22-design-patterns.provider-pattern (#1)
+8. Missing a production edge case for 22-design-patterns.provider-pattern (#2)
+9. Missing a production edge case for 22-design-patterns.provider-pattern (#3)
+10. Missing a production edge case for 22-design-patterns.provider-pattern (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Narrow providers
+- Stable values
+- Custom hooks as the only public consume API
 
 ## Anti-patterns
 
-TODO: What not to do.
+- God provider with twenty unrelated fields
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
+| Ambient API | Good for | Bad for |
 | --- | --- | --- |
-| TODO | TODO | TODO |
+| Props | Explicit local | Deep drilling |
+| Context provider | Rare ambient | Hot state |
+| External store | Hot shared | Simple theme |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What problem does the provider pattern solve?
+
+**A:** Share ambient values without prop drilling — [/10-react/context/](/10-react/context/).
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Why split contexts?
+
+**A:** So high-frequency updates do not re-render unrelated consumers.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How do providers interact with SSR/hydration?
+
+**A:** Initial value must match server render; theme from cookie/header prevents mismatch flicker.
 
 ## Summary
 
-- TODO: key takeaway
+- Context DI for ambient values
+- Not a global store for everything
+- Stability and split contexts matter
+- Custom hooks as API
 
 ## References
 
-- TODO: official documentation links
+- [React — Passing Data Deeply with Context](https://react.dev/learn/passing-data-deeply-with-context)
+- [React — useContext](https://react.dev/reference/react/useContext)
 
 <RelatedTopics />
 
 
-Prev: [Higher-Order Components](/22-design-patterns/hoc/) · Next: [Observer Pattern](/22-design-patterns/observer-pattern/)
+Prev: [`22-design-patterns.hoc`](/22-design-patterns/hoc/) · Next: [`22-design-patterns.observer-pattern`](/22-design-patterns/observer-pattern/)

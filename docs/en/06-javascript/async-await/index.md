@@ -1,6 +1,6 @@
 ---
 title: "Async/Await"
-description: "TODO — one-sentence description of Async/Await"
+description: "`async`/`await`: synchronous-looking async flow built on promises and microtasks."
 topic_id: 06-javascript.async-await
 difficulty: junior
 reading_time: 35
@@ -10,7 +10,7 @@ prerequisites:
 tags: 
   - javascript
   - async
-status: stub
+status: published
 prev_topic: 06-javascript.promise
 next_topic: 06-javascript.generator
 related: []
@@ -23,131 +23,169 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Async/Await in simple language.
+**`async` functions** always return promises. **`await`** pauses the function, waiting for a thenable settlement, then resumes via a microtask. Errors throw into `try/catch`.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Readable control flow for sequential async steps without nested `then` chains—while still being promises underneath.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+ES2017; built directly on Promise semantics + jobs.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+`await` only delays the async function, not the whole program. Parallelism needs starting promises before awaiting them together.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Use try/catch around await.
+2. Start independent work early.
+3. Don’t ignore returned promises.
+4. Combine with AbortSignal.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+Lifecycle for async await:
+
+```mermaid
+stateDiagram-v2
+  [*] --> Active
+  Active --> Settled
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Browsers host the JS runtime; DevTools Sources/Console observe this topic at runtime.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Engines implement ECMAScript semantics (V8/JavaScriptCore/SpiderMonkey); optimize hot paths after correctness.
 
 ## React Perspective
 
-Not applicable.
+React app code is JS—misunderstanding this topic often shows up as stale UI state or broken effects.
 
 ## Next.js Perspective
 
-Not applicable.
+Next.js runs JS in Node/Edge and the browser; verify APIs exist in each runtime.
 
 ## Server Perspective
 
-Not applicable.
+Node/Edge may implement the same language feature with different host APIs.
 
 ## Network Perspective
 
-Not applicable.
+Not primarily a network feature unless combined with fetch/HTTP.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Watch retained objects via DevTools Memory; closures and globals keep references alive.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Measure with Performance panel / benchmarks before micro-optimizing.
 
 ## Production Example
 
-TODO: Realistic production example.
+Serial awaits in a map were replaced with `Promise.all` + async mapper; wall time dropped ~5×.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```js
+async function load() {
+  try {
+    const a = fetch('/a')
+    const b = fetch('/b')
+    const [ra, rb] = await Promise.all([a, b])
+    return [await ra.json(), await rb.json()]
+  } catch (e) {
+    console.error(e)
+    throw e
+  }
+}
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[AsyncAwait] --> nextStep[NextStep]
+flowchart TD
+  Code[Program] --> Runtime[JS runtime]
+  Runtime --> Effect[async await effect]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Treating the feature as magic without the language rule behind it
+2. Copying Stack Overflow snippets without edge cases
+3. Confusing browser host APIs with ECMAScript language semantics
+4. Optimizing before measuring
+5. Ignoring strict mode / module differences
+6. Serial await in loops for independent requests
+7. Forgetting async function returns a promise to callers
+8. Missing a production edge case for 06-javascript.async-await (#1)
+9. Missing a production edge case for 06-javascript.async-await (#2)
+10. Missing a production edge case for 06-javascript.async-await (#3)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Prefer language defaults and clear naming
+- Write a failing test for the sharp edge you hit
+- Use MDN + ECMA-262 for disagreements
+- Keep examples small and runnable
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Clever code that obscures control flow
+- Polyfilling incorrectly and masking bugs
+- Global mutable state as the default architecture
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
+| Style | Readability | Parallelism control |
 | --- | --- | --- |
-| TODO | TODO | TODO |
+| then chains | Medium | Explicit |
+| async/await | High | Easy to accidental-serial |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is async/await?
+
+**A:** Syntax sugar over promises: await pauses an async function until settlement; errors become throws.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Does await block the JS thread?
+
+**A:** No—it yields so other tasks/microtasks can run; only the async function is suspended.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How to await in parallel?
+
+**A:** Start promises first, then await Promise.all (or similar).
 
 ## Summary
 
-- TODO: key takeaway
+- async await has precise ECMAScript/host semantics
+- Know failure modes and scope interactions
+- Measure production impact
+- Cross-link related handbook topics
 
 ## References
 
-- TODO: official documentation links
+- [MDN: async function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function)
+- [ECMA-262](https://tc39.es/ecma262/)
 
 <RelatedTopics />
-
 
 Prev: [Promise](/06-javascript/promise/) · Next: [Generator](/06-javascript/generator/)

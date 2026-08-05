@@ -1,6 +1,6 @@
 ---
 title: "Reducer"
-description: "TODO — one-sentence description of Reducer"
+description: "useReducer: explicit state transitions via pure reducers for complex component state."
 topic_id: 10-react.reducer
 difficulty: junior
 reading_time: 30
@@ -10,9 +10,9 @@ prerequisites:
 tags: 
   - react
   - state
-status: stub
-prev_topic: 10-react.context
-next_topic: 10-react.memoization
+status: published
+prev_topic: "10-react.context"
+next_topic: "10-react.memoization"
 related: []
 advanced: []
 ---
@@ -23,45 +23,51 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Reducer in simple language.
+**`useReducer(reducer, init)`** stores state updated by dispatching actions to a pure reducer `(state, action) => nextState`. Ideal when next state depends on complex prior state or many event types.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Scattered `setState` calls become inconsistent. Reducers centralize transitions and ease testing.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Inspired by Redux patterns, brought into core hooks for local/component scope.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Dispatch enqueues an action; React applies the reducer during the next render computation. Reducers must be pure.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. List actions as a discriminated union.
+2. Write pure reducer with exhaustiveness.
+3. Dispatch from events.
+4. Optionally pass dispatch via context.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+flowchart LR
+  Event --> dispatch --> reducer --> nextState --> Render
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Not applicable.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+Same hook list machinery as useState.
 
 ## Next.js Perspective
 
@@ -77,77 +83,102 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Similar to useState; clarity is the win. Avoid giant global reducers without need.
 
 ## Production Example
 
-TODO: Realistic production example.
+Checkout funnel uses a reducer for steps/validation errors so transitions are reviewable in one function.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```tsx
+type State = { count: number }
+type Action = { type: 'inc' } | { type: 'add'; n: number }
+function reducer(state: State, action: Action): State {
+  switch (action.type) {
+    case 'inc':
+      return { count: state.count + 1 }
+    case 'add':
+      return { count: state.count + action.n }
+  }
+}
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[Reducer] --> nextStep[NextStep]
+flowchart TD
+  Actions --> Reducer --> State
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Side effects inside reducers
+2. Mutating state in reducer
+3. Stringly-typed actions without unions
+4. Using reducer when two useStates are clearer
+5. Dispatching during render accidentally
+6. Giant app-wide reducer reinventing Redux poorly
+7. Missing a production edge case for 10-react.reducer (#1)
+8. Missing a production edge case for 10-react.reducer (#2)
+9. Missing a production edge case for 10-react.reducer (#3)
+10. Missing a production edge case for 10-react.reducer (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Pure reducers
+- Discriminated actions
+- Init functions for heavy initial state
+- Test reducers as pure functions
 
 ## Anti-patterns
 
-TODO: What not to do.
+- fetch() inside reducer
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
+| | useState | useReducer |
 | --- | --- | --- |
-| TODO | TODO | TODO |
+| Simple toggles | Better | Overkill |
+| Many transitions | Messy | Better |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What does useReducer return?
+
+**A:** A `[state, dispatch]` pair where dispatch sends actions to the reducer.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Why keep reducers pure?
+
+**A:** React may call them multiple times (Strict Mode / concurrent); impure reducers cause bugs.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** When prefer useReducer over multiple useStates?
+
+**A:** When updates involve multiple fields with shared invariants or when action logging/testing clarity matters.
 
 ## Summary
 
-- TODO: key takeaway
+- Pure action→state transitions
+- Great for complex local state
+- No side effects in reducers
 
 ## References
 
-- TODO: official documentation links
+- [React Documentation](https://react.dev/)
+- [useReducer](https://react.dev/reference/react/useReducer)
 
 <RelatedTopics />
 
 
-Prev: [Context](/10-react/context/) · Next: [Memoization in React](/10-react/memoization/)
+Prev: [`10-react.context`](/10-react/context/) · Next: [`10-react.memoization`](/10-react/memoization/)

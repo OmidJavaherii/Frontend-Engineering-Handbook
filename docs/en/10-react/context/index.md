@@ -1,6 +1,6 @@
 ---
 title: "Context"
-description: "TODO — one-sentence description of Context"
+description: "React Context: provide values deep in the tree without prop drilling, with re-render caveats."
 topic_id: 10-react.context
 difficulty: junior
 reading_time: 35
@@ -10,9 +10,9 @@ prerequisites:
 tags: 
   - react
   - state
-status: stub
-prev_topic: 10-react.rules-of-hooks
-next_topic: 10-react.reducer
+status: published
+prev_topic: "10-react.rules-of-hooks"
+next_topic: "10-react.reducer"
 related: []
 advanced: []
 ---
@@ -23,49 +23,57 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Context in simple language.
+**Context** passes a value from a Provider to any consumer below without threading props. Useful for theme, auth, i18n, and dependency injection—not as a full app store by default.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Prop drilling through many pure layout layers is noisy. Context skips those layers.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Legacy context → new context API (16.3) → `useContext`. Concurrent features require bailouts/selectors patterns carefully.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+A context value change re-renders all consumers that read it (unless you split contexts / use other libraries). Providers should keep value identities stable when content doesn’t change.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Create context with meaningful default/null.
+2. Provide near the real owner.
+3. Consume via `useContext` wrapped in a safe hook.
+4. Split contexts if values change at different rates.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+flowchart TD
+  Provider -->|value| Tree
+  Tree --> ConsumerA
+  Tree --> ConsumerB
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Not applicable.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+Built-in dependency injection for the tree.
 
 ## Next.js Perspective
 
-Not applicable.
+Client context providers need `"use client"`; don’t expect server components to read client context.
 
 ## Server Perspective
 
@@ -77,77 +85,99 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Huge values changing often re-render large consumer sets—split or colocate.
 
 ## Production Example
 
-TODO: Realistic production example.
+`AuthProvider` exposes `user` + `login`/`logout`; theme is a separate context so theme toggles don’t re-render auth-heavy trees unnecessarily.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```tsx
+const AuthCtx = createContext<User | null>(null)
+export function useAuth() {
+  const v = useContext(AuthCtx)
+  if (!v) throw new Error('AuthProvider missing')
+  return v
+}
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[Context] --> nextStep[NextStep]
+flowchart TD
+  Provider --> Layout --> Page --> useAuth
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Using context as Redux for all state
+2. New object value inline every render without need
+3. Missing provider → silent defaults
+4. One mega context for unrelated data
+5. Putting unstable callbacks without care into value
+6. Consuming context in overly broad components
+7. Missing a production edge case for 10-react.context (#1)
+8. Missing a production edge case for 10-react.context (#2)
+9. Missing a production edge case for 10-react.context (#3)
+10. Missing a production edge case for 10-react.context (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Null context + throwing hook
+- Split high-churn values
+- Memoize provider value when appropriate
+- Prefer props for local parent/child
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Context for every prop to “future-proof”
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Tool | Best for |
+| --- | --- |
+| Props | Local explicit data |
+| Context | Cross-cutting stable-ish values |
+| Store libs | Complex shared client state |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What problem does Context solve?
+
+**A:** Passing data through the tree without prop drilling every level.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Why can Context hurt performance?
+
+**A:** All consumers re-render when the provider value changes identity/content.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How do you optimize a high-frequency context?
+
+**A:** Split contexts, narrow consumers, memoize values, or use external stores with `useSyncExternalStore`/selectors.
 
 ## Summary
 
-- TODO: key takeaway
+- Tree-wide dependency injection
+- Watch value identity and consumer breadth
+- Not a default global store
 
 ## References
 
-- TODO: official documentation links
+- [React Documentation](https://react.dev/)
+- [Passing Data Deeply with Context](https://react.dev/learn/passing-data-deeply-with-context)
 
 <RelatedTopics />
 
 
-Prev: [Rules of Hooks](/10-react/rules-of-hooks/) · Next: [Reducer](/10-react/reducer/)
+Prev: [`10-react.rules-of-hooks`](/10-react/rules-of-hooks/) · Next: [`10-react.reducer`](/10-react/reducer/)

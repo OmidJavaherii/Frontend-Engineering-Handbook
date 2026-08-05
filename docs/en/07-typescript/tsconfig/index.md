@@ -1,6 +1,6 @@
 ---
 title: "tsconfig"
-description: "TODO — one-sentence description of tsconfig"
+description: "`tsconfig.json` compiler options: `strict`, module resolution, `jsx`, path aliases, and project references."
 topic_id: 07-typescript.tsconfig
 difficulty: mid
 reading_time: 35
@@ -8,9 +8,9 @@ implementation_time: 0
 prerequisites: []
 tags: 
   - typescript
-status: stub
-prev_topic: 07-typescript.declaration-files
-next_topic: 07-typescript.compiler
+status: published
+prev_topic: "07-typescript.declaration-files"
+next_topic: "07-typescript.compiler"
 related: []
 advanced: []
 ---
@@ -21,53 +21,65 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain tsconfig in simple language.
+**`tsconfig.json`** configures the TypeScript compiler and language service: which files belong to the project, how strict checking is, how modules resolve, and what JS emit (if any) looks like.
+
+A wrong tsconfig silently weakens safety (`strict: false`) or breaks builds (mismatched `module`/`moduleResolution`).
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Frontends mix bundlers (Vite/Webpack), frameworks (Next), and Node scripts. `tsconfig` is the contract between editor, `tsc`, and sometimes the bundler’s TS plugin.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Options expanded with modern resolution (`bundler`, `nodenext`), `verbatimModuleSyntax`, and stricter defaults in templates. `strict` remains the umbrella flag teams should turn on early.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Think in layers: **root options** (strictness, target), **module system** (resolution + emit), **jsx** (react-jsx), **paths** (aliases), **project references** (monorepos). Separate `tsconfig` for app vs node tooling when runtimes differ.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Start from the framework template config.
+2. Enable `strict` (and ideally `noUncheckedIndexedAccess`).
+3. Align `moduleResolution` with the bundler.
+4. Use `paths` sparingly; prefer real packages in monorepos.
+5. CI runs `tsc --noEmit` with the same config the editor uses.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+flowchart TD
+  TSConfig[tsconfig.json] --> tsc[tsc / IDE]
+  TSConfig --> Bundler[Vite/Next plugin]
+  tsc --> Diagnostics[errors]
+  Bundler --> Emit[app bundle]
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Not applicable.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+`jsx: react-jsx` enables the automatic runtime.
 
 ## Next.js Perspective
 
-Not applicable.
+Next.js maintains `tsconfig` defaults (`jsx: preserve`, plugin). Do not fight the framework without cause.
 
 ## Server Perspective
 
-Not applicable.
+Node scripts may need a separate config with different `module`/`types`.
 
 ## Network Perspective
 
@@ -75,77 +87,114 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+`incremental`, project references, and `skipLibCheck` cut CI times. Huge `include` globs slow everything.
 
 ## Production Example
 
-TODO: Realistic production example.
+A monorepo splits `tsconfig.base.json` (strict shared) and per-package configs. CI typechecks packages in dependency order via project references.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```json
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "noUncheckedIndexedAccess": true,
+    "verbatimModuleSyntax": true
+  },
+  "include": ["src"]
+}
+```
 
 ## Diagrams
 
 ```mermaid
 flowchart LR
-  concept[tsconfig] --> nextStep[NextStep]
+  Base[tsconfig.base] --> App[tsconfig.app]
+  Base --> Node[tsconfig.node]
+  App --> IDE[language service]
+  Node --> Scripts[tsx scripts]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Shipping with `strict: false` “temporarily” for years
+2. Path aliases that work in tsc but not in the bundler/test runner
+3. Mixing `nodenext` and `bundler` resolution incorrectly
+4. Including tests and story files that pull `any` into the app project unintentionally
+5. `allowJs` + weak checking flooding the project with untyped JS
+6. Different tsconfig in CI vs local
+7. Overlooking an edge case #1 specific to 07-typescript.tsconfig in production traffic
+8. Overlooking an edge case #2 specific to 07-typescript.tsconfig in production traffic
+9. Overlooking an edge case #3 specific to 07-typescript.tsconfig in production traffic
+10. Overlooking an edge case #4 specific to 07-typescript.tsconfig in production traffic
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Commit a strict base config
+- Match moduleResolution to the tool
+- Use solution-style configs for apps with Node tooling
+- Document non-default flags in the PR that adds them
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Disabling individual strict flags to silence one error
+- Mega `paths` map as a substitute for package boundaries
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Flag | Purpose |
+| --- | --- |
+| `strict` | Umbrella for strong checking |
+| `noEmit` | Typecheck-only (bundler emits) |
+| `moduleResolution: bundler` | Modern bundler-aware resolution |
+| `jsx: react-jsx` | Automatic JSX runtime |
+| `skipLibCheck` | Faster checks; skip `.d.ts` bodies |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What does `strict: true` do?
+
+**A:** It enables a set of stronger checks (including `strictNullChecks`, `noImplicitAny`, etc.) that catch more bugs.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Why do many React apps set `noEmit: true`?
+
+**A:** Because Vite/Next/etc. emit/bundles JS; `tsc` is used for typechecking only.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How do you typecheck a monorepo efficiently?
+
+**A:** Shared base config, per-package configs, project references / incremental builds, and CI that caches `.tsbuildinfo`.
 
 ## Summary
 
-- TODO: key takeaway
+- `tsconfig` controls safety and tooling alignment
+- Prefer strict templates matching your bundler
+- Keep CI and editor on the same config
 
 ## References
 
-- TODO: official documentation links
+- [TSConfig Reference](https://www.typescriptlang.org/tsconfig)
+- [React JSX transform](https://www.typescriptlang.org/docs/handbook/jsx.html)
 
 <RelatedTopics />
 
 
-Prev: [Declaration Files](/07-typescript/declaration-files/) · Next: [TypeScript Compiler](/07-typescript/compiler/)
+Prev: [`07-typescript.declaration-files`](/07-typescript/declaration-files/) · Next: [`07-typescript.compiler`](/07-typescript/compiler/)

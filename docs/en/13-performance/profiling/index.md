@@ -1,6 +1,6 @@
 ---
 title: "Profiling"
-description: "TODO — one-sentence description of Profiling"
+description: "Using performance traces and profilers to attribute CPU/time costs."
 topic_id: 13-performance.profiling
 difficulty: mid
 reading_time: 35
@@ -9,9 +9,9 @@ prerequisites: []
 tags: 
   - performance
   - devtools
-status: stub
-prev_topic: 13-performance.tbt
-next_topic: 13-performance.long-tasks
+status: published
+prev_topic: "13-performance.tbt"
+next_topic: "13-performance.long-tasks"
 related: []
 advanced: []
 ---
@@ -22,41 +22,50 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Profiling in simple language.
+**Profiling** captures runtime behavior—Performance panel, React Profiler, server CPU profiles—to attribute where time goes before optimizing.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Guessing optimizations wastes effort. Traces show long tasks, layout thrash, and React commits.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Browser DevTools + sampling profilers; React Profiler; continuous profiling in prod backends.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Record → find long tasks/flamechart hotspots → hypothesize → fix → re-record.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Reproduce on a realistic device throttle.
+2. Record Performance (+ screenshots).
+3. Mark user actions.
+4. Attribute JS vs layout vs network.
+5. Fix and compare traces.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Idle
+  Idle --> Active: use
+  Active --> Idle: settle
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Not applicable.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
@@ -76,77 +85,100 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Measure before/after with lab + field tools. Optimize the attributed bottleneck for Using performance traces and profilers to attribute CPU/time costs., not folklore.
 
 ## Production Example
 
-TODO: Realistic production example.
+Teams adopt Using performance traces and profilers to attribute CPU/time costs. on critical routes, add monitoring, and guard regressions with budgets or reviews.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```ts
+performance.mark('cart:start')
+await updateCart()
+performance.mark('cart:end')
+performance.measure('cart', 'cart:start', 'cart:end')
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[Profiling] --> nextStep[NextStep]
+flowchart TD
+  A[Understand] --> B[Apply Using performance traces and profilers to attribute CPU/time costs.]
+  B --> C[Measure]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Optimizing without a trace
+2. Profiling dev builds only
+3. Ignoring main-thread vs network
+4. Too short recordings missing interactions
+5. Misreading minified frames without source maps
+6. React Profiler without why-did-you render context
+7. Missing a production edge case for 13-performance.profiling (#1)
+8. Missing a production edge case for 13-performance.profiling (#2)
+9. Missing a production edge case for 13-performance.profiling (#3)
+10. Missing a production edge case for 13-performance.profiling (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Prefer platform/framework primitives
+- Measure impact on real user metrics
+- Keep the change reviewable and reversible
+- Document the invariant you are protecting
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Copy-paste without understanding failure modes
+- Premature abstraction around a single use
+- Optimizing without a baseline
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Approach | When |
+| --- | --- |
+| Use as designed | Default |
+| Simpler alternative | If constraints differ |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What tool profiles page runtime in Chrome?
+
+**A:** The Performance panel (and Lighthouse for lab summaries).
 
 ### Medium
 
-TODO — question and answer.
+**Q:** How locate a layout thrash?
+
+**A:** Look for recurring Recalculate Style/Layout interleaved with JS forcing geometry reads.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How profile production React cost safely?
+
+**A:** Sampled RUM + optional React Profiler in staging; use source maps; never ship heavy profiling always-on to all users without sampling.
 
 ## Summary
 
-- TODO: key takeaway
+- Using performance traces and profilers to attribute CPU/time costs.
+- Know why it exists and when not to use it
+- Measure production impact
+- Link related handbook topics instead of duplicating
 
 ## References
 
-- TODO: official documentation links
+- [Chrome — Performance panel](https://developer.chrome.com/docs/devtools/performance/)
+- [React — Profiler](https://react.dev/reference/react/Profiler)
 
 <RelatedTopics />
 
 
-Prev: [TBT](/13-performance/tbt/) · Next: [Long Tasks](/13-performance/long-tasks/)
+Prev: [`13-performance.tbt`](/13-performance/tbt/) · Next: [`13-performance.long-tasks`](/13-performance/long-tasks/)

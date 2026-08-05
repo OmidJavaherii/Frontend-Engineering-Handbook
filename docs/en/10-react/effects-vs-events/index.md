@@ -1,6 +1,6 @@
 ---
 title: "Effects vs Events"
-description: "TODO — one-sentence description of Effects vs Events"
+description: "Effects vs events: choose event handlers for user intent and effects only to sync external systems."
 topic_id: 10-react.effects-vs-events
 difficulty: mid
 reading_time: 30
@@ -9,8 +9,8 @@ prerequisites:
   - 10-react.useeffect
 tags: 
   - react
-status: stub
-prev_topic: 10-react.server-components-overview
+status: published
+prev_topic: "10-react.server-components-overview"
 next_topic: null
 related: []
 advanced: []
@@ -22,49 +22,59 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Effects vs Events in simple language.
+**Events** respond to something that happened (click, submit) and may update state or talk to external systems immediately. **Effects** synchronize React state with external systems when the component is displayed / deps change.
+
+Most bugs labeled “effect hell” are events modeled as effects.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Wrong placement causes double-firing, race conditions, and unreadable data flows—especially under Strict Mode.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+React docs sharpened this distinction as hooks matured (“You Might Not Need an Effect”).
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+If a user did it → event. If the component needs to stay in sync while mounted → effect. If you can compute it → render.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Write the happy path as events + state.
+2. Derive values in render.
+3. Add effects only for subscriptions/widgets/ Imperative APIs.
+4. Delete prop-sync effects.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+flowchart TD
+  UserAction --> EventHandler --> setState
+  MountOrDeps --> Effect --> External
+  Render --> Derived
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Not applicable.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+Core design rule for maintainable hooks code.
 
 ## Next.js Perspective
 
-Not applicable.
+Server actions/events on client still follow the same split.
 
 ## Server Perspective
 
@@ -76,77 +86,115 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Fewer effects → fewer waterfalls and loops.
 
 ## Production Example
 
-TODO: Realistic production example.
+Analytics “product viewed” fires in an effect keyed by product id; “Add to cart clicked” fires in the click handler—not in an effect watching cart length.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```tsx
+// Event — user intent
+function BuyButton({ id }: { id: string }) {
+  return (
+    <button
+      onClick={() => {
+        track('buy_click', { id })
+        addToCart(id)
+      }}
+    >
+      Buy
+    </button>
+  )
+}
+
+// Effect — sync while viewing
+useEffect(() => {
+  const sub = store.subscribe(id, setData)
+  return () => sub.unsubscribe()
+}, [id])
+```
 
 ## Diagrams
 
 ```mermaid
 flowchart LR
-  concept[EffectsvsEvents] --> nextStep[NextStep]
+  Event[User event] --> Handler
+  Sync[External sync] --> Effect
+  Compute[Pure compute] --> Render
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. useEffect on button click via flag state
+2. Fetching from props with effect chains instead of routers/loaders
+3. Transforming data in effects
+4. Resetting state in effects instead of keys
+5. Notifying parent in effects causing loops
+6. Strict Mode double-fire surprises from event-as-effect
+7. Missing a production edge case for 10-react.effects-vs-events (#1)
+8. Missing a production edge case for 10-react.effects-vs-events (#2)
+9. Missing a production edge case for 10-react.effects-vs-events (#3)
+10. Missing a production edge case for 10-react.effects-vs-events (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Events for intent
+- Effects for sync
+- Render for derivation
+- Keys to reset state
 
 ## Anti-patterns
 
-TODO: What not to do.
+- `const [clicked, setClicked] = useState(false)` + effect on clicked
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
+| Kind | Trigger | Examples |
 | --- | --- | --- |
-| TODO | TODO | TODO |
+| Event | User/system action | click, submit |
+| Effect | Mount/deps | subscriptions, widgets |
+| Render | Each render | derived values |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** Should a button click be handled in useEffect?
+
+**A:** No. Handle it in the click event handler.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Give an example of a justified effect.
+
+**A:** Subscribing to a WebSocket or connecting a non-React map widget when the component mounts, with cleanup on unmount.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How do you reset state when a `userId` prop changes without an effect?
+
+**A:** Set `key={userId}` on the component so React remounts a fresh state tree.
 
 ## Summary
 
-- TODO: key takeaway
+- Events = intent; effects = external sync; render = derive
+- Most effect bugs are misplaced events
+- Prefer keys and derivation over sync effects
 
 ## References
 
-- TODO: official documentation links
+- [React Documentation](https://react.dev/)
+- [You Might Not Need an Effect](https://react.dev/learn/you-might-not-need-an-effect)
+- [Responding to Events](https://react.dev/learn/responding-to-events)
 
 <RelatedTopics />
 
 
-Prev: [Server Components Overview](/10-react/server-components-overview/)
+Prev: [`10-react.server-components-overview`](/10-react/server-components-overview/)

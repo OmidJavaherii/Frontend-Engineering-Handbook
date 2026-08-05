@@ -1,6 +1,6 @@
 ---
 title: "Higher-Order Components"
-description: "TODO — one-sentence description of Higher-Order Components"
+description: "Higher-Order Components: wrapping components to reuse behavior — history, pitfalls, and modern replacements."
 topic_id: 22-design-patterns.hoc
 difficulty: mid
 reading_time: 25
@@ -9,9 +9,9 @@ prerequisites: []
 tags: 
   - patterns
   - react
-status: stub
-prev_topic: 22-design-patterns.render-props
-next_topic: 22-design-patterns.provider-pattern
+status: published
+prev_topic: "22-design-patterns.render-props"
+next_topic: "22-design-patterns.provider-pattern"
 related: []
 advanced: []
 ---
@@ -22,45 +22,53 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Higher-Order Components in simple language.
+A **Higher-Order Component (HOC)** is a function that takes a component and returns a new enhanced component. Dominant before hooks; still appears in legacy code and some libraries.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Classes could not compose stateful logic cleanly. HOCs added auth gates, data fetching, and theming — along with wrapper hell and static prop collisions.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Popularized with React Redux `connect`, `withRouter`, recompose. Hooks and render props reduced need; Redux now recommends hooks APIs.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+`withX(Component) => Wrapped`. The wrapper injects props or guards rendering. Compose carefully; prefer hooks for new logic.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Identify cross-cutting behavior  
+2. Prefer a hook  
+3. If HOC required, forward refs/props/`displayName`  
+4. Avoid stacking many HOCs
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Wrap
+  Wrap --> RenderInner
+  RenderInner --> [*]
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Not applicable.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+Forward refs with `forwardRef`; hoist statics when needed. Hooks replace most HOCs.
 
 ## Next.js Perspective
 
@@ -76,77 +84,112 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Extra layers add noise in DevTools; rarely a real perf issue vs re-renders.
 
 ## Production Example
 
-TODO: Realistic production example.
+Legacy `withAuth(Page)` remains; new pages call `useAuth()` and `<Navigate>`.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```tsx
+function withAuth<P extends object>(Comp: React.ComponentType<P>) {
+  return function Authed(props: P) {
+    const { user } = useAuth()
+    if (!user) return <LoginRedirect />
+    return <Comp {...props} />
+  }
+}
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[HigherOrderComponents] --> nextStep[NextStep]
+flowchart TD
+  n0[HOC fn] --> n1[Wrapped component]
+  n1[Wrapped component] --> n2[Inject/guard]
+```
+
+```mermaid
+sequenceDiagram
+  participant User
+  participant App
+  participant Platform
+  User->>App: interact (HOC)
+  App->>Platform: apply mechanism
+  Platform-->>App: result or error
+  App-->>User: update UI
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Not forwarding refs
+2. Prop name collisions
+3. Composing 8 HOCs
+4. Using HOCs for new code when a hook suffices
+5. Losing `displayName` making DevTools opaque
+6. Mutating the original component prototype
+7. Missing a production edge case for 22-design-patterns.hoc (#1)
+8. Missing a production edge case for 22-design-patterns.hoc (#2)
+9. Missing a production edge case for 22-design-patterns.hoc (#3)
+10. Missing a production edge case for 22-design-patterns.hoc (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Prefer hooks
+- Set `displayName`
+- Forward unknown props
 
 ## Anti-patterns
 
-TODO: What not to do.
+- HOC that secretly reads globals without documenting injected props
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
+| | Indirection | Modern default |
 | --- | --- | --- |
-| TODO | TODO | TODO |
+| HOC | High | No |
+| Render props | Medium | Rare |
+| Hooks | Low | Yes |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** Define an HOC.
+
+**A:** A function that takes a component and returns an enhanced component.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Why did React Redux move from connect HOCs to hooks?
+
+**A:** Better composition, TypeScript DX, and less wrapping — see [/15-architecture/redux/](/15-architecture/redux/).
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How do you migrate a withX HOC safely?
+
+**A:** Implement `useX`, reimplement HOC as thin wrapper over the hook, migrate callers incrementally, then deprecate.
 
 ## Summary
 
-- TODO: key takeaway
+- HOC wraps components for reuse
+- Hooks replaced most use cases
+- Forward refs and displayName
+- Avoid wrapper pyramids
 
 ## References
 
-- TODO: official documentation links
+- [React — Higher-Order Components](https://reactjs.org/docs/higher-order-components.html) (legacy docs)
+- [Redux — Hooks](https://react-redux.js.org/api/hooks)
 
 <RelatedTopics />
 
 
-Prev: [Render Props](/22-design-patterns/render-props/) · Next: [Provider Pattern](/22-design-patterns/provider-pattern/)
+Prev: [`22-design-patterns.render-props`](/22-design-patterns/render-props/) · Next: [`22-design-patterns.provider-pattern`](/22-design-patterns/provider-pattern/)

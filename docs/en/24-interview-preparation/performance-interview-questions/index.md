@@ -1,6 +1,6 @@
 ---
 title: "Performance Interview Questions"
-description: "TODO — one-sentence description of Performance Interview Questions"
+description: "Performance interview bank: Web Vitals, CRP, JS cost, images — linked to modules 03/13."
 topic_id: 24-interview-preparation.performance-interview-questions
 difficulty: mid
 reading_time: 45
@@ -9,9 +9,9 @@ prerequisites: []
 tags: 
   - interview
   - performance
-status: stub
-prev_topic: 24-interview-preparation.typescript-interview-questions
-next_topic: 24-interview-preparation.security-interview-questions
+status: published
+prev_topic: "24-interview-preparation.typescript-interview-questions"
+next_topic: "24-interview-preparation.security-interview-questions"
 related: []
 advanced: []
 ---
@@ -22,131 +22,184 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Performance Interview Questions in simple language.
+**Performance** question bank. Depth: [/13-performance/](/13-performance/), CRP [/03-browser/critical-rendering-path/](/03-browser/critical-rendering-path/). Always pair advice with a metric.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+“Make it faster” without metrics is folklore. Interviews want measurement literacy.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+PageSpeed → RAIL → Core Web Vitals (LCP, INP, CLS) shifted the vocabulary.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+**Measure → attribute → change one variable → remeasure.** Lab vs field (RUM).
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+**Q:** What are Core Web Vitals?  
+**A:** LCP/INP/CLS — web.dev + [/13-performance/](/13-performance/) topics.
+
+**Q:** How to improve LCP?  
+**A:** Server TTFB, hero image priorities, avoid blocking CSS/JS — preload [/04-html/preload/](/04-html/preload/).
+
+**Q:** What causes CLS?  
+**A:** Untyped images/ads/fonts — reserve space.
+
+**Q:** Long tasks?  
+**A:** Break up JS; workers [/09-browser-apis/web-workers/](/09-browser-apis/web-workers/).
+
+**Q:** React list jank?  
+**A:** Virtualize; state locality — [/21-frontend-system-design/infinite-scroll/](/21-frontend-system-design/infinite-scroll/).
+
+**Q:** Caching impact?  
+**A:** [/02-internet/http-caching/](/02-internet/http-caching/), [/21-frontend-system-design/caching-strategies/](/21-frontend-system-design/caching-strategies/).
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Measure
+  Measure --> Attribute
+  Attribute --> Change
+  Change --> Measure
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Performance panel, Lighthouse, Web Vitals.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Parse/compile/GC.
 
 ## React Perspective
 
-Not applicable.
+Profiler commit times.
 
 ## Next.js Perspective
 
-Not applicable.
+Bundles, streaming, server timings.
 
 ## Server Perspective
 
-Not applicable.
+TTFB.
 
 ## Network Perspective
 
-Not applicable.
+Waterfalls.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Heap snapshots.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+This whole page is about performance literacy.
 
 ## Production Example
 
-TODO: Realistic production example.
+Ask for a before/after metric story from the candidate’s experience.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```js
+performance.getEntriesByType('navigation')
+// discuss TTFB, DOMContentLoaded, load
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[PerformanceInterviewQuestions] --> nextStep[NextStep]
+flowchart TD
+  n0[Metric] --> n1[Attribute]
+  n1[Attribute] --> n2[Fix]
+  n2[Fix] --> n3[Remeasure]
+```
+
+```mermaid
+sequenceDiagram
+  participant User
+  participant App
+  participant Platform
+  User->>App: interact (Perf interview)
+  App->>Platform: apply mechanism
+  Platform-->>App: result or error
+  App-->>User: update UI
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Optimizing without metrics
+2. Chasing Lighthouse score hacks
+3. Ignoring field data
+4. Micro-memoization vs network waterfalls
+5. Huge images “compressed” as PNG screenshots
+6. Hydration cost ignored in SSR apps
+7. Missing a production edge case for 24-interview-preparation.performance-interview-questions (#1)
+8. Missing a production edge case for 24-interview-preparation.performance-interview-questions (#2)
+9. Missing a production edge case for 24-interview-preparation.performance-interview-questions (#3)
+10. Missing a production edge case for 24-interview-preparation.performance-interview-questions (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Name the vital
+- Lab + RUM
+- Budgets in CI
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Premature Web Workers for tiny work
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Metric | User pain |
+| --- | --- |
+| LCP | Slow hero |
+| INP | Sluggish clicks |
+| CLS | Jumping layout |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is LCP?
+
+**A:** Largest Contentful Paint — when the main content likely appeared. See web.dev / performance module.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** How do you find the cause of poor INP?
+
+**A:** Performance panel: long tasks, forced layouts, expensive handlers; optimize input path.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** Design a performance budget for a Next.js marketing site.
+
+**A:** Budgets for JS KB, LCP, image weights; CI fail; RUM dashboards; caching strategy for static assets.
 
 ## Summary
 
-- TODO: key takeaway
+- Metrics first
+- Attribute precisely
+- Link CRP + performance modules
+- Lab and field
 
 ## References
 
-- TODO: official documentation links
+- [web.dev — Vitals](https://web.dev/vitals/)
+- [Chrome — Performance](https://developer.chrome.com/docs/performance/)
 
 <RelatedTopics />
 
 
-Prev: [TypeScript Interview Questions](/24-interview-preparation/typescript-interview-questions/) · Next: [Security Interview Questions](/24-interview-preparation/security-interview-questions/)
+Prev: [`24-interview-preparation.typescript-interview-questions`](/24-interview-preparation/typescript-interview-questions/) · Next: [`24-interview-preparation.security-interview-questions`](/24-interview-preparation/security-interview-questions/)

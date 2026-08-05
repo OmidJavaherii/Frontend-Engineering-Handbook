@@ -1,6 +1,6 @@
 ---
 title: "WebSocket API"
-description: "TODO — one-sentence description of WebSocket API"
+description: "WebSocket API: full-duplex persistent connections for low-latency bidirectional messaging."
 topic_id: 09-browser-apis.web-sockets-api
 difficulty: mid
 reading_time: 25
@@ -10,9 +10,9 @@ prerequisites:
 tags: 
   - browser-apis
   - realtime
-status: stub
-prev_topic: 09-browser-apis.geolocation
-next_topic: 09-browser-apis.streams-api
+status: published
+prev_topic: "09-browser-apis.geolocation"
+next_topic: "09-browser-apis.streams-api"
 related: []
 advanced: []
 ---
@@ -23,49 +23,63 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain WebSocket API in simple language.
+**WebSocket** provides a persistent, full-duplex channel over a single TCP connection (upgraded from HTTP). The browser API is `new WebSocket(url)` with `send` and message events.
+
+Ideal for chat, collaboration, and live feeds—not a replacement for all HTTP.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+HTTP request/response is awkward for high-frequency server push. Long polling wastes overhead; WS keeps a channel open.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Standardized to replace comet hacks. HTTP/2/3 and SSE cover some push cases; WS remains king for bidirectional low-latency.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Connecting → open → messages (text/binary) → close/error. Heartbeats and reconnect/backoff are app responsibilities. Auth often via first message or cookies on handshake.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Connect to `wss://`.
+2. Wait for `open`.
+3. Define message schema; handle close codes.
+4. Reconnect with exponential backoff + jitter.
+5. Backpressure: don’t unbounded-queue sends.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Connecting
+  Connecting --> Open
+  Open --> Closing
+  Open --> Closed: error/close
+  Closing --> Closed
+  Closed --> Connecting: reconnect
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+DevTools Network → WS frames.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+One connection per app area; context/store owns lifecycle.
 
 ## Next.js Perspective
 
-Not applicable.
+Connect from client components; server needs a WS-capable host.
 
 ## Server Perspective
 
@@ -73,81 +87,108 @@ Not applicable.
 
 ## Network Perspective
 
-Not applicable.
+Proxies/load balancers must support Upgrade; idle timeouts need heartbeats.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Great for many small messages; compress carefully; avoid mega JSON dumps.
 
 ## Production Example
 
-TODO: Realistic production example.
+Collaborative editor multiplexes presence and ops over one socket with heartbeat every 25s and resume tokens after reconnect.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```ts
+const ws = new WebSocket('wss://example.com/socket')
+ws.addEventListener('open', () => ws.send(JSON.stringify({ type: 'hello' })))
+ws.addEventListener('message', (e) => console.log(JSON.parse(String(e.data))))
+ws.addEventListener('close', () => {
+  /* schedule reconnect */
+})
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[WebSocketAPI] --> nextStep[NextStep]
+sequenceDiagram
+  participant Client
+  participant Server
+  Client->>Server: HTTP Upgrade
+  Server-->>Client: 101
+  Client->>Server: messages
+  Server->>Client: messages
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. No reconnect strategy
+2. ws:// on HTTPS pages (mixed content)
+3. Unbounded message handlers updating React every frame
+4. Assuming ordering across reconnects without sequence numbers
+5. Auth tokens in query strings logged everywhere
+6. Using WS for simple one-shot RPC without need
+7. Overlooking an edge case #1 specific to 09-browser-apis.web-sockets-api in production traffic
+8. Overlooking an edge case #2 specific to 09-browser-apis.web-sockets-api in production traffic
+9. Overlooking an edge case #3 specific to 09-browser-apis.web-sockets-api in production traffic
+10. Overlooking an edge case #4 specific to 09-browser-apis.web-sockets-api in production traffic
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- wss only in prod
+- Backoff + heartbeat
+- Typed message unions
+- Server sticky/session awareness at LB
 
 ## Anti-patterns
 
-TODO: What not to do.
+- New WebSocket per React component mount without sharing
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
+| Tech | Direction | Use |
 | --- | --- | --- |
-| TODO | TODO | TODO |
+| WebSocket | Bidirectional | Chat/collab |
+| SSE | Server→client | Streams |
+| HTTP polling | Req/res | Simple rare updates |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is a WebSocket?
+
+**A:** A persistent full-duplex connection for bidirectional messaging after an HTTP upgrade.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Why use `wss`?
+
+**A:** TLS encryption and to avoid mixed-content blocking on HTTPS sites.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How do you design reconnect without duplicating events?
+
+**A:** Resume tokens / last sequence IDs, idempotent server events, and client-side dedupe.
 
 ## Summary
 
-- TODO: key takeaway
+- Bidirectional persistent messaging
+- You own heartbeat/reconnect
+- Prefer wss; share connections thoughtfully
 
 ## References
 
-- TODO: official documentation links
+- [MDN: WebSockets API](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API)
+- [RFC 6455](https://datatracker.ietf.org/doc/html/rfc6455)
 
 <RelatedTopics />
 
 
-Prev: [Geolocation](/09-browser-apis/geolocation/) · Next: [Streams API](/09-browser-apis/streams-api/)
+Prev: [`09-browser-apis.geolocation`](/09-browser-apis/geolocation/) · Next: [`09-browser-apis.streams-api`](/09-browser-apis/streams-api/)

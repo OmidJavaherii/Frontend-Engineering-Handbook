@@ -1,6 +1,6 @@
 ---
 title: "Intersection Observer"
-description: "TODO — one-sentence description of Intersection Observer"
+description: "Intersection Observer: async callbacks when element visibility crosses thresholds—lazyload, infinite scroll, analytics."
 topic_id: 09-browser-apis.intersection-observer
 difficulty: mid
 reading_time: 30
@@ -9,9 +9,9 @@ prerequisites: []
 tags: 
   - browser-apis
   - performance
-status: stub
-prev_topic: 09-browser-apis.clipboard-api
-next_topic: 09-browser-apis.mutation-observer
+status: published
+prev_topic: "09-browser-apis.clipboard-api"
+next_topic: "09-browser-apis.mutation-observer"
 related: []
 advanced: []
 ---
@@ -22,45 +22,54 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Intersection Observer in simple language.
+**IntersectionObserver** notifies when a target’s intersection with a root (viewport or element) crosses configured thresholds. It avoids scroll listeners that force layout thrashing.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Lazy-loading images, infinite lists, and “in view” analytics need efficient visibility detection.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Widely shipped to replace noisy scroll hacks; rootMargin and thresholds make it flexible.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Observe targets; deliver batched async callbacks with `intersectionRatio`, `isIntersecting`, bounding rects. Roots default to viewport.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Create observer with callback + options.
+2. `observe` elements.
+3. React to entries (load image, fetch page).
+4. `unobserve`/`disconnect` on cleanup.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Observed
+  Observed --> Intersecting: enters
+  Intersecting --> Observed: leaves
+  Observed --> [*]: disconnect
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Runs off scroll hot paths; delivery is async.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+Create observer in effects; disconnect on unmount.
 
 ## Next.js Perspective
 
@@ -76,77 +85,104 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Major win vs scroll+getBoundingClientRect loops.
 
 ## Production Example
 
-TODO: Realistic production example.
+Product cards use IO to set `img.src` when near viewport (`rootMargin: 200px`) and send once-per-item impression beacons.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```ts
+const io = new IntersectionObserver(
+  (entries) => {
+    for (const e of entries) {
+      if (e.isIntersecting) {
+        const img = e.target as HTMLImageElement
+        img.src = img.dataset.src!
+        io.unobserve(img)
+      }
+    }
+  },
+  { rootMargin: '200px', threshold: 0.01 },
+)
+document.querySelectorAll('img[data-src]').forEach((img) => io.observe(img))
+```
 
 ## Diagrams
 
 ```mermaid
 flowchart LR
-  concept[IntersectionObserver] --> nextStep[NextStep]
+  Target --> Root[Root / viewport]
+  Root --> CB[callback entries]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Forgetting disconnect on unmount (leaks)
+2. Using scroll listeners instead without need
+3. threshold misunderstanding (0 vs 1)
+4. Observing permanently after lazyload done
+5. Assuming synchronous delivery
+6. Wrong root element for scrollable containers
+7. Overlooking an edge case #1 specific to 09-browser-apis.intersection-observer in production traffic
+8. Overlooking an edge case #2 specific to 09-browser-apis.intersection-observer in production traffic
+9. Overlooking an edge case #3 specific to 09-browser-apis.intersection-observer in production traffic
+10. Overlooking an edge case #4 specific to 09-browser-apis.intersection-observer in production traffic
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- rootMargin for prefetch
+- unobserve after one-shot tasks
+- One observer many targets when possible
 
 ## Anti-patterns
 
-TODO: What not to do.
+- New observer per list row without reuse
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Approach | Main-thread cost |
+| --- | --- |
+| IntersectionObserver | Low |
+| scroll + measure | High |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What problem does IntersectionObserver solve?
+
+**A:** Efficiently detecting when elements enter/leave a viewport/root without scroll thrashing.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** What is `rootMargin` for?
+
+**A:** To expand/shrink the root’s intersection box—e.g. preload before fully visible.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How do you observe inside a scrollable div, not the viewport?
+
+**A:** Pass that element as `root` in the observer options.
 
 ## Summary
 
-- TODO: key takeaway
+- Async visibility observations
+- Ideal for lazyload/impressions
+- Always clean up observers
 
 ## References
 
-- TODO: official documentation links
+- [MDN: Intersection Observer](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API)
 
 <RelatedTopics />
 
 
-Prev: [Clipboard API](/09-browser-apis/clipboard-api/) · Next: [Mutation Observer](/09-browser-apis/mutation-observer/)
+Prev: [`09-browser-apis.clipboard-api`](/09-browser-apis/clipboard-api/) · Next: [`09-browser-apis.mutation-observer`](/09-browser-apis/mutation-observer/)

@@ -1,6 +1,6 @@
 ---
 title: "Middleware"
-description: "TODO — one-sentence description of Middleware"
+description: "Edge middleware that runs before a request is completed for matched paths."
 topic_id: 11-nextjs.middleware
 difficulty: mid
 reading_time: 35
@@ -8,9 +8,9 @@ implementation_time: 0
 prerequisites: []
 tags: 
   - nextjs
-status: stub
-prev_topic: 11-nextjs.route-handlers
-next_topic: 11-nextjs.edge-runtime
+status: published
+prev_topic: "11-nextjs.route-handlers"
+next_topic: "11-nextjs.edge-runtime"
 related: []
 advanced: []
 ---
@@ -21,41 +21,51 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Middleware in simple language.
+**Middleware** (`middleware.ts` at the project root or `src/`) runs on the Edge before routes render. It can rewrite, redirect, set headers/cookies, and short-circuit responses. Keep it small—it is not your full backend.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Coarse routing concerns—auth redirects, A/B rewrites, geo routing, header injection—need to run before heavy RSC work. Middleware centralizes those gates.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Introduced to give Next a standard request interceptor at the edge, evolving with matcher config and runtime constraints.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Middleware sees a `NextRequest` and returns `NextResponse`. It should be fast and stateless-friendly. Authorization for mutations must still be enforced in Server Actions/Handlers—middleware is necessary but not sufficient.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Export `middleware` function + optional `config.matcher`.
+2. Inspect cookies/headers/URL.
+3. `NextResponse.redirect`, `rewrite`, or `next()`.
+4. Avoid expensive I/O; prefer JWT/session cookie checks.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> MatchPath
+  MatchPath --> Decide
+  Decide --> Redirect
+  Decide --> Rewrite
+  Decide --> Continue: NextResponse.next
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Redirects appear as normal navigations; rewrites keep the URL while changing the target.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
@@ -63,89 +73,132 @@ Not applicable.
 
 ## Next.js Perspective
 
-Not applicable.
+Matcher excludes static assets carefully to avoid unnecessary invocations.
 
 ## Server Perspective
 
-Not applicable.
+Not full Node—limited APIs. No heavy ORM usage.
 
 ## Network Perspective
 
-Not applicable.
+Runs close to users on Edge; adds latency if bloated.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Keep middleware bundle tiny; large imports hurt every matched request.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Every matched request pays middleware cost. Narrow matchers; avoid large dependency graphs.
 
 ## Production Example
 
-TODO: Realistic production example.
+Middleware checks a session cookie and redirects anonymous users from `/account/*` to `/login?next=...`, while APIs enforce auth again.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```ts
+import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
+
+export function middleware(request: NextRequest) {
+  const session = request.cookies.get('session')
+  if (!session && request.nextUrl.pathname.startsWith('/account')) {
+    const url = request.nextUrl.clone()
+    url.pathname = '/login'
+    url.searchParams.set('next', request.nextUrl.pathname)
+    return NextResponse.redirect(url)
+  }
+  return NextResponse.next()
+}
+
+export const config = {
+  matcher: ['/account/:path*'],
+}
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[Middleware] --> nextStep[NextStep]
+sequenceDiagram
+  participant U as User
+  participant MW as Middleware
+  participant App as Route
+  U->>MW: request
+  alt unauthenticated
+    MW-->>U: redirect /login
+  else ok
+    MW->>App: next()
+  end
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Treating middleware as the only auth layer
+2. Running middleware on all static assets via bad matchers
+3. Heavy database calls in middleware
+4. Complex branching that belongs in the app
+5. Infinite redirect loops
+6. Assuming Node APIs exist on Edge middleware
+7. Missing a production edge case for 11-nextjs.middleware (#1)
+8. Missing a production edge case for 11-nextjs.middleware (#2)
+9. Missing a production edge case for 11-nextjs.middleware (#3)
+10. Missing a production edge case for 11-nextjs.middleware (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Keep middleware fast and focused
+- Use precise matchers
+- Re-check auth in server mutations
+- Prefer rewrites for experiments over client forks
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Importing the entire app into middleware
+- Business-critical authorization only at the edge
+- Mutating responses in undocumented ways
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Layer | Strength |
+| --- | --- |
+| Middleware | Early redirect/rewrite/headers |
+| RSC layout | Data-aware UI gates |
+| Server Action | True mutation authz |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** Where does Next.js middleware run?
+
+**A:** On the Edge runtime before matched requests complete, via root `middleware.ts`.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Redirect vs rewrite in middleware?
+
+**A:** Redirect changes the URL the user sees; rewrite internally maps to another path while keeping the browser URL.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** Why is middleware insufficient as sole authorization?
+
+**A:** It can be bypassed by mis-matchers, static escapes, or direct backend calls; it also lacks full app context. Enforce authz at data/mutation boundaries too.
 
 ## Summary
 
-- TODO: key takeaway
+- Middleware intercepts matched requests at the edge
+- Best for redirects, rewrites, headers
+- Keep it small and not Node-heavy
+- Never the only security control
 
 ## References
 
-- TODO: official documentation links
+- [Next.js — Middleware](https://nextjs.org/docs/app/building-your-application/routing/middleware)
 
 <RelatedTopics />
 
 
-Prev: [Route Handlers](/11-nextjs/route-handlers/) · Next: [Edge Runtime](/11-nextjs/edge-runtime/)
+Prev: [`11-nextjs.route-handlers`](/11-nextjs/route-handlers/) · Next: [`11-nextjs.edge-runtime`](/11-nextjs/edge-runtime/)

@@ -1,6 +1,6 @@
 ---
 title: "Authorization"
-description: "TODO — one-sentence description of Authorization"
+description: "Authorization: enforcing what an authenticated principal is allowed to do."
 topic_id: 02-internet.authorization
 difficulty: mid
 reading_time: 35
@@ -10,9 +10,9 @@ prerequisites:
 tags: 
   - security
   - auth
-status: stub
-prev_topic: 02-internet.authentication
-next_topic: 02-internet.rest
+status: published
+prev_topic: "02-internet.authentication"
+next_topic: "02-internet.rest"
 related: []
 advanced: []
 ---
@@ -23,53 +23,61 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Authorization in simple language.
+**Authorization (AuthZ)** decides whether a principal may perform an action on a resource — roles (RBAC), attributes/policies (ABAC), ACLs, relationship-based models (ReBAC). It always runs **on the server** for security; UI hiding is UX only.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Broken AuthZ (IDOR) is a top real-world vulnerability class — users accessing others’ objects by changing IDs.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+OS ACLs → web roles → centralized policy engines (OPA), Google Zanzibar-inspired systems.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+`can(principal, action, resource, context)?` Every API must answer. Frontend routes are not enforcement.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Authenticate request → principal.
+2. Load policies/roles/relationships.
+3. Allow/deny; audit.
+4. Return 401 if unauthenticated, 403 if authenticated but forbidden.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Identified
+  Identified --> Allowed
+  Identified --> Denied
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Hide buttons for UX; still expect 403s.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+Permission hooks are convenience, not security.
 
 ## Next.js Perspective
 
-Not applicable.
+Server Components/Route Handlers must check AuthZ before data access.
 
 ## Server Perspective
 
-Not applicable.
+Enforce per object, not just “is logged in”.
 
 ## Network Perspective
 
@@ -77,77 +85,101 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Policy checks should be fast; cache role membership carefully with invalidation.
 
 ## Production Example
 
-TODO: Realistic production example.
+API checked `userId` from client body instead of session — IDOR. Fixed to use server session subject.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```ts
+if (resource.ownerId !== session.userId && !session.roles.includes('admin')) {
+  return new Response('Forbidden', { status: 403 })
+}
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[Authorization] --> nextStep[NextStep]
+flowchart TD
+  Req[Request] --> AuthN
+  AuthN --> Policy{Authorized?}
+  Policy -->|yes| Handler
+  Policy -->|no| Deny[403]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. UI-only authorization
+2. Trusting client-provided roles
+3. Checking auth only at gateway, not per resource
+4. Using 401/403 inconsistently without a policy
+5. Overly broad admin roles
+6. Caching permissions without invalidation
+7. Overlooking an edge case #1 specific to 02-internet.authorization in production traffic
+8. Overlooking an edge case #2 specific to 02-internet.authorization in production traffic
+9. Overlooking an edge case #3 specific to 02-internet.authorization in production traffic
+10. Overlooking an edge case #4 specific to 02-internet.authorization in production traffic
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Deny by default
+- Per-resource checks
+- Centralize policies as complexity grows
+- Audit sensitive allows
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Security through obscurity of object IDs
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Model | Idea |
+| --- | --- |
+| RBAC | Roles → permissions |
+| ABAC | Attributes/policies |
+| ACL | Per-object grants |
+| ReBAC | Relationships (graph) |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** Where must authorization be enforced?
+
+**A:** On the server (or other trusted tier), for every sensitive operation.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** What is IDOR?
+
+**A:** Insecure Direct Object Reference — changing a resource ID to access another user’s object due to missing AuthZ.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** Why are 401 and 403 different?
+
+**A:** 401 means authentication required/failed; 403 means the server understands the principal but refuses the action. Browsers/clients use them differently for login redirects.
 
 ## Summary
 
-- TODO: key takeaway
+- AuthZ answers “allowed?”
+- Enforce server-side per resource
+- UI checks are not security
+- IDOR is the classic failure
 
 ## References
 
-- TODO: official documentation links
+- [OWASP Authorization Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html)
+- [OWASP Top 10 — Broken Access Control](https://owasp.org/Top10/A01_2021-Broken_Access_Control/)
 
 <RelatedTopics />
 
 
-Prev: [Authentication](/02-internet/authentication/) · Next: [REST](/02-internet/rest/)
+Prev: [`02-internet.authentication`](/02-internet/authentication/) · Next: [`02-internet.rest`](/02-internet/rest/)

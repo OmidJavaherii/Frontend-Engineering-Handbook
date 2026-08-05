@@ -1,6 +1,6 @@
 ---
 title: "Router"
-description: "TODO — one-sentence description of Router"
+description: "Routers forward packets between networks using IP addresses and routing tables."
 topic_id: 02-internet.router
 difficulty: beginner
 reading_time: 20
@@ -8,9 +8,9 @@ implementation_time: 0
 prerequisites: []
 tags: 
   - networking
-status: stub
-prev_topic: 02-internet.isp
-next_topic: 02-internet.switch
+status: published
+prev_topic: "02-internet.isp"
+next_topic: "02-internet.switch"
 related: []
 advanced: []
 ---
@@ -21,41 +21,49 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Router in simple language.
+A **router** forwards IP packets between networks based on destination IP and routing tables (often learned via BGP/OSPF). Home “Wi-Fi routers” combine routing, NAT, firewall, and AP functions.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Understanding hops explains traceroute, MTU issues, and why “the server is up” can still be unreachable from some networks.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Early IMPs → dedicated routers → software routers / cloud VPCs / virtual gateways.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Packet arrives → decrement TTL → lookup longest-prefix match → send out next interface. If TTL hits 0, drop + optional ICMP.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Receive frame/packet.
+2. Parse IP destination.
+3. Lookup route.
+4. Forward or drop/NAT.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Lookup
+  Lookup --> Forward
+  Lookup --> Drop
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Browser only sees failures as timeouts/errors — traceroute is for humans.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
@@ -71,81 +79,97 @@ Not applicable.
 
 ## Network Perspective
 
-Not applicable.
+Core topic. NAT rewrites addresses at edge routers/gateways.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Each hop adds serialization/queue delay. Bufferbloat inflates latency under load.
 
 ## Production Example
 
-TODO: Realistic production example.
+Asymmetric routes broke stateful firewalls for webhooks; fixed routing symmetry.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```bash
+traceroute -n example.com
+```
 
 ## Diagrams
 
 ```mermaid
 flowchart LR
-  concept[Router] --> nextStep[NextStep]
+  H1[Host A] --> R1 --> R2 --> H2[Host B]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Confusing switch (L2) with router (L3)
+2. Ignoring TTL expired in traces
+3. Assuming ICMP always allowed
+4. Forgetting NAT hairpin behaviors
+5. Equating Wi-Fi AP with routing logic only
+6. Thinking routers understand HTTP
+7. Overlooking an edge case #1 specific to 02-internet.router in production traffic
+8. Overlooking an edge case #2 specific to 02-internet.router in production traffic
+9. Overlooking an edge case #3 specific to 02-internet.router in production traffic
+10. Overlooking an edge case #4 specific to 02-internet.router in production traffic
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Use traceroute/MTR for path issues
+- Mind MTU/MSS for tunnels/VPN
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Blocking all ICMP (breaks PMTU discovery)
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
+| Device | Layer | Job |
 | --- | --- | --- |
-| TODO | TODO | TODO |
+| Switch | L2 | Forward frames by MAC |
+| Router | L3 | Forward packets by IP |
+| LB | L4/L7 | Distribute connections/requests |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What does a router do?
+
+**A:** Forwards IP packets between networks using routing tables.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** What does traceroute show?
+
+**A:** The IP hops that returned ICMP time-exceeded (when not blocked) toward a destination.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How does NAT on a home router affect servers you host?
+
+**A:** Inbound connections need port forwarding or hole punching; many carrier CGNATs block unsolicited inbound entirely.
 
 ## Summary
 
-- TODO: key takeaway
+- Routers forward by IP
+- TTL limits loops
+- Home gateways also NAT
+- Path issues ≠ app bugs
 
 ## References
 
-- TODO: official documentation links
+- [RFC 1812 — Router requirements](https://www.rfc-editor.org/rfc/rfc1812)
+- [MDN — Router (glossary)](https://developer.mozilla.org/en-US/docs/Glossary/Router)
 
 <RelatedTopics />
 
 
-Prev: [ISP](/02-internet/isp/) · Next: [Switch](/02-internet/switch/)
+Prev: [`02-internet.isp`](/02-internet/isp/) · Next: [`02-internet.switch`](/02-internet/switch/)

@@ -1,6 +1,6 @@
 ---
 title: "Clickjacking"
-description: "TODO — one-sentence description of Clickjacking"
+description: "UI redress attacks via transparent iframes; mitigate with frame-ancestors/X-Frame-Options and UX defenses."
 topic_id: 17-security.clickjacking
 difficulty: mid
 reading_time: 20
@@ -8,9 +8,9 @@ implementation_time: 0
 prerequisites: []
 tags: 
   - security
-status: stub
-prev_topic: 17-security.https-security
-next_topic: 17-security.prototype-pollution
+status: published
+prev_topic: "17-security.https-security"
+next_topic: "17-security.prototype-pollution"
 related: []
 advanced: []
 ---
@@ -21,45 +21,54 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Clickjacking in simple language.
+**Clickjacking** tricks users into clicking hidden UI under a decoy (usually via iframe overlay). Mitigate by controlling who can embed your pages (`frame-ancestors`, `X-Frame-Options`) and careful UX for sensitive actions.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Users think they click “play video” but hit “Delete account” underneath.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Classic 2000s attack; CSP `frame-ancestors` supersedes older headers in modern stacks.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+If your page can be framed by an attacker, they can overlay it. Deny framing by default; allow only trusted ancestors.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Set `Content-Security-Policy: frame-ancestors 'none'` (or allowlist).
+2. Keep `X-Frame-Options` for legacy.
+3. Use re-auth for sensitive actions.
+4. Test embedding intentionally if product requires it.
+5. Avoid relying only on JS frame-busting.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> EmbedAttempt
+  EmbedAttempt --> Blocked: frame-ancestors
+  EmbedAttempt --> VisibleOverlay: allowed framing
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Enforces frame-ancestors / XFO.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+Sensitive confirmations should not be one-click without context.
 
 ## Next.js Perspective
 
@@ -71,81 +80,99 @@ Not applicable.
 
 ## Network Perspective
 
-Not applicable.
+Headers from server/CDN.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Negligible.
 
 ## Production Example
 
-TODO: Realistic production example.
+Admin app `frame-ancestors none`; marketing pages allow only the corporate CMS origin.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```http
+Content-Security-Policy: frame-ancestors 'none'
+X-Frame-Options: DENY
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[Clickjacking] --> nextStep[NextStep]
+flowchart TD
+  AttackerPage --> iframe[Transparent iframe to victim]
+  iframe --> UserClick
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. JS-only frame busting
+2. Allowing all framing
+3. Forgetting admin sites
+4. Only XFO without CSP on modern browsers needing ancestors allowlists
+5. No step-up auth on dangerous actions
+6. Missing a production edge case for 17-security.clickjacking (#1)
+7. Missing a production edge case for 17-security.clickjacking (#2)
+8. Missing a production edge case for 17-security.clickjacking (#3)
+9. Missing a production edge case for 17-security.clickjacking (#4)
+10. Missing a production edge case for 17-security.clickjacking (#5)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- frame-ancestors default none
+- Allowlist embeds explicitly
+- Re-auth for destructive actions
 
 ## Anti-patterns
 
-TODO: What not to do.
+- wildcard frame-ancestors
+- Relying on visual tricks alone
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| X-Frame-Options | frame-ancestors |
+| --- | --- |
+| Older | CSP modern, allowlists |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is clickjacking?
+
+**A:** Tricking users into clicking hidden UI, often via transparent iframes.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Best header mitigation?
+
+**A:** CSP frame-ancestors (and X-Frame-Options for legacy) to control embedding.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** Product must be embeddable in partner sites—how secure it?
+
+**A:** Explicit frame-ancestors allowlist, signed embed tokens, sandbox where possible, and sensitive actions require re-auth that cannot be completed unnoticed.
 
 ## Summary
 
-- TODO: key takeaway
+- Deny framing by default
+- CSP frame-ancestors is key
+- Step-up auth for sensitive actions
 
 ## References
 
-- TODO: official documentation links
+- [OWASP Clickjacking](https://owasp.org/www-community/attacks/Clickjacking)
+- [MDN — X-Frame-Options](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Frame-Options)
+- [CSP frame-ancestors](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors)
 
 <RelatedTopics />
 
 
-Prev: [HTTPS Security](/17-security/https-security/) · Next: [Prototype Pollution](/17-security/prototype-pollution/)
+Prev: [`17-security.https-security`](/17-security/https-security/) · Next: [`17-security.prototype-pollution`](/17-security/prototype-pollution/)

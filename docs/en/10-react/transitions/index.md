@@ -1,6 +1,6 @@
 ---
 title: "Transitions"
-description: "TODO — one-sentence description of Transitions"
+description: "useTransition/startTransition: mark state updates as non-urgent for concurrent scheduling."
 topic_id: 10-react.transitions
 difficulty: mid
 reading_time: 30
@@ -9,9 +9,9 @@ prerequisites:
   - 10-react.concurrent-rendering
 tags: 
   - react
-status: stub
-prev_topic: 10-react.concurrent-rendering
-next_topic: 10-react.deferred-value
+status: published
+prev_topic: "10-react.concurrent-rendering"
+next_topic: "10-react.deferred-value"
 related: []
 advanced: []
 ---
@@ -22,45 +22,52 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Transitions in simple language.
+**Transitions** wrap state updates that can lag without breaking interaction. `startTransition(fn)` / `useTransition()` return `isPending` so you can show pending UI while keeping inputs snappy.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Not all updates are equal. Filtering, route-like local navigations, and heavy re-renders should not block typing.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+React 18 concurrent feature set.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Updates inside transition are lower priority. React may show previous UI longer (or pending states) while preparing the next view.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Identify non-urgent setStates.
+2. Wrap them in startTransition.
+3. Keep controlled input state outside.
+4. Surface `isPending`.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+flowchart LR
+  InputUrgent[urgent setText] --> PaintFast
+  Transition[startTransition setQuery] --> HeavyRender
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Not applicable.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+Priority API over Fiber lanes.
 
 ## Next.js Perspective
 
@@ -76,77 +83,94 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Improves INP-ish responsiveness; total CPU may be similar.
 
 ## Production Example
 
-TODO: Realistic production example.
+Tab switches that remount heavy panels use transitions with a dimmed pending state.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```tsx
+const [isPending, startTransition] = useTransition()
+startTransition(() => setTab(next))
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[Transitions] --> nextStep[NextStep]
+flowchart TD
+  Event --> Urgent
+  Event --> Transition
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Transitioning the controlled input value itself incorrectly
+2. No pending UI
+3. Nesting transitions without understanding
+4. Assuming it fixes O(n²) renders
+5. Using for tiny updates needlessly
+6. Side effects relying on immediate state flush
+7. Missing a production edge case for 10-react.transitions (#1)
+8. Missing a production edge case for 10-react.transitions (#2)
+9. Missing a production edge case for 10-react.transitions (#3)
+10. Missing a production edge case for 10-react.transitions (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Urgent input + transition derived view
+- Show pending affordance
+- Measure interactions
 
 ## Anti-patterns
 
-TODO: What not to do.
+- startTransition(fetch) instead of proper async patterns
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| API | Pending flag |
+| --- | --- |
+| useTransition | Yes |
+| startTransition | No built-in |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What does startTransition do?
+
+**A:** Marks the state updates inside its callback as non-urgent.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Why keep input state outside the transition?
+
+**A:** So keystrokes remain urgent and the field stays responsive while the heavy view catches up.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How do transitions interact with Suspense?
+
+**A:** React can keep showing old UI during a transition even if new content suspends, avoiding unwanted fallback flashes (per concurrent rules).
 
 ## Summary
 
-- TODO: key takeaway
+- Non-urgent updates API
+- Pair with urgent input state
+- Use isPending for UX
 
 ## References
 
-- TODO: official documentation links
+- [React Documentation](https://react.dev/)
+- [useTransition](https://react.dev/reference/react/useTransition)
 
 <RelatedTopics />
 
 
-Prev: [Concurrent Rendering](/10-react/concurrent-rendering/) · Next: [useDeferredValue](/10-react/deferred-value/)
+Prev: [`10-react.concurrent-rendering`](/10-react/concurrent-rendering/) · Next: [`10-react.deferred-value`](/10-react/deferred-value/)

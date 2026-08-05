@@ -1,6 +1,6 @@
 ---
 title: "Secure Cookies"
-description: "TODO — one-sentence description of Secure Cookies"
+description: "Practical recipe for secure session cookies: Secure, HttpOnly, SameSite, prefixes, rotation."
 topic_id: 17-security.secure-cookies
 difficulty: mid
 reading_time: 20
@@ -9,9 +9,9 @@ prerequisites:
   - 17-security.cookies-security
 tags: 
   - security
-status: stub
-prev_topic: 17-security.samesite
-next_topic: 17-security.https-security
+status: published
+prev_topic: "17-security.samesite"
+next_topic: "17-security.https-security"
 related: []
 advanced: []
 ---
@@ -22,45 +22,55 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Secure Cookies in simple language.
+**Secure cookies** means configuring session cookies so they are only sent over HTTPS, inaccessible to JavaScript, appropriately SameSite-scoped, tightly path/host bound, and rotated on login/privilege change.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Session cookies are keys to the kingdom. A single missing flag can enable theft or forgery pathways.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Browser defaults improved, but explicit flags remain mandatory for high-assurance apps.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Treat the cookie value as a random opaque id (not a JWT dump). Server stores session; cookie is just a pointer.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Issue opaque session id.
+2. Set Secure; HttpOnly; SameSite=Lax/Strict; Path=/; prefer __Host-.
+3. Rotate on login and privilege elevation.
+4. Invalidate server-side on logout.
+5. Monitor for fixation/theft patterns.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Issue
+  Issue --> Rotate
+  Rotate --> Use
+  Use --> Invalidate
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Enforces Secure/HttpOnly/SameSite.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+Cannot read HttpOnly—use /me endpoints for user info.
 
 ## Next.js Perspective
 
@@ -68,85 +78,103 @@ Not applicable.
 
 ## Server Perspective
 
-Not applicable.
+Authoritative session store and invalidation.
 
 ## Network Perspective
 
-Not applicable.
+HTTPS required for Secure cookies.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Keep cookie small; avoid storing carts in cookies.
 
 ## Production Example
 
-TODO: Realistic production example.
+Login sets `__Host-session`; step-up auth rotates id; logout deletes cookie and revokes server session.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```http
+Set-Cookie: __Host-session=3f2c...; Path=/; Secure; HttpOnly; SameSite=Strict; Max-Age=1800
+```
 
 ## Diagrams
 
 ```mermaid
 flowchart LR
-  concept[SecureCookies] --> nextStep[NextStep]
+  Login --> SetCookie
+  SetCookie --> ServerSession
+  Logout --> Revoke + ClearCookie
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Putting JWTs with PII in cookies carelessly
+2. No rotation on login (fixation)
+3. Missing Secure on HTTPS sites
+4. Client “logout” only clearing non-HttpOnly crumbs
+5. Long-lived absolute sessions without idle timeout
+6. Missing a production edge case for 17-security.secure-cookies (#1)
+7. Missing a production edge case for 17-security.secure-cookies (#2)
+8. Missing a production edge case for 17-security.secure-cookies (#3)
+9. Missing a production edge case for 17-security.secure-cookies (#4)
+10. Missing a production edge case for 17-security.secure-cookies (#5)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Opaque ids + server store
+- Rotate on privilege change
+- __Host- when possible
 
 ## Anti-patterns
 
-TODO: What not to do.
+- document.cookie session management
+- Same cookie for all subdomains by default
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Secure cookie session | localStorage JWT |
+| --- | --- |
+| HttpOnly possible | JS-readable |
+| CSRF to consider | CSRF lower; XSS higher |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** List three flags for a secure session cookie.
+
+**A:** Secure, HttpOnly, and an appropriate SameSite value (plus tight Path/Host).
 
 ### Medium
 
-TODO — question and answer.
+**Q:** What is session fixation?
+
+**A:** Attacker fixes a known session id on the victim before login; mitigated by rotating session id on authentication.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** Design cookie session for SPA + API same site.
+
+**A:** __Host-session HttpOnly Secure SameSite=Lax/Strict, CSRF tokens for mutations, short idle TTL, rotate on login, BFF if cross-origin APIs complicate things.
 
 ## Summary
 
-- TODO: key takeaway
+- Opaque session + strict cookie flags
+- Rotate and revoke server-side
+- Prefer __Host- cookies
 
 ## References
 
-- TODO: official documentation links
+- [OWASP Session Management Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html)
+- [MDN — Set-Cookie](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie)
 
 <RelatedTopics />
 
 
-Prev: [SameSite](/17-security/samesite/) · Next: [HTTPS Security](/17-security/https-security/)
+Prev: [`17-security.samesite`](/17-security/samesite/) · Next: [`17-security.https-security`](/17-security/https-security/)

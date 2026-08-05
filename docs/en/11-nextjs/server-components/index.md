@@ -1,6 +1,6 @@
 ---
 title: "Server Components"
-description: "TODO — one-sentence description of Server Components"
+description: "RSC by default in App Router: render on the server, ship HTML/payload, zero client bundle for the component itself."
 topic_id: 11-nextjs.server-components
 difficulty: mid
 reading_time: 45
@@ -11,9 +11,9 @@ tags:
   - nextjs
   - rsc
   - interview-frequent
-status: stub
-prev_topic: 11-nextjs.fonts
-next_topic: 11-nextjs.client-components
+status: published
+prev_topic: "11-nextjs.fonts"
+next_topic: "11-nextjs.client-components"
 related: []
 advanced: []
 ---
@@ -24,131 +24,179 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Server Components in simple language.
+**Server Components** (RSC) are the default in `app/`. They render on the server (or at build time), can be `async` and fetch data directly, and **do not** ship their code to the browser. They may import Client Components as children but cannot use hooks/state/browser APIs.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Most UI is not interactive. RSC keeps data access and markup on the server, shrinking JS bundles and sealing secrets away from the client.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+React Server Components proposal → Next App Router as the flagship production host. Flight protocol serializes the component output.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Server Components = compute UI on the server. Client Components = islands of interactivity. The boundary is the `"use client"` file; everything it imports becomes part of the client graph.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Write async Server Component pages/layouts.
+2. Fetch with `fetch`/ORM on server.
+3. Pass serializable props into Client children.
+4. Never import server-only modules into client files.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> ServerRender
+  ServerRender --> FlightPayload
+  FlightPayload --> StreamHTML
+  StreamHTML --> ClientHydrateIslands
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Receives HTML + references to client bundles for islands only.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+RSC is a React rendering model, not a Next-only gimmick. Composition rules: server can render client children; client cannot import server components.
 
 ## Next.js Perspective
 
-Not applicable.
+Integrates caching, routing, and streaming around RSC.
 
 ## Server Perspective
 
-Not applicable.
+CPU + I/O bound; streaming hides waterfalls when structured well.
 
 ## Network Perspective
 
-Not applicable.
+Flight payload size matters—don’t serialize huge props.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Server memory per request; avoid retaining huge objects across requests in globals.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Primary win is JS reduction. Watch server TTFB and Flight size. Parallelize fetches; use Suspense boundaries.
 
 ## Production Example
 
-TODO: Realistic production example.
+Product page fetches CMS + pricing on server, streams reviews in a Suspense hole, and hydrates only the add-to-cart Client button.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```tsx
+// app/product/[id]/page.tsx — Server Component
+import { AddToCart } from './add-to-cart' // client child
+
+export default async function ProductPage({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}) {
+  const { id } = await params
+  const product = await db.product.findUnique({ where: { id } })
+  return (
+    <div>
+      <h1>{product!.name}</h1>
+      <AddToCart id={product!.id} />
+    </div>
+  )
+}
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[ServerComponents] --> nextStep[NextStep]
+flowchart TD
+  SC[Server Component] -->|children| CC[Client Component]
+  SC -->|fetch| DB[(Data)]
+  CC -->|hydrate| Browser
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Passing non-serializable props (functions, class instances) to Client Components
+2. Marking a leaf interactive and accidentally pulling a huge server module graph into client via bad imports
+3. Using useState/useEffect in a Server Component
+4. Fetching in a Client Component what RSC could have streamed
+5. Ignoring that server code still needs authz checks
+6. Giant nested awaits creating waterfalls
+7. Passing non-serializable props from Server to Client Components
+8. Marking entire trees `"use client"` and losing RSC benefits
+9. Fetching in client components secrets that belong on the server
+10. Ignoring cache semantics of `fetch` in App Router
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Keep Client Components small and at the edges
+- Use server-only package for privileged modules
+- Suspense-split slow parts
+- Serialize DTOs consciously
 
 ## Anti-patterns
 
-TODO: What not to do.
+- `"use client"` on every file
+- Deep prop drilling of server data through many client wrappers
+- Calling secrets-bearing APIs from the client “because it’s easier”
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
+| | Server Component | Client Component |
 | --- | --- | --- |
-| TODO | TODO | TODO |
+| Hooks | No | Yes |
+| Bundle | Not shipped | Shipped |
+| Data fetch | Direct | via API/props |
+| Secrets | OK | Never |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** Are App Router components Server or Client by default?
+
+**A:** Server Components by default; add `"use client"` to opt into Client Components.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Can a Client Component import a Server Component?
+
+**A:** No. Pass Server Components as `children` from a parent Server Component instead.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** What is the Flight protocol doing?
+
+**A:** It serializes the RSC tree into a streamable payload the client router can progressively reconstruct, wiring placeholders to client component references.
 
 ## Summary
 
-- TODO: key takeaway
+- RSC default shrinks client JS and keeps secrets server-side
+- Async server components fetch data directly
+- Client islands hydrate only where needed
+- Import direction defines the boundary
 
 ## References
 
-- TODO: official documentation links
+- [Next.js — Server Components](https://nextjs.org/docs/app/building-your-application/rendering/server-components)
+- [React — Server Components](https://react.dev/reference/rsc/server-components)
 
 <RelatedTopics />
 
 
-Prev: [Fonts](/11-nextjs/fonts/) · Next: [Client Components](/11-nextjs/client-components/)
+Prev: [`11-nextjs.fonts`](/11-nextjs/fonts/) · Next: [`11-nextjs.client-components`](/11-nextjs/client-components/)

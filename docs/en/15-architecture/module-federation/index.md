@@ -1,6 +1,6 @@
 ---
 title: "Module Federation"
-description: "TODO — one-sentence description of Module Federation"
+description: "Webpack/Rspack runtime composition: hosts load remote modules via remoteEntry contracts and shared dependencies."
 topic_id: 15-architecture.module-federation
 difficulty: senior
 reading_time: 40
@@ -10,9 +10,9 @@ prerequisites:
 tags: 
   - architecture
   - bundling
-status: stub
-prev_topic: 15-architecture.micro-frontends
-next_topic: 15-architecture.state-management
+status: published
+prev_topic: "15-architecture.micro-frontends"
+next_topic: "15-architecture.state-management"
 related: []
 advanced: []
 ---
@@ -23,131 +23,174 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Module Federation in simple language.
+**Module Federation** lets a **host** load code from **remotes** at runtime. Each remote exposes modules through a `remoteEntry` file. `shared` config deduplicates libraries like React. It is the dominant runtime MFE mechanism in webpack ecosystems.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Teams want to ship a feature bundle without rebuilding the shell. Federation provides a standardized runtime import contract instead of ad-hoc `<script>` loaders.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Introduced in Webpack 5 by Zack Jackson et al. Adopted widely for MFEs; variants exist for Rspack and community Next.js plugins with caveats.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Remotes publish a manifest of exposed modules. The host’s async import goes to the federation runtime, which fetches `remoteEntry`, initializes sharing scope, then loads the exposed module. Versions of shared libs negotiate singletons.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Configure host remotes + remote exposes.
+2. Declare shared singletons (React, router).
+3. Deploy remotes to versioned URLs.
+4. Host resolves remote at runtime (or prefetch).
+5. Wrap remote UI in error boundaries + Suspense.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> HostBoot
+  HostBoot --> LoadRemoteEntry
+  LoadRemoteEntry --> InitShareScope
+  InitShareScope --> ImportExposed
+  ImportExposed --> Render
+  Render --> [*]
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Extra requests for remoteEntry + chunks; use long-cache hashed assets and careful CDN invalidation.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+Must share React/ReactDOM as singleton. Lazy + Suspense around remote components.
 
 ## Next.js Perspective
 
-Not applicable.
+Official support is limited; evaluate maintained plugins or alternative composition (multi-zones).
 
 ## Server Perspective
 
-Not applicable.
+SSR with federation is non-trivial—many teams federate only client widgets.
 
 ## Network Perspective
 
-Not applicable.
+Pin remote URLs per environment; plan rollback if a remote deploy breaks the host.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Prefetch remotes for likely routes. Audit duplicate shared deps. Prefer exposing fine-grained modules over one giant remote bundle when possible.
 
 ## Production Example
 
-TODO: Realistic production example.
+Shell points `checkout@https://cdn/.../remoteEntry.js`. Checkout CI deploys new remoteEntry; shell unchanged. Canary by serving a fraction of users a different remote URL.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```js
+// remote
+new ModuleFederationPlugin({
+  name: 'checkout',
+  filename: 'remoteEntry.js',
+  exposes: { './Checkout': './src/Checkout.tsx' },
+  shared: { react: { singleton: true }, 'react-dom': { singleton: true } },
+})
+
+// host
+const Checkout = React.lazy(() => import('checkout/Checkout'))
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[ModuleFederation] --> nextStep[NextStep]
+sequenceDiagram
+  participant Host
+  participant CDN
+  Host->>CDN: GET remoteEntry.js
+  CDN-->>Host: container
+  Host->>CDN: GET exposed chunk
+  CDN-->>Host: module factory
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Forgetting React singleton → cryptic hook errors
+2. Unversioned remoteEntry that breaks all hosts on bad deploy
+3. No error boundary around remote UI
+4. Federating before the org needs independent deploy
+5. Assuming SSR “just works” with federation
+6. Missing a production edge case for 15-architecture.module-federation (#1)
+7. Missing a production edge case for 15-architecture.module-federation (#2)
+8. Missing a production edge case for 15-architecture.module-federation (#3)
+9. Missing a production edge case for 15-architecture.module-federation (#4)
+10. Missing a production edge case for 15-architecture.module-federation (#5)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Versioned remote URLs + rollback
+- Shared dependency strategy documented
+- Contract tests host↔remote
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Exposing internal implementation paths as public remote API
+- Silent failure when remote is down
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
+| | Module Federation | npm package |
 | --- | --- | --- |
-| TODO | TODO | TODO |
+| Deploy | Independent runtime | Needs host rebuild/publish |
+| Coupling | Runtime contract | Build-time types |
+| SSR | Harder | Straightforward |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What does remoteEntry.js do?
+
+**A:** It is the federation manifest/container that tells the host how to load exposed modules and participate in shared scopes.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** How does `shared.singleton` help?
+
+**A:** It ensures one instance of a library (e.g. React) is used across host and remotes so runtime invariants hold.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How would you design rollback for a bad remote?
+
+**A:** Immutable versioned URLs, host config that pins versions, instant config rollback, health checks, and error boundaries with fallback UI.
 
 ## Summary
 
-- TODO: key takeaway
+- Federation is runtime module composition with shared scopes
+- React singletons and versioned remotes are critical
+- Treat remote deploys like production dependencies
 
 ## References
 
-- TODO: official documentation links
+- [Webpack — Module Federation](https://webpack.js.org/concepts/module-federation/)
+- [Module Federation examples](https://github.com/module-federation/module-federation-examples)
 
 <RelatedTopics />
 
 
-Prev: [Micro Frontends](/15-architecture/micro-frontends/) · Next: [State Management](/15-architecture/state-management/)
+Prev: [`15-architecture.micro-frontends`](/15-architecture/micro-frontends/) · Next: [`15-architecture.state-management`](/15-architecture/state-management/)

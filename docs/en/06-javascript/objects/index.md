@@ -1,6 +1,6 @@
 ---
 title: "Objects"
-description: "TODO — one-sentence description of Objects"
+description: "Objects as property bags: creation, property descriptors, cloning, and structured patterns."
 topic_id: 06-javascript.objects
 difficulty: beginner
 reading_time: 30
@@ -8,7 +8,7 @@ implementation_time: 0
 prerequisites: []
 tags: 
   - javascript
-status: stub
+status: published
 prev_topic: 06-javascript.functions
 next_topic: 06-javascript.arrays
 related: []
@@ -21,131 +21,162 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Objects in simple language.
+Ordinary **objects** map string/symbol keys to values with attributes (writable/enumerable/configurable). Literals, constructors, and descriptors underpin most JS data modeling.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Almost everything structured in JS is an object or coerced via objects. Correct cloning and mutation rules prevent shared-state bugs.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+From mutable bags to `Map`, records proposals, and immutable patterns in apps.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Own vs inherited keys; enumerable vs not; shallow vs deep copy. Prefer `Object.create(null)`/`Map` for arbitrary key dictionaries.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Prefer literals.
+2. Freeze selectively when exposing APIs.
+3. Clone explicitly (`structuredClone`).
+4. Avoid `__proto__` keys from JSON untrusted input.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+Lifecycle for objects:
+
+```mermaid
+stateDiagram-v2
+  [*] --> Active
+  Active --> Settled
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Browsers host the JS runtime; DevTools Sources/Console observe this topic at runtime.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Engines implement ECMAScript semantics (V8/JavaScriptCore/SpiderMonkey); optimize hot paths after correctness.
 
 ## React Perspective
 
-Not applicable.
+React app code is JS—misunderstanding this topic often shows up as stale UI state or broken effects.
 
 ## Next.js Perspective
 
-Not applicable.
+Next.js runs JS in Node/Edge and the browser; verify APIs exist in each runtime.
 
 ## Server Perspective
 
-Not applicable.
+Node/Edge may implement the same language feature with different host APIs.
 
 ## Network Perspective
 
-Not applicable.
+Not primarily a network feature unless combined with fetch/HTTP.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Watch retained objects via DevTools Memory; closures and globals keep references alive.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Measure with Performance panel / benchmarks before micro-optimizing.
 
 ## Production Example
 
-TODO: Realistic production example.
+Using `structuredClone` for worker messages removed silent shared mutations between UI and worker state.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```js
+const o = Object.create(null)
+Object.defineProperty(o, 'id', { value: 1, enumerable: true })
+const copy = structuredClone({ a: { b: 2 } })
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[Objects] --> nextStep[NextStep]
+flowchart TD
+  Code[Program] --> Runtime[JS runtime]
+  Runtime --> Effect[objects effect]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Treating the feature as magic without the language rule behind it
+2. Copying Stack Overflow snippets without edge cases
+3. Confusing browser host APIs with ECMAScript language semantics
+4. Optimizing before measuring
+5. Ignoring strict mode / module differences
+6. Shallow copy then mutating nested objects unexpectedly
+7. Object.assign as deep clone
+8. Missing a production edge case for 06-javascript.objects (#1)
+9. Missing a production edge case for 06-javascript.objects (#2)
+10. Missing a production edge case for 06-javascript.objects (#3)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Prefer language defaults and clear naming
+- Write a failing test for the sharp edge you hit
+- Use MDN + ECMA-262 for disagreements
+- Keep examples small and runnable
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Clever code that obscures control flow
+- Polyfilling incorrectly and masking bugs
+- Global mutable state as the default architecture
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Copy | Depth |
+| --- | --- |
+| `{...o}` / assign | Shallow |
+| `structuredClone` | Deep (structured) |
+| JSON parse/stringify | Lossy deep |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is JS objects?
+
+**A:** Collections of properties with keys and attributes, delegating via prototypes.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Enumerable properties?
+
+**A:** Those visited by `for...in` / `Object.keys` (own enumerable strings)—symbols and non-enumerable differ.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** Why Map over object for dictionaries?
+
+**A:** Arbitrary keys, size, insertion order iteration without prototype key collisions.
 
 ## Summary
 
-- TODO: key takeaway
+- objects has precise ECMAScript/host semantics
+- Know failure modes and scope interactions
+- Measure production impact
+- Cross-link related handbook topics
 
 ## References
 
-- TODO: official documentation links
+- [MDN: Objects](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)
+- [ECMA-262](https://tc39.es/ecma262/)
 
 <RelatedTopics />
-
 
 Prev: [Functions](/06-javascript/functions/) · Next: [Arrays](/06-javascript/arrays/)

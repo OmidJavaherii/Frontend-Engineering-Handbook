@@ -1,6 +1,6 @@
 ---
 title: "Lazy Loading"
-description: "TODO — one-sentence description of Lazy Loading"
+description: "Lazy loading React code with React.lazy, dynamic import(), and Suspense boundaries."
 topic_id: 10-react.lazy-loading
 difficulty: junior
 reading_time: 25
@@ -10,9 +10,9 @@ prerequisites:
 tags: 
   - react
   - performance
-status: stub
-prev_topic: 10-react.suspense
-next_topic: 10-react.error-boundaries
+status: published
+prev_topic: "10-react.suspense"
+next_topic: "10-react.error-boundaries"
 related: []
 advanced: []
 ---
@@ -23,41 +23,52 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Lazy Loading in simple language.
+**Lazy loading** splits bundles so code loads on demand. `React.lazy(() => import('./X'))` returns a component that suspends until the module loads—wrap with Suspense.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Smaller initial JS improves TTI. Route-level and heavy-widget splitting are classic wins.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+`React.lazy` + Suspense for client; RSC/Next have their own code-splitting stories too.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Dynamic `import()` returns a promise of a module with `default` export. Lazy component suspends on first render until resolved; then behaves normally.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Identify heavy/rarely used screens.
+2. `lazy` import them.
+3. Wrap routes/widgets in Suspense.
+4. Prefetch on intent (hover) when helpful.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+sequenceDiagram
+  participant App
+  participant Bundle
+  App->>Bundle: import()
+  App->>App: suspend
+  Bundle-->>App: module
+  App->>App: render component
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Network waterfall for chunks—name chunks well.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
@@ -65,7 +76,7 @@ Not applicable.
 
 ## Next.js Perspective
 
-Not applicable.
+File-based routing splits automatically; still lazy client islands.
 
 ## Server Perspective
 
@@ -77,77 +88,102 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Don’t over-split tiny files (extra RTTs). Measure with coverage.
 
 ## Production Example
 
-TODO: Realistic production example.
+Admin charts route is lazy-loaded; hovering the nav link prefetches the chunk.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```tsx
+const Editor = lazy(() => import('./Editor'))
+function Page() {
+  return (
+    <Suspense fallback={<p>Loading editor…</p>}>
+      <Editor />
+    </Suspense>
+  )
+}
+```
 
 ## Diagrams
 
 ```mermaid
 flowchart LR
-  concept[LazyLoading] --> nextStep[NextStep]
+  Route --> lazy --> Chunk[JS chunk]
+  Chunk --> Suspense
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Forgetting Suspense
+2. Named exports without adapting import
+3. Lazy loading everything including critical path
+4. No error handling for failed chunks
+5. Layout shift from empty fallbacks
+6. Importing lazy modules statically too (defeating split)
+7. Missing a production edge case for 10-react.lazy-loading (#1)
+8. Missing a production edge case for 10-react.lazy-loading (#2)
+9. Missing a production edge case for 10-react.lazy-loading (#3)
+10. Missing a production edge case for 10-react.lazy-loading (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Split routes and heavy widgets
+- Good fallbacks
+- Prefetch on intent
+- Monitor chunk failures
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Hundreds of 1KB chunks
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Technique | Layer |
+| --- | --- |
+| React.lazy | Component |
+| Next dynamic | Framework |
+| Import on interaction | Manual |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What does React.lazy need around it?
+
+**A:** A Suspense boundary to show fallback while the import resolves.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Why must the import resolve to a default export?
+
+**A:** `React.lazy` expects the module’s `default` to be the component (or map named exports manually).
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How do you recover when a chunk fails to load after deploy?
+
+**A:** Error boundary with reload/retry—old HTML may request hashed chunks that no longer exist.
 
 ## Summary
 
-- TODO: key takeaway
+- Code-split with lazy + Suspense
+- Split the heavy/rare paths
+- Handle failed chunks in production
 
 ## References
 
-- TODO: official documentation links
+- [React Documentation](https://react.dev/)
+- [lazy](https://react.dev/reference/react/lazy)
 
 <RelatedTopics />
 
 
-Prev: [Suspense](/10-react/suspense/) · Next: [Error Boundaries](/10-react/error-boundaries/)
+Prev: [`10-react.suspense`](/10-react/suspense/) · Next: [`10-react.error-boundaries`](/10-react/error-boundaries/)

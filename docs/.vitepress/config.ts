@@ -13,15 +13,20 @@ import { topicMap } from './topic-map.js'
  *   fa: { label: 'فارسی', lang: 'fa', link: '/fa/', ... }
  * }
  */
+const base =
+  process.env.GITHUB_ACTIONS === 'true' ? '/Frontend-Engineering-Handbook/' : '/'
+
 export default defineConfig({
   title: 'Frontend Engineering Handbook',
   description: enConfig.description,
+  // Project Pages: https://omidjavaherii.github.io/Frontend-Engineering-Handbook/
+  base,
   srcDir: 'en',
   cleanUrls: true,
   lastUpdated: true,
   ignoreDeadLinks: true,
   head: [
-    ['link', { rel: 'icon', href: '/favicon.svg', type: 'image/svg+xml' }],
+    ['link', { rel: 'icon', href: `${base}favicon.svg`, type: 'image/svg+xml' }],
     ['meta', { name: 'theme-color', content: '#0f172a' }],
   ],
   themeConfig: {

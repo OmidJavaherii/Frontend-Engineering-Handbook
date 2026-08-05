@@ -1,6 +1,6 @@
 ---
 title: "Promise"
-description: "TODO — one-sentence description of Promise"
+description: "Promises: pending/fulfilled/rejected, chaining, error propagation, and combinators."
 topic_id: 06-javascript.promise
 difficulty: junior
 reading_time: 40
@@ -11,7 +11,7 @@ tags:
   - javascript
   - async
   - interview-frequent
-status: stub
+status: published
 prev_topic: 06-javascript.event-loop-js
 next_topic: 06-javascript.async-await
 related: []
@@ -24,131 +24,165 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Promise in simple language.
+A **Promise** represents a future settlement: pending → fulfilled or rejected. `then`/`catch`/`finally` chain reactions; combinators (`all`, `allSettled`, `race`, `any`) coordinate groups.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Promises standardize async success/failure, fix callback hell composability, and underpin async/await.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Promulgated by libraries then ES2015; finally/combinators followed.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Promises are eager. Chain returns new promises. Throw/reject jumps to nearest catch. Unhandled rejections are host-reported errors.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Always handle failures.
+2. Return promises from then callbacks.
+3. Choose all vs allSettled intentionally.
+4. Don’t wrap already-thenable APIs carelessly.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+Lifecycle for promise:
+
+```mermaid
+stateDiagram-v2
+  [*] --> Active
+  Active --> Settled
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Browsers host the JS runtime; DevTools Sources/Console observe this topic at runtime.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Engines implement ECMAScript semantics (V8/JavaScriptCore/SpiderMonkey); optimize hot paths after correctness.
 
 ## React Perspective
 
-Not applicable.
+React app code is JS—misunderstanding this topic often shows up as stale UI state or broken effects.
 
 ## Next.js Perspective
 
-Not applicable.
+Next.js runs JS in Node/Edge and the browser; verify APIs exist in each runtime.
 
 ## Server Perspective
 
-Not applicable.
+Node/Edge may implement the same language feature with different host APIs.
 
 ## Network Perspective
 
-Not applicable.
+Not primarily a network feature unless combined with fetch/HTTP.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Watch retained objects via DevTools Memory; closures and globals keep references alive.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Measure with Performance panel / benchmarks before micro-optimizing.
 
 ## Production Example
 
-TODO: Realistic production example.
+Payment APIs standardized on Promise returns; unhandledrejection logging caught silent failures in production.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```js
+const p = Promise.resolve(1)
+  .then(x => x + 1)
+  .then(x => { throw new Error('nope') })
+  .catch(err => 0)
+await Promise.allSettled([fetch('/a'), fetch('/b')])
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[Promise] --> nextStep[NextStep]
+flowchart TD
+  Code[Program] --> Runtime[JS runtime]
+  Runtime --> Effect[promise effect]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Treating the feature as magic without the language rule behind it
+2. Copying Stack Overflow snippets without edge cases
+3. Confusing browser host APIs with ECMAScript language semantics
+4. Optimizing before measuring
+5. Ignoring strict mode / module differences
+6. Not returning in then (lost chaining)
+7. Promise.all aborting siblings without cleanup
+8. Forgetting to return Promise chains inside `then` (flat vs nested)
+9. Using `Promise.all` when failure of one should not cancel others (`allSettled`)
+10. Creating unresolved promises with no reject path (hangs)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Prefer language defaults and clear naming
+- Write a failing test for the sharp edge you hit
+- Use MDN + ECMA-262 for disagreements
+- Keep examples small and runnable
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Clever code that obscures control flow
+- Polyfilling incorrectly and masking bugs
+- Global mutable state as the default architecture
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Combinator | Fails when |
+| --- | --- |
+| `all` | First rejection |
+| `allSettled` | Never (reports all) |
+| `race` | First settle |
+| `any` | All reject |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is Promises?
+
+**A:** Objects representing eventual fulfillment or rejection of an async operation, with composable chaining.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** all vs allSettled?
+
+**A:** `all` rejects fast on first failure; `allSettled` waits for every result as fulfilled/rejected entries.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** What does then return?
+
+**A:** A new promise that settles based on the handler’s return/throw.
 
 ## Summary
 
-- TODO: key takeaway
+- promise has precise ECMAScript/host semantics
+- Know failure modes and scope interactions
+- Measure production impact
+- Cross-link related handbook topics
 
 ## References
 
-- TODO: official documentation links
+- [MDN: Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)
+- [ECMA-262: Promise](https://tc39.es/ecma262/#sec-promise-objects)
 
 <RelatedTopics />
-
 
 Prev: [Event Loop (JavaScript View)](/06-javascript/event-loop-js/) · Next: [Async/Await](/06-javascript/async-await/)

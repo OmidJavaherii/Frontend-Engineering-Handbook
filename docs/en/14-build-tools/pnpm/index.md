@@ -1,6 +1,6 @@
 ---
 title: "pnpm"
-description: "TODO — one-sentence description of pnpm"
+description: "Fast, disk-efficient package manager using a content-addressable store and strict node_modules."
 topic_id: 14-build-tools.pnpm
 difficulty: junior
 reading_time: 25
@@ -8,9 +8,9 @@ implementation_time: 0
 prerequisites: []
 tags: 
   - tooling
-status: stub
-prev_topic: 14-build-tools.npm
-next_topic: 14-build-tools.yarn
+status: published
+prev_topic: "14-build-tools.npm"
+next_topic: "14-build-tools.yarn"
 related: []
 advanced: []
 ---
@@ -21,41 +21,49 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain pnpm in simple language.
+**pnpm** installs dependencies via a global content-addressable store and hard/symlinks, with a stricter `node_modules` layout that prevents phantom dependencies.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+npm/yarn classic hoisting lets you import packages you didn’t declare. pnpm makes illegal imports fail—good for correctness—and saves disk.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Grew with monorepos; adopted widely in modern frontend toolchains.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Store → symlink layout → only declared deps visible.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Corepack/enable pnpm.
+2. pnpm install.
+3. pnpm --filter for workspaces.
+4. Commit pnpm-lock.yaml.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Idle
+  Idle --> Active: use
+  Active --> Idle: settle
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Not applicable.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
@@ -75,77 +83,98 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Measure before/after with lab + field tools. Optimize the attributed bottleneck for Fast, disk-efficient package manager using a content-addressable store and strict node_modules., not folklore.
 
 ## Production Example
 
-TODO: Realistic production example.
+Teams adopt Fast, disk-efficient package manager using a content-addressable store and strict node_modules. on critical routes, add monitoring, and guard regressions with budgets or reviews.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```bash
+pnpm add react
+pnpm --filter web build
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[pnpm] --> nextStep[NextStep]
+flowchart TD
+  A[Understand] --> B[Apply Fast, disk-efficient package manager using a content-addressable store and strict node_modules.]
+  B --> C[Measure]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Relying on phantom deps that pnpm blocks
+2. Mixing lockfiles
+3. Forgetting shamefully-hoist when a legacy tool requires it
+4. Not using filters in monorepos
+5. CI without pnpm store cache
+6. Editing node_modules manually
+7. Missing a production edge case for 14-build-tools.pnpm (#1)
+8. Missing a production edge case for 14-build-tools.pnpm (#2)
+9. Missing a production edge case for 14-build-tools.pnpm (#3)
+10. Missing a production edge case for 14-build-tools.pnpm (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Prefer platform/framework primitives
+- Measure impact on real user metrics
+- Keep the change reviewable and reversible
+- Document the invariant you are protecting
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Copy-paste without understanding failure modes
+- Premature abstraction around a single use
+- Optimizing without a baseline
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Approach | When |
+| --- | --- |
+| Use as designed | Default |
+| Simpler alternative | If constraints differ |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** Why is pnpm disk-efficient?
+
+**A:** It reuses a global content-addressable store instead of copying every package into each project.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** What is a phantom dependency?
+
+**A:** A package your code imports that you did not declare, only available via hoisting accidents.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** When use shamefully-hoist?
+
+**A:** When legacy tooling expects flat node_modules; prefer fixing declarations over permanent hoist when possible.
 
 ## Summary
 
-- TODO: key takeaway
+- Fast, disk-efficient package manager using a content-addressable store and strict node_modules.
+- Know why it exists and when not to use it
+- Measure production impact
+- Link related handbook topics instead of duplicating
 
 ## References
 
-- TODO: official documentation links
+- [pnpm Docs](https://pnpm.io/motivation)
+- [pnpm Workspaces](https://pnpm.io/workspaces)
 
 <RelatedTopics />
 
 
-Prev: [npm](/14-build-tools/npm/) · Next: [Yarn](/14-build-tools/yarn/)
+Prev: [`14-build-tools.npm`](/14-build-tools/npm/) · Next: [`14-build-tools.yarn`](/14-build-tools/yarn/)

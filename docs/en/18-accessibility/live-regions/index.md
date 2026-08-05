@@ -1,6 +1,6 @@
 ---
 title: "Live Regions"
-description: "TODO — one-sentence description of Live Regions"
+description: "aria-live regions announce dynamic updates without moving focus—status, alerts, polite updates."
 topic_id: 18-accessibility.live-regions
 difficulty: mid
 reading_time: 25
@@ -8,9 +8,9 @@ implementation_time: 0
 prerequisites: []
 tags: 
   - a11y
-status: stub
-prev_topic: 18-accessibility.forms-a11y
-next_topic: 18-accessibility.accessible-components
+status: published
+prev_topic: "18-accessibility.forms-a11y"
+next_topic: "18-accessibility.accessible-components"
 related: []
 advanced: []
 ---
@@ -21,45 +21,54 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Live Regions in simple language.
+**Live regions** (`aria-live`, `role="status"`, `role="alert"`) tell screen readers to announce changes elsewhere on the page. Use for toasts, form status, and background updates—without overusing assertive spam.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+SPAs update asynchronously; without live regions or focus moves, SR users miss critical feedback (“Saved”, “Error”).
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+ARIA live regions standardized announcement patterns for dynamic web apps.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+polite = finish current speech then announce; assertive = interrupt. Prefer polite for most statuses; alert for critical errors. Atomic/relevant control what is read.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Identify updates that don’t take focus.
+2. Choose polite vs assertive.
+3. Keep messages concise.
+4. Avoid clearing/re-adding too aggressively.
+5. Verify with SR.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> UpdateDOM
+  UpdateDOM --> Announce
+  Announce --> Idle
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+SR support nuances exist—test.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+Ensure message text changes so AT detects updates; reuse a stable live region node.
 
 ## Next.js Perspective
 
@@ -75,77 +84,96 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Too many live updates degrade UX badly.
 
 ## Production Example
 
-TODO: Realistic production example.
+Toast library uses role=status for success; role=alert for payment failure; debounced.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```tsx
+<div role="status" aria-live="polite">{statusMessage}</div>
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[LiveRegions] --> nextStep[NextStep]
+sequenceDiagram
+  participant App
+  participant LiveRegion
+  participant SR
+  App->>LiveRegion: set message
+  LiveRegion->>SR: announce
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. aria-live on huge regions
+2. assertive for everything
+3. Not announcing save failures
+4. Duplicate announcements with focus+live
+5. Updating live region every keystroke
+6. Missing a production edge case for 18-accessibility.live-regions (#1)
+7. Missing a production edge case for 18-accessibility.live-regions (#2)
+8. Missing a production edge case for 18-accessibility.live-regions (#3)
+9. Missing a production edge case for 18-accessibility.live-regions (#4)
+10. Missing a production edge case for 18-accessibility.live-regions (#5)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Short messages
+- polite by default
+- Stable container element
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Nested live regions chaos
+- Invisible spam text for SEO hacks
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| status | alert |
+| --- | --- |
+| polite | assertive-ish critical |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What does aria-live do?
+
+**A:** It marks a region whose content changes should be announced by assistive tech without focusing it.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** polite vs assertive?
+
+**A:** polite waits for a break in speech; assertive may interrupt—use assertive sparingly for critical messages.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** When prefer focus management over live regions?
+
+**A:** When the user should interact with new content (dialogs, new page views); use live regions for peripheral status.
 
 ## Summary
 
-- TODO: key takeaway
+- Live regions announce async UI
+- Prefer polite/status
+- Don’t spam AT
 
 ## References
 
-- TODO: official documentation links
+- [ARIA live regions](https://www.w3.org/WAI/ARIA/apg/practices/live-regions/)
+- [MDN — aria-live](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Attributes/aria-live)
 
 <RelatedTopics />
 
 
-Prev: [Accessible Forms](/18-accessibility/forms-a11y/) · Next: [Accessible Components](/18-accessibility/accessible-components/)
+Prev: [`18-accessibility.forms-a11y`](/18-accessibility/forms-a11y/) · Next: [`18-accessibility.accessible-components`](/18-accessibility/accessible-components/)

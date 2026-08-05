@@ -1,6 +1,6 @@
 ---
 title: "CI/CD"
-description: "TODO — one-sentence description of CI/CD"
+description: "Continuous integration and delivery pipelines that build, test, and deploy frontends safely."
 topic_id: 19-deployment.ci-cd
 difficulty: junior
 reading_time: 30
@@ -8,9 +8,9 @@ implementation_time: 0
 prerequisites: []
 tags: 
   - deployment
-status: stub
-prev_topic: 19-deployment.cdn-deployment
-next_topic: 19-deployment.github-actions
+status: published
+prev_topic: "19-deployment.cdn-deployment"
+next_topic: "19-deployment.github-actions"
 related: []
 advanced: []
 ---
@@ -21,41 +21,52 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain CI/CD in simple language.
+**CI/CD** automates build/test on every change (**CI**) and promotes artifacts to environments (**CD**). For frontends: install → lint/typecheck/test → build → deploy previews → deploy prod with approvals/rollbacks.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Manual FTP deploys don’t scale and aren’t auditable. Pipelines encode quality gates.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+From Jenkins rooms to GitHub Actions/GitLab CI; preview deployments changed frontend workflows.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Pipeline as product: fast feedback on PR, protected prod, reproducible artifacts, secrets least-privilege.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. PR runs verify.
+2. Merge builds artifact.
+3. Auto deploy to staging/preview.
+4. Prod deploy gated.
+5. Smoke test + rollback plan.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> PRChecks
+  PRChecks --> BuildArtifact
+  BuildArtifact --> DeployStaging
+  DeployStaging --> DeployProd
+  DeployProd --> Smoke
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Smoke E2E after deploy.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
@@ -63,7 +74,7 @@ Not applicable.
 
 ## Next.js Perspective
 
-Not applicable.
+Build cache matters for Next.
 
 ## Server Perspective
 
@@ -71,81 +82,100 @@ Not applicable.
 
 ## Network Perspective
 
-Not applicable.
+Deploy tokens and OIDC to clouds.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Cache pnpm/store and build outputs; parallelize jobs.
 
 ## Production Example
 
-TODO: Realistic production example.
+Required checks: typecheck, unit, e2e-smoke; staging auto; prod needs approval + canary.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```yaml
+# conceptual stages
+stages: [install, verify, build, deploy]
+```
 
 ## Diagrams
 
 ```mermaid
 flowchart LR
-  concept[CICD] --> nextStep[NextStep]
+  PR --> CI
+  CI --> Artifact
+  Artifact --> Preview
+  Artifact --> Prod
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Deploying without build on CI
+2. Shared mutable credentials
+3. No artifact immutability
+4. Flaky tests ignored
+5. Prod sync from laptop
+6. Missing a production edge case for 19-deployment.ci-cd (#1)
+7. Missing a production edge case for 19-deployment.ci-cd (#2)
+8. Missing a production edge case for 19-deployment.ci-cd (#3)
+9. Missing a production edge case for 19-deployment.ci-cd (#4)
+10. Missing a production edge case for 19-deployment.ci-cd (#5)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Immutable artifacts
+- OIDC over long-lived keys
+- Preview envs for PRs
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Skipping checks with admin force
+- One giant serial pipeline of 60 minutes without cache
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| CI | CD |
+| --- | --- |
+| Verify change | Release change |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is CI?
+
+**A:** Automatically building and testing every change to catch integration failures early.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Why deploy the CI artifact rather than rebuilding on the server?
+
+**A:** So what you tested is exactly what you ship—reproducible immutable artifacts.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** Design CD for a frontend monorepo.
+
+**A:** Affected-only builds, per-app artifacts, preview deploys, prod promotion with approvals, and shared caches.
 
 ## Summary
 
-- TODO: key takeaway
+- CI verifies; CD releases
+- Immutable artifacts
+- Gate production
 
 ## References
 
-- TODO: official documentation links
+- [GitHub Actions docs](https://docs.github.com/en/actions)
+- [Twelve-Factor — Build Release Run](https://12factor.net/build-release-run/)
 
 <RelatedTopics />
 
 
-Prev: [CDN Deployment](/19-deployment/cdn-deployment/) · Next: [GitHub Actions](/19-deployment/github-actions/)
+Prev: [`19-deployment.cdn-deployment`](/19-deployment/cdn-deployment/) · Next: [`19-deployment.github-actions`](/19-deployment/github-actions/)

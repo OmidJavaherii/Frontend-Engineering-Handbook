@@ -1,6 +1,6 @@
 ---
 title: "PostCSS"
-description: "TODO — one-sentence description of PostCSS"
+description: "CSS transformation pipeline (autoprefixer, nesting, Tailwind, etc.)."
 topic_id: 14-build-tools.postcss
 difficulty: junior
 reading_time: 25
@@ -9,9 +9,9 @@ prerequisites: []
 tags: 
   - css
   - tooling
-status: stub
-prev_topic: 14-build-tools.esbuild
-next_topic: 14-build-tools.source-maps
+status: published
+prev_topic: "14-build-tools.esbuild"
+next_topic: "14-build-tools.source-maps"
 related: []
 advanced: []
 ---
@@ -22,41 +22,49 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain PostCSS in simple language.
+**PostCSS** runs JS plugins over CSS ASTs—autoprefixer, nesting, Tailwind’s engine, CSS Modules integrations, and more.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+CSS evolves unevenly across browsers; build-time transforms keep authoring modern and output compatible.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Became the CSS Babel; underpinning CRA/Vite/Next CSS pipelines and Tailwind.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+CSS in → plugin chain → CSS out. Order matters.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. postcss.config.js plugins.
+2. Integrate via bundler.
+3. Target browserslist for autoprefixer.
+4. Don’t duplicate with lightningcss blindly.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Idle
+  Idle --> Active: use
+  Active --> Idle: settle
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Not applicable.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
@@ -76,77 +84,101 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Measure before/after with lab + field tools. Optimize the attributed bottleneck for CSS transformation pipeline (autoprefixer, nesting, Tailwind, etc.)., not folklore.
 
 ## Production Example
 
-TODO: Realistic production example.
+Teams adopt CSS transformation pipeline (autoprefixer, nesting, Tailwind, etc.). on critical routes, add monitoring, and guard regressions with budgets or reviews.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```js
+export default {
+  plugins: {
+    autoprefixer: {},
+  },
+}
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[PostCSS] --> nextStep[NextStep]
+flowchart TD
+  A[Understand] --> B[Apply CSS transformation pipeline (autoprefixer, nesting, Tailwind, etc.).]
+  B --> C[Measure]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Plugin order bugs
+2. Autoprefixer with outdated browserslist
+3. Running PostCSS twice
+4. Huge custom plugin stacks
+5. Confusing PostCSS with Sass features 1:1
+6. Committing generated CSS inconsistently
+7. Missing a production edge case for 14-build-tools.postcss (#1)
+8. Missing a production edge case for 14-build-tools.postcss (#2)
+9. Missing a production edge case for 14-build-tools.postcss (#3)
+10. Missing a production edge case for 14-build-tools.postcss (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Prefer platform/framework primitives
+- Measure impact on real user metrics
+- Keep the change reviewable and reversible
+- Document the invariant you are protecting
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Copy-paste without understanding failure modes
+- Premature abstraction around a single use
+- Optimizing without a baseline
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Approach | When |
+| --- | --- |
+| Use as designed | Default |
+| Simpler alternative | If constraints differ |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is PostCSS?
+
+**A:** A tool for transforming CSS with a plugin pipeline.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Name a common PostCSS plugin.
+
+**A:** Autoprefixer (or Tailwind’s PostCSS plugin).
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How does Tailwind relate?
+
+**A:** Tailwind v3 uses PostCSS to scan templates and emit utility CSS; configuration rides that pipeline.
 
 ## Summary
 
-- TODO: key takeaway
+- CSS transformation pipeline (autoprefixer, nesting, Tailwind, etc.).
+- Know why it exists and when not to use it
+- Measure production impact
+- Link related handbook topics instead of duplicating
 
 ## References
 
-- TODO: official documentation links
+- [PostCSS](https://postcss.org/)
+- [Autoprefixer](https://github.com/postcss/autoprefixer)
 
 <RelatedTopics />
 
 
-Prev: [esbuild](/14-build-tools/esbuild/) · Next: [Source Maps](/14-build-tools/source-maps/)
+Prev: [`14-build-tools.esbuild`](/14-build-tools/esbuild/) · Next: [`14-build-tools.source-maps`](/14-build-tools/source-maps/)

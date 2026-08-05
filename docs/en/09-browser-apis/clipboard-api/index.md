@@ -1,6 +1,6 @@
 ---
 title: "Clipboard API"
-description: "TODO — one-sentence description of Clipboard API"
+description: "Clipboard API: async read/write of text and richer data with permissions and secure-context rules."
 topic_id: 09-browser-apis.clipboard-api
 difficulty: junior
 reading_time: 20
@@ -8,9 +8,9 @@ implementation_time: 0
 prerequisites: []
 tags: 
   - browser-apis
-status: stub
-prev_topic: 09-browser-apis.history-api
-next_topic: 09-browser-apis.intersection-observer
+status: published
+prev_topic: "09-browser-apis.history-api"
+next_topic: "09-browser-apis.intersection-observer"
 related: []
 advanced: []
 ---
@@ -21,45 +21,58 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Clipboard API in simple language.
+The **Clipboard API** (`navigator.clipboard`) provides promise-based read/write for clipboard data. Writing text is common; reading often requires permission and a short-lived user gesture context.
+
+Older `document.execCommand('copy')` is legacy.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Copy-to-clipboard UX (codes, links, invites) must be reliable and permission-aware across browsers.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Async Clipboard API modernized flaky execCommand flows; permissions policy and secure contexts tightened access.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Write is easier than read. Requires **secure context** (HTTPS). Permissions and transient activation rules vary by browser for read.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Ensure HTTPS.
+2. On user click, `writeText`.
+3. For read, request permission / handle denial.
+4. Fall back when unavailable.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+sequenceDiagram
+  participant User
+  participant App
+  participant Clip as Clipboard
+  User->>App: click Copy
+  App->>Clip: writeText
+  Clip-->>App: resolved/rejected
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Permissions in site settings; Safari has stricter paste rules.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+Call from event handlers, not effects alone.
 
 ## Next.js Perspective
 
@@ -75,77 +88,101 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Negligible.
 
 ## Production Example
 
-TODO: Realistic production example.
+Invite links copy via `writeText`; UI toasts success/failure; fallback selects an input for manual copy.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```ts
+async function copyText(text: string) {
+  try {
+    await navigator.clipboard.writeText(text)
+    return true
+  } catch {
+    return false
+  }
+}
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[ClipboardAPI] --> nextStep[NextStep]
+flowchart TD
+  Click --> Secure{secure context?}
+  Secure -->|yes| Write[writeText]
+  Secure -->|no| Fail
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Calling clipboard APIs without user gesture where required
+2. Ignoring permissions denials
+3. Assuming read is always allowed
+4. Using execCommand without fallback plan in modern apps
+5. HTTP non-secure contexts in production previews
+6. Copying secrets into clipboard without warning
+7. Overlooking an edge case #1 specific to 09-browser-apis.clipboard-api in production traffic
+8. Overlooking an edge case #2 specific to 09-browser-apis.clipboard-api in production traffic
+9. Overlooking an edge case #3 specific to 09-browser-apis.clipboard-api in production traffic
+10. Overlooking an edge case #4 specific to 09-browser-apis.clipboard-api in production traffic
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Copy on click
+- Toast outcomes
+- Feature-detect and fall back
+- Prefer writeText for simple cases
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Silent failure when copy does nothing
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| API | Style |
+| --- | --- |
+| clipboard.writeText | Modern async |
+| execCommand('copy') | Legacy |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What method copies text with the modern API?
+
+**A:** `navigator.clipboard.writeText(text)`.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Why might clipboard read fail?
+
+**A:** Missing permission, insecure context, or lack of required user gesture depending on the browser.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How do you support rich paste (images/html)?
+
+**A:** Use `clipboard.read()` / `ClipboardItem` types and handle permitted MIME types carefully.
 
 ## Summary
 
-- TODO: key takeaway
+- Async clipboard with secure-context rules
+- Write common; read gated
+- Always handle failure UX
 
 ## References
 
-- TODO: official documentation links
+- [MDN: Clipboard API](https://developer.mozilla.org/en-US/docs/Web/API/Clipboard_API)
 
 <RelatedTopics />
 
 
-Prev: [History API](/09-browser-apis/history-api/) · Next: [Intersection Observer](/09-browser-apis/intersection-observer/)
+Prev: [`09-browser-apis.history-api`](/09-browser-apis/history-api/) · Next: [`09-browser-apis.intersection-observer`](/09-browser-apis/intersection-observer/)

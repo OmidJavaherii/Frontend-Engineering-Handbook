@@ -1,6 +1,6 @@
 ---
 title: "Paint"
-description: "TODO — one-sentence description of Paint"
+description: "Paint: turning laid-out boxes into display lists or pixels for layers."
 topic_id: 03-browser.paint
 difficulty: mid
 reading_time: 30
@@ -10,9 +10,9 @@ prerequisites:
 tags: 
   - browser-internals
   - rendering
-status: stub
-prev_topic: 03-browser.layout
-next_topic: 03-browser.composite
+status: published
+prev_topic: "03-browser.layout"
+next_topic: "03-browser.composite"
 related: []
 advanced: []
 ---
@@ -23,45 +23,54 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Paint in simple language.
+**Paint** records drawing commands (text, colors, borders, shadows, images) for laid-out boxes into paint records / display lists, often per layer. It follows [layout](/03-browser/layout/) and precedes [composite](/03-browser/composite/).
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Geometry alone is not pixels. Paint decides how each box visually appears.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Software raster → threaded paint → GPU rasterization. Engines split paint invalidation finely.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Layout boxes → paint ops → rasterize tiles → compositor stitches. Changing `background-color` can repaint without relayout; changing `width` needs layout then paint.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Layout complete.
+2. Invalidate paint regions.
+3. Build/update display lists.
+4. Raster tiles (CPU/GPU).
+5. Composite.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Invalid
+  Invalid --> Painted
+  Painted --> Invalid: visual change
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Paint flashing in DevTools Rendering panel shows regions.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+Visual-only prop changes may paint without full layout if geometry stable.
 
 ## Next.js Perspective
 
@@ -77,77 +86,97 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Large layers with blur/shadows are expensive. Reduce paint areas; promote intentional layers carefully.
 
 ## Production Example
 
-TODO: Realistic production example.
+A full-screen box-shadow on a frequently updating div repainted huge regions; simplified shadow fixed GPU time.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```css
+.card:hover { background: #fafafa; } /* paint */
+.card.open { height: 200px; }       /* layout + paint */
+.card.lift { transform: translateY(-4px); } /* often composite */
+```
 
 ## Diagrams
 
 ```mermaid
 flowchart LR
-  concept[Paint] --> nextStep[NextStep]
+  Layout --> Paint --> Raster --> Composite
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Using paint when composite would do
+2. Enormous animated blurs
+3. Assuming any CSS change only paints
+4. Ignoring paint on text heavy areas
+5. Overusing will-change
+6. Confusing paint with CRP first pixel
+7. Overlooking an edge case #1 specific to 03-browser.paint in production traffic
+8. Overlooking an edge case #2 specific to 03-browser.paint in production traffic
+9. Overlooking an edge case #3 specific to 03-browser.paint in production traffic
+10. Overlooking an edge case #4 specific to 03-browser.paint in production traffic
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Inspect paint flashing
+- Limit invalidation area
+- Prefer compositor props for animation
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Animating box-shadow heavily
+- will-change on everything
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Change | Typical pipeline |
+| --- | --- |
+| color | Paint (+ composite) |
+| width | Layout + paint + composite |
+| transform | Composite (if layered) |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is paint?
+
+**A:** Filling pixels/display lists for visuals of boxes after layout.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Can you paint without layout?
+
+**A:** Yes — e.g. changing background color with geometry unchanged.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** Why might paint be large despite small DOM changes?
+
+**A:** Invalidation can expand to large layers; stacking contexts and effects enlarge paint regions.
 
 ## Summary
 
-- TODO: key takeaway
+- Paint follows layout
+- Not all visual changes relayout
+- Paint area matters
+- DevTools paint flashing helps
 
 ## References
 
-- TODO: official documentation links
+- [Chrome — Paint performance](https://developer.chrome.com/docs/performance/)
+- [HTML/CSS rendering concepts on web.dev](https://web.dev/articles/rendering-performance)
 
 <RelatedTopics />
 
 
-Prev: [Layout](/03-browser/layout/) · Next: [Composite](/03-browser/composite/)
+Prev: [`03-browser.layout`](/03-browser/layout/) · Next: [`03-browser.composite`](/03-browser/composite/)

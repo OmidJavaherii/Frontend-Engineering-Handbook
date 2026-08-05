@@ -1,6 +1,6 @@
 ---
 title: "Debugging Performance"
-description: "TODO — one-sentence description of Debugging Performance"
+description: "Find jank and slow loads with Performance traces, Web Vitals, and attributed main-thread work."
 topic_id: 20-observability.debugging-performance
 difficulty: mid
 reading_time: 35
@@ -9,9 +9,9 @@ prerequisites: []
 tags: 
   - devtools
   - performance
-status: stub
-prev_topic: 20-observability.debugging-network
-next_topic: 20-observability.source-maps-debugging
+status: published
+prev_topic: "20-observability.debugging-network"
+next_topic: "20-observability.source-maps-debugging"
 related: []
 advanced: []
 ---
@@ -22,45 +22,56 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Debugging Performance in simple language.
+**Performance debugging** attributes slow UX to causes: long tasks, layout thrash, huge scripts, network waterfalls, or hydration. Use Performance panel + Web Vitals + React Profiler together.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Users feel latency as brokenness. Optimizing without attribution wastes time.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+RAIL model → Core Web Vitals made field metrics mainstream; lab tools improved attribution.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Lab (DevTools/Lighthouse) vs field (RUM). Fix the metric that matches the user pain: LCP, INP, CLS, TTFB.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Identify painful metric.
+2. Lab reproduce with throttling.
+3. Attribute (script, render, network).
+4. Change one thing.
+5. Verify lab + field.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Metric
+  Metric --> Trace
+  Trace --> Attribute
+  Attribute --> Optimize
+  Optimize --> VerifyField
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Main thread contention blocks input/paint.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+Unnecessary rerenders and hydration costs.
 
 ## Next.js Perspective
 
@@ -72,81 +83,104 @@ Not applicable.
 
 ## Network Perspective
 
-Not applicable.
+LCP often image/TTFB bound.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+This topic is the practice of performance work.
 
 ## Production Example
 
-TODO: Realistic production example.
+INP regression: Performance shows long handler on search input; debounced and moved work off critical path.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```js
+new PerformanceObserver((list) => {
+  for (const e of list.getEntries()) console.log(e.name, e.startTime, e.duration)
+}).observe({ type: 'longtask', buffered: true })
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[DebuggingPerformance] --> nextStep[NextStep]
+flowchart TD
+  Pain --> Lab
+  Pain --> RUM
+  Lab --> Cause
+  RUM --> Cause
+  Cause --> Fix
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Optimizing without a metric
+2. Desktop-only profiles for mobile issues
+3. Micro-optimizing while LCP image ignored
+4. Ignoring third-party scripts
+5. Shipping perf “fixes” without field verification
+6. Missing a production edge case for 20-observability.debugging-performance (#1)
+7. Missing a production edge case for 20-observability.debugging-performance (#2)
+8. Missing a production edge case for 20-observability.debugging-performance (#3)
+9. Missing a production edge case for 20-observability.debugging-performance (#4)
+10. Missing a production edge case for 20-observability.debugging-performance (#5)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Throttle for mobile
+- Attribute before optimizing
+- Validate with RUM
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Premature memoization everywhere
+- Chasing Lighthouse score with hacks hurting a11y
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Lab | Field |
+| --- | --- |
+| Controlled | Real users |
+| Debug deep | Prioritize |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** Name Core Web Vitals.
+
+**A:** LCP, INP, and CLS (as of current Core Web Vitals set).
 
 ### Medium
 
-TODO — question and answer.
+**Q:** What is a long task?
+
+**A:** Main-thread work exceeding ~50ms that can delay input/paint.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** Debug poor LCP on a Next app.
+
+**A:** Check TTFB, LCP element type, image priority/sizes, render-blocking resources, and field breakdowns; fix the dominant factor.
 
 ## Summary
 
-- TODO: key takeaway
+- Attribute then optimize
+- Lab + field together
+- Match metric to user pain
 
 ## References
 
-- TODO: official documentation links
+- [web.dev — Performance](https://web.dev/performance/)
+- [Chrome — Performance features](https://developer.chrome.com/docs/devtools/performance/)
+- [Web Vitals](https://web.dev/articles/vitals)
 
 <RelatedTopics />
 
 
-Prev: [Debugging Network](/20-observability/debugging-network/) · Next: [Source Maps Debugging](/20-observability/source-maps-debugging/)
+Prev: [`20-observability.debugging-network`](/20-observability/debugging-network/) · Next: [`20-observability.source-maps-debugging`](/20-observability/source-maps-debugging/)

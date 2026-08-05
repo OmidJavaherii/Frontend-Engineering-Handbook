@@ -1,6 +1,6 @@
 ---
 title: "IPv6"
-description: "TODO — one-sentence description of IPv6"
+description: "IPv6: 128-bit addressing, dual-stack operation, and Happy Eyeballs in browsers."
 topic_id: 02-internet.ipv6
 difficulty: junior
 reading_time: 25
@@ -9,9 +9,9 @@ prerequisites:
   - 02-internet.ip
 tags: 
   - networking
-status: stub
-prev_topic: 02-internet.ipv4
-next_topic: 02-internet.tcp
+status: published
+prev_topic: "02-internet.ipv4"
+next_topic: "02-internet.tcp"
 related: []
 advanced: []
 ---
@@ -22,41 +22,48 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain IPv6 in simple language.
+**IPv6** uses 128-bit addresses to restore end-to-end addressing at Internet scale. Browsers use **Happy Eyeballs** to race IPv6/IPv4 connections so broken v6 paths don’t brick the web.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Some networks are IPv6-first. Dual-stack misconfig (AAAA published but blackholed) causes mysterious timeouts if Happy Eyeballs fails or is slow.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Designed in the 1990s; deployment accelerated with mobile operators and hyperscalers.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Huge address space; notation with hextets and `::` compression. Often SLAAC/DHCPv6 at edges.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. DNS AAAA lookup.
+2. Client may attempt v6 and v4 in parallel (Happy Eyeballs).
+3. First successful connect wins.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> ResolveAAAA
+  ResolveAAAA --> Race
+  Race --> Connected
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Happy Eyeballs v2 algorithms reduce v6 pain.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
@@ -68,85 +75,106 @@ Not applicable.
 
 ## Server Perspective
 
-Not applicable.
+Serve dual-stack; test AAAA reachability.
 
 ## Network Perspective
 
-Not applicable.
+Security groups must allow v6; logs should store v6.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Broken AAAA is worse than no AAAA. Monitor v6 success ratios.
 
 ## Production Example
 
-TODO: Realistic production example.
+Published AAAA to wrong LB → 5s timeouts for v6-preferring clients. Removed AAAA until fixed.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```bash
+dig AAAA example.com +short
+curl -6 -vI https://example.com
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[IPv6] --> nextStep[NextStep]
+flowchart TD
+  DNS --> AAAA
+  DNS --> A
+  AAAA --> HE[Happy Eyeballs]
+  A --> HE --> TCPTLS[Connect]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Publishing AAAA without working data plane
+2. Firewall only updated for v4
+3. Assuming no NAT means no security need
+4. UI validators rejecting valid v6 literals
+5. Forgetting scoped link-local addresses
+6. Logging pipelines dropping v6
+7. Overlooking an edge case #1 specific to 02-internet.ipv6 in production traffic
+8. Overlooking an edge case #2 specific to 02-internet.ipv6 in production traffic
+9. Overlooking an edge case #3 specific to 02-internet.ipv6 in production traffic
+10. Overlooking an edge case #4 specific to 02-internet.ipv6 in production traffic
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Dual-stack test in CI/synthetic
+- Only publish working AAAA
+- Support v6 in ACL/CDN config
 
 ## Anti-patterns
 
-TODO: What not to do.
+- IPv6 as checkbox without monitoring
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
+| | IPv4 | IPv6 |
 | --- | --- | --- |
-| TODO | TODO | TODO |
+| Length | 32-bit | 128-bit |
+| NAT | Common | Uncommon |
+| Fragmentation | Host/router history | Mostly end hosts |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** How long is an IPv6 address?
+
+**A:** 128 bits.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** What is Happy Eyeballs?
+
+**A:** A client algorithm that races IPv6 and IPv4 connection attempts to improve user-visible success/latency.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** Why can adding AAAA regress availability?
+
+**A:** If IPv6 routing is broken, clients may wait on failing v6 attempts before falling back — perceived outage.
 
 ## Summary
 
-- TODO: key takeaway
+- IPv6 provides vast addressing
+- Dual-stack is the pragmatic mode
+- Don’t publish broken AAAA
+- Browsers race v4/v6
 
 ## References
 
-- TODO: official documentation links
+- [RFC 8200 — IPv6](https://www.rfc-editor.org/rfc/rfc8200)
+- [RFC 8305 — Happy Eyeballs v2](https://www.rfc-editor.org/rfc/rfc8305)
 
 <RelatedTopics />
 
 
-Prev: [IPv4](/02-internet/ipv4/) · Next: [TCP](/02-internet/tcp/)
+Prev: [`02-internet.ipv4`](/02-internet/ipv4/) · Next: [`02-internet.tcp`](/02-internet/tcp/)

@@ -20,8 +20,8 @@
     "registry:links": "tsx scripts/check-cross-links.ts",
     "registry:all": "pnpm registry:validate && pnpm registry:sidebars && pnpm registry:topic-map && pnpm registry:knowledge-graph && pnpm registry:links",
     "scaffold:topic": "tsx scripts/scaffold-topic.ts",
-    "scaffold:stubs": "tsx scripts/scaffold-all-stubs.ts",
     "scaffold:paths": "tsx scripts/generate-learning-path-pages.ts",
+    "content:publish": "tsx scripts/publish-topics.ts",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "verify": "pnpm registry:all && pnpm typecheck && pnpm build"
   },

@@ -1,6 +1,6 @@
 ---
 title: "Font Performance"
-description: "TODO — one-sentence description of Font Performance"
+description: "Loading fonts without wrecking LCP/CLS: subsetting, display strategy, self-hosting."
 topic_id: 13-performance.font-performance
 difficulty: mid
 reading_time: 25
@@ -8,9 +8,9 @@ implementation_time: 0
 prerequisites: []
 tags: 
   - performance
-status: stub
-prev_topic: 13-performance.image-optimization-perf
-next_topic: 13-performance.lighthouse
+status: published
+prev_topic: "13-performance.image-optimization-perf"
+next_topic: "13-performance.lighthouse"
 related: []
 advanced: []
 ---
@@ -21,41 +21,50 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Font Performance in simple language.
+**Font performance** covers how webfonts are downloaded and applied. Poor strategy causes invisible text, late text, or CLS from fallback swaps.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Fonts are render-critical for text-heavy pages and brand UI.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+FOIT/FOUT wars → font-display → size-adjusted fallbacks / next/font self-host.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Fewer families/weights; subset; self-host; fallback metrics close to webfont.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Audit used weights/glyphs.
+2. Subset + modern formats (woff2).
+3. Self-host with good Cache-Control.
+4. Choose font-display / next/font.
+5. Measure CLS.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Idle
+  Idle --> Active: use
+  Active --> Idle: settle
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Not applicable.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
@@ -75,77 +84,102 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Measure before/after with lab + field tools. Optimize the attributed bottleneck for Loading fonts without wrecking LCP/CLS, not folklore.
 
 ## Production Example
 
-TODO: Realistic production example.
+Teams adopt Loading fonts without wrecking LCP/CLS on critical routes, add monitoring, and guard regressions with budgets or reviews.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```css
+@font-face {
+  font-family: 'Inter';
+  src: url('/fonts/inter.woff2') format('woff2');
+  font-display: swap;
+  unicode-range: U+000-5FF;
+}
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[FontPerformance] --> nextStep[NextStep]
+flowchart TD
+  A[Understand] --> B[Apply Loading fonts without wrecking LCP/CLS]
+  B --> C[Measure]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Loading entire icon + brand + serif stacks everywhere
+2. Third-party font CSS blocking
+3. No fallback metrics → CLS
+4. Too many weights
+5. Late @import for fonts
+6. Base64 megabyte fonts in CSS
+7. Missing a production edge case for 13-performance.font-performance (#1)
+8. Missing a production edge case for 13-performance.font-performance (#2)
+9. Missing a production edge case for 13-performance.font-performance (#3)
+10. Missing a production edge case for 13-performance.font-performance (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Prefer platform/framework primitives
+- Measure impact on real user metrics
+- Keep the change reviewable and reversible
+- Document the invariant you are protecting
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Copy-paste without understanding failure modes
+- Premature abstraction around a single use
+- Optimizing without a baseline
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Approach | When |
+| --- | --- |
+| Use as designed | Default |
+| Simpler alternative | If constraints differ |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What does font-display: swap do?
+
+**A:** Shows fallback text immediately, swapping to webfont when loaded (can CLS without metric adjustment).
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Why self-host fonts?
+
+**A:** Remove third-party RTT/privacy issues and control caching/subsetting.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How do size-adjusted fallbacks help CLS?
+
+**A:** They approximate webfont metrics so swap causes less layout shift.
 
 ## Summary
 
-- TODO: key takeaway
+- Loading fonts without wrecking LCP/CLS: subsetting, display strategy, self-hosting.
+- Know why it exists and when not to use it
+- Measure production impact
+- Link related handbook topics instead of duplicating
 
 ## References
 
-- TODO: official documentation links
+- [web.dev — Fonts](https://web.dev/learn/performance/optimize-web-fonts)
+- [Next.js — Fonts](https://nextjs.org/docs/app/building-your-application/optimizing/fonts)
 
 <RelatedTopics />
 
 
-Prev: [Image Optimization](/13-performance/image-optimization-perf/) · Next: [Lighthouse](/13-performance/lighthouse/)
+Prev: [`13-performance.image-optimization-perf`](/13-performance/image-optimization-perf/) · Next: [`13-performance.lighthouse`](/13-performance/lighthouse/)

@@ -1,6 +1,6 @@
 ---
 title: "Hooks"
-description: "TODO — one-sentence description of Hooks"
+description: "Hooks: the API and mechanism for state/effects in function components, stored as a linked list on the fiber."
 topic_id: 10-react.hooks
 difficulty: junior
 reading_time: 35
@@ -9,9 +9,9 @@ prerequisites:
   - 10-react.state
 tags: 
   - react
-status: stub
-prev_topic: 10-react.state
-next_topic: 10-react.rules-of-hooks
+status: published
+prev_topic: "10-react.state"
+next_topic: "10-react.rules-of-hooks"
 related: []
 advanced: []
 ---
@@ -22,49 +22,59 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Hooks in simple language.
+**Hooks** let function components tap into React features—state, context, refs, effects—without classes. They must be called in the same order every render (Rules of Hooks).
+
+Internally, each hook call corresponds to a cell in a linked list on the fiber.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Classes mixed lifecycle concerns awkwardly and discouraged reuse. Hooks recompose behavior by calls, not inheritance.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Introduced in React 16.8 (2019). Ecosystem rebuilt around them. React 19 adds `use` and further refinements.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Hooks are **ordered slots**. First render mounts the list; later renders walk the same list. Conditional hook calls desynchronize slots—hence the rules.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Call hooks at top level only.
+2. Prefer built-ins before custom hooks.
+3. Encapsulate reusable stateful logic in custom hooks.
+4. Keep effect dependencies honest.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+flowchart TD
+  Render --> H1[useState cell]
+  H1 --> H2[useEffect cell]
+  H2 --> H3[useMemo cell]
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Not applicable.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Hook cells are ordinary JS objects on the fiber.
 
 ## React Perspective
 
-Not applicable.
+Primary programming model for client components.
 
 ## Next.js Perspective
 
-Not applicable.
+Hooks only in Client Components.
 
 ## Server Perspective
 
@@ -76,77 +86,98 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Hooks themselves are cheap; wasted work inside them is not.
 
 ## Production Example
 
-TODO: Realistic production example.
+`useCheckout()` custom hook centralizes cart mutation + analytics so pages stay thin.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```tsx
+function useToggle(init = false) {
+  const [on, setOn] = useState(init)
+  const toggle = () => setOn((v) => !v)
+  return [on, toggle] as const
+}
+```
 
 ## Diagrams
 
 ```mermaid
 flowchart LR
-  concept[Hooks] --> nextStep[NextStep]
+  Fiber --> Hook1 --> Hook2 --> Hook3
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Hooks in conditions/loops
+2. Hooks in class components
+3. Custom hooks that hide necessary deps
+4. Copy-pasting effects instead of extracting hooks
+5. Calling hooks from event handlers
+6. Assuming hook call order can be dynamic
+7. Calling hooks conditionally or in loops
+8. Putting derived state into useState + syncing with effects
+9. Over-using Context causing broad rerenders
+10. Ignoring Rules of Hooks eslint plugin in a shared codebase
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Top-level hooks only
+- ESLint `rules-of-hooks` + `exhaustive-deps`
+- Name custom hooks `useX`
+- Return stable APIs from custom hooks
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Mega `useApp()` that pulls all contexts
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Before | After |
+| --- | --- |
+| lifecycle methods | useEffect family |
+| this.state | useState/useReducer |
+| HOCs/render props | custom hooks |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What are hooks?
+
+**A:** Functions like `useState` that let function components use React state and features.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Why must hooks be called in the same order?
+
+**A:** React associates hook state by call order in a linked list; conditionals break the mapping.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How does React store hook state?
+
+**A:** Each fiber has a linked list of hook objects; on update, a dispatcher walks/creates nodes matching the call sequence.
 
 ## Summary
 
-- TODO: key takeaway
+- Hooks are ordered fiber state cells
+- Top-level only; custom hooks share logic
+- Client Components in RSC apps
 
 ## References
 
-- TODO: official documentation links
+- [React Documentation](https://react.dev/)
+- [Hooks at a Glance](https://react.dev/reference/react)
 
 <RelatedTopics />
 
 
-Prev: [State](/10-react/state/) · Next: [Rules of Hooks](/10-react/rules-of-hooks/)
+Prev: [`10-react.state`](/10-react/state/) · Next: [`10-react.rules-of-hooks`](/10-react/rules-of-hooks/)

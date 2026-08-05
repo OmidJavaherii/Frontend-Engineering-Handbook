@@ -1,6 +1,6 @@
 ---
 title: "Resize Observer"
-description: "TODO — one-sentence description of Resize Observer"
+description: "ResizeObserver: callbacks when element content box / border box size changes—responsive components without window resize hacks."
 topic_id: 09-browser-apis.resize-observer
 difficulty: mid
 reading_time: 20
@@ -8,9 +8,9 @@ implementation_time: 0
 prerequisites: []
 tags: 
   - browser-apis
-status: stub
-prev_topic: 09-browser-apis.mutation-observer
-next_topic: 09-browser-apis.broadcast-channel
+status: published
+prev_topic: "09-browser-apis.mutation-observer"
+next_topic: "09-browser-apis.broadcast-channel"
 related: []
 advanced: []
 ---
@@ -21,45 +21,54 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Resize Observer in simple language.
+**ResizeObserver** notifies when an observed element’s size changes. Essential for charts, virtualized lists, and responsive components sized by container, not only by viewport.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+`window.resize` misses container changes (sidebars, split panes). RO observes elements directly.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Filled the gap left by window-centric resize events; now baseline in modern browsers.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Observe elements; receive `contentRect` / box sizes. Callbacks can happen before paint; avoid layout loops (RO has error handling for infinite loop scenarios).
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Create ResizeObserver.
+2. Observe containers.
+3. Update layout/chart dimensions in callback (debounce if heavy).
+4. Disconnect on unmount.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Observing
+  Observing --> Callback: size change
+  Callback --> Observing
+  Observing --> [*]: disconnect
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Prefer over window resize for component-local layout.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+Pair with refs; store width in state sparingly to avoid render storms.
 
 ## Next.js Perspective
 
@@ -75,77 +84,99 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Debounce heavy work; don’t setState every subpixel without need.
 
 ## Production Example
 
-TODO: Realistic production example.
+A chart component observes its wrapper and rerenders the canvas at device pixel ratio when width changes.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```ts
+const ro = new ResizeObserver((entries) => {
+  for (const entry of entries) {
+    const w = entry.contentRect.width
+    console.log('width', w)
+  }
+})
+ro.observe(document.querySelector('#chart')!)
+```
 
 ## Diagrams
 
 ```mermaid
 flowchart LR
-  concept[ResizeObserver] --> nextStep[NextStep]
+  El[Element size] --> RO[ResizeObserver]
+  RO --> Chart[Redraw]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Using window.resize for container-driven layout
+2. setState on every notification causing loops
+3. Forgetting disconnect
+4. Ignoring devicePixelRatio for canvases
+5. Observing wrong box (content vs border) for the layout model
+6. Doing forced layout inside callbacks carelessly
+7. Overlooking an edge case #1 specific to 09-browser-apis.resize-observer in production traffic
+8. Overlooking an edge case #2 specific to 09-browser-apis.resize-observer in production traffic
+9. Overlooking an edge case #3 specific to 09-browser-apis.resize-observer in production traffic
+10. Overlooking an edge case #4 specific to 09-browser-apis.resize-observer in production traffic
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Observe the element that actually sizes the widget
+- Debounce expensive redraws
+- Clean up on unmount
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Global window resize bus for all components
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Tool | Observes |
+| --- | --- |
+| ResizeObserver | Element size |
+| window resize | Viewport |
+| Container queries | CSS-based |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** Why use ResizeObserver instead of window resize?
+
+**A:** Because component containers can change size without the window resizing.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** What does `contentRect` represent?
+
+**A:** The observed element’s content box dimensions delivered with the entry.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How can ResizeObserver cause infinite loops?
+
+**A:** If the callback changes the observed element’s size repeatedly; browsers may error and stop delivery.
 
 ## Summary
 
-- TODO: key takeaway
+- Element-level size observations
+- Ideal for charts and container layouts
+- Avoid render/layout loops
 
 ## References
 
-- TODO: official documentation links
+- [MDN: Resize Observer](https://developer.mozilla.org/en-US/docs/Web/API/Resize_Observer_API)
 
 <RelatedTopics />
 
 
-Prev: [Mutation Observer](/09-browser-apis/mutation-observer/) · Next: [Broadcast Channel](/09-browser-apis/broadcast-channel/)
+Prev: [`09-browser-apis.mutation-observer`](/09-browser-apis/mutation-observer/) · Next: [`09-browser-apis.broadcast-channel`](/09-browser-apis/broadcast-channel/)

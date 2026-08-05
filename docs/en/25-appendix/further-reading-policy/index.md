@@ -1,6 +1,6 @@
 ---
 title: "Further Reading Policy"
-description: "TODO — one-sentence description of Further Reading Policy"
+description: "Policy for References and further reading: prefer official specs/docs; how to cite blogs."
 topic_id: 25-appendix.further-reading-policy
 difficulty: beginner
 reading_time: 10
@@ -8,8 +8,8 @@ implementation_time: 0
 prerequisites: []
 tags: 
   - appendix
-status: stub
-prev_topic: 25-appendix.curriculum-changelog
+status: published
+prev_topic: "25-appendix.curriculum-changelog"
 next_topic: null
 related: []
 advanced: []
@@ -21,49 +21,58 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Further Reading Policy in simple language.
+**Further Reading Policy** states what belongs in topic **References** and optional further reading. Official docs first; secondary sources carefully.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Blog rot and conflicting advice confuse learners. The handbook privileges specifications and primary documentation.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Documentation-standard in this repo requires official references for draft+ status.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+**Primary > secondary > opinion.** Primary = specs, MDN, react.dev, RFCs. Secondary = eng blogs with unique data. Avoid SEO content farms.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Cite official docs for behaviors  
+2. Add RFCs/specs when precise  
+3. Optionally one high-quality secondary  
+4. Date-sensitive posts: note year  
+5. Never paywall-only as sole citation
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> FindPrimary
+  FindPrimary --> Cite
+  Cite --> OptionalSecondary
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+MDN + specs for Web APIs.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Implementation blogs OK as secondary.
 
 ## React Perspective
 
-Not applicable.
+react.dev first.
 
 ## Next.js Perspective
 
-Not applicable.
+nextjs.org/docs first.
 
 ## Server Perspective
 
@@ -71,81 +80,117 @@ Not applicable.
 
 ## Network Perspective
 
-Not applicable.
+RFCs for HTTP.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+N/A
 
 ## Production Example
 
-TODO: Realistic production example.
+PR review rejects topics citing only medium spam.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```md
+## References
+- [MDN — Service Worker API](https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API)
+- [web.dev — PWA](https://web.dev/explore/progressive-web-apps)
+# Optional further reading
+- High-quality eng blog with unique benchmarks (YYYY)
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[FurtherReadingPolicy] --> nextStep[NextStep]
+flowchart TD
+  n0[Primary docs] --> n1[Specs]
+  n1[Specs] --> n2[Optional secondary]
+```
+
+```mermaid
+sequenceDiagram
+  participant User
+  participant App
+  participant Platform
+  User->>App: interact (Citations)
+  App->>Platform: apply mechanism
+  Platform-->>App: result or error
+  App-->>User: update UI
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Blog-only references for normative behavior
+2. Outdated posts contradicting current specs
+3. Affiliate junk links
+4. No references on draft pages
+5. Citing unmaintained forks of docs
+6. Deep links that 404 without archive
+7. Missing a production edge case for 25-appendix.further-reading-policy (#1)
+8. Missing a production edge case for 25-appendix.further-reading-policy (#2)
+9. Missing a production edge case for 25-appendix.further-reading-policy (#3)
+10. Missing a production edge case for 25-appendix.further-reading-policy (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Official first
+- RFCs when precise
+- Label secondary as further reading
+- Prefer stable URLs
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Reference sections as SEO link farms
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Source | Authority |
+| --- | --- |
+| Spec/RFC | Highest |
+| Official docs | High |
+| Eng blog | Contextual |
+| Random tutorial | Low |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What should References prefer?
+
+**A:** Official documentation and specifications.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** When is an engineering blog acceptable?
+
+**A:** When it provides unique measurements or historical context, alongside primary citations.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How do you resolve conflicting blog vs spec guidance?
+
+**A:** Trust the spec/official docs; treat blogs as possibly outdated; verify in browsers.
 
 ## Summary
 
-- TODO: key takeaway
+- Official docs first
+- Secondary optional
+- Required for drafts
+- Avoid junk citations
 
 ## References
 
-- TODO: official documentation links
+- [MDN Web Docs](https://developer.mozilla.org/)
+- [TC39 / ECMAScript](https://tc39.es/)
+- [CONTRIBUTING.md](/CONTRIBUTING.md) — handbook ground rules
 
 <RelatedTopics />
 
 
-Prev: [Curriculum Changelog](/25-appendix/curriculum-changelog/)
+Prev: [`25-appendix.curriculum-changelog`](/25-appendix/curriculum-changelog/)

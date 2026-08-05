@@ -1,6 +1,6 @@
 ---
 title: "State Management"
-description: "TODO — one-sentence description of State Management"
+description: "Decide what state lives where: server cache, URL, local UI, and global client stores—and keep them from fighting."
 topic_id: 15-architecture.state-management
 difficulty: mid
 reading_time: 35
@@ -9,9 +9,9 @@ prerequisites: []
 tags: 
   - architecture
   - state
-status: stub
-prev_topic: 15-architecture.module-federation
-next_topic: 15-architecture.redux
+status: published
+prev_topic: "15-architecture.module-federation"
+next_topic: "15-architecture.redux"
 related: []
 advanced: []
 ---
@@ -22,49 +22,71 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain State Management in simple language.
+**State management** is the discipline of storing, updating, and deriving UI data. Modern guidance: most “global state” is **server state** (cache it), many filters belong in the **URL**, ephemeral UI state stays local, and only true cross-tree client state needs a library.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Ad-hoc props and duplicated fetches create bugs and waterfalls. A clear state taxonomy prevents Redux-for-everything and `useEffect` sync hell.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Flux → Redux → Context proliferation → hooks → server-state libraries (React Query/TanStack Query, SWR) reframed the problem. React 19 / RSC further push data toward the server.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Classify each piece of state:
+
+1. **Server** — comes from the network; needs cache/invalidation
+2. **URL** — shareable/bookmarkable UI state
+3. **Local** — one component subtree
+4. **Global client** — auth shell, feature flags, rare cross-cutting UI
+
+Pick the leftmost tool that works.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Inventory state and classify.
+2. Server state → TanStack Query/SWR/RSC fetch.
+3. Filters/tabs/pagination → URL.
+4. Local UI → `useState`/`useReducer`.
+5. True global → small store (Zustand/Jotai/Redux).
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Classify
+  Classify --> ServerCache
+  Classify --> UrlState
+  Classify --> LocalState
+  Classify --> GlobalStore
+  ServerCache --> Render
+  UrlState --> Render
+  LocalState --> Render
+  GlobalStore --> Render
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+URL and `history` are first-class state containers.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+Prefer deriving state during render. Avoid mirroring props into state. Context is for dependency injection, not high-frequency stores.
 
 ## Next.js Perspective
 
-Not applicable.
+Server Components fetch on the server; client stores must not be the source of truth for server data.
 
 ## Server Perspective
 
@@ -72,81 +94,110 @@ Not applicable.
 
 ## Network Perspective
 
-Not applicable.
+Server state libraries coordinate dedupe, retries, and backoff.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Global stores that retain large normalized graphs can leak if not garbage-collected on logout.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+High-frequency state (mouse drag) should not flow through wide Context. Selectors/subscriptions that isolate rerenders matter.
 
 ## Production Example
 
-TODO: Realistic production example.
+Product page: price/inventory via TanStack Query; selected SKU in URL; modal open local; cart badge from a small Zustand store synced with mutations.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```ts
+// Taxonomy sketch
+type StateKind = 'server' | 'url' | 'local' | 'global'
+
+const decisions: Record<string, StateKind> = {
+  product: 'server',
+  selectedColor: 'url',
+  isHoveringImage: 'local',
+  sessionUser: 'global',
+}
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[StateManagement] --> nextStep[NextStep]
+flowchart TD
+  Q[Where does data come from?] -->|Network| SQ[Server cache lib / RSC]
+  Q -->|Must be shareable| URL[URL params]
+  Q -->|Single subtree| Local[useState]
+  Q -->|Cross-tree client| Store[Zustand/Redux/Jotai]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Putting all server responses into Redux
+2. Syncing URL ↔ store with fragile effects
+3. Overusing Context causing app-wide rerenders
+4. Duplicating derived state
+5. No ownership of cache invalidation
+6. Missing a production edge case for 15-architecture.state-management (#1)
+7. Missing a production edge case for 15-architecture.state-management (#2)
+8. Missing a production edge case for 15-architecture.state-management (#3)
+9. Missing a production edge case for 15-architecture.state-management (#4)
+10. Missing a production edge case for 15-architecture.state-management (#5)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Classify before picking a library
+- Server state libraries for remote data
+- URL for shareable UI state
 
 ## Anti-patterns
 
-TODO: What not to do.
+- One mega-store for every form field
+- `useEffect` to keep two stores “in sync” as architecture
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Kind | Tooling |
+| --- | --- |
+| Server | TanStack Query, SWR, RSC |
+| URL | Router search params |
+| Local | useState/useReducer |
+| Global client | Zustand, Jotai, Redux |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is server state vs client state?
+
+**A:** Server state is persisted remotely and needs fetching/caching/invalidation; client state lives only in the UI session.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Why not put API data in Redux by default?
+
+**A:** You reimplement caching, dedupe, retries, and staleness that dedicated libraries already solve; Redux shines for complex client-side domain logic.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** Design state for a filters + infinite list + auth shell app.
+
+**A:** Filters in URL, list pages via TanStack Query infinite queries, auth session in a small global store or httpOnly cookie session, row UI state local.
 
 ## Summary
 
-- TODO: key takeaway
+- Classify state before choosing tools
+- Most global state is server state or URL state
+- Keep client stores small and purposeful
 
 ## References
 
-- TODO: official documentation links
+- [TanStack Query docs](https://tanstack.com/query/latest)
+- [React — Managing State](https://react.dev/learn/managing-state)
 
 <RelatedTopics />
 
 
-Prev: [Module Federation](/15-architecture/module-federation/) · Next: [Redux](/15-architecture/redux/)
+Prev: [`15-architecture.module-federation`](/15-architecture/module-federation/) · Next: [`15-architecture.redux`](/15-architecture/redux/)

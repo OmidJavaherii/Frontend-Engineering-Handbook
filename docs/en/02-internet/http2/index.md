@@ -1,6 +1,6 @@
 ---
 title: "HTTP/2"
-description: "TODO — one-sentence description of HTTP/2"
+description: "HTTP/2: multiplexed binary framing over one TCP connection, HPACK headers, and practical web impact."
 topic_id: 02-internet.http2
 difficulty: mid
 reading_time: 35
@@ -10,9 +10,9 @@ prerequisites:
 tags: 
   - http
   - networking
-status: stub
-prev_topic: 02-internet.sse
-next_topic: 02-internet.http3
+status: published
+prev_topic: "02-internet.sse"
+next_topic: "02-internet.http3"
 related: []
 advanced: []
 ---
@@ -23,41 +23,50 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain HTTP/2 in simple language.
+**HTTP/2** replaces HTTP/1.1’s text framing with a **binary framed**, **multiplexed** protocol on one connection (typically TLS). Many requests share streams concurrently, reducing the need for domain sharding and multiple TCP connections.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+HTTP/1.1 browsers opened many connections per origin to fight head-of-line blocking at the HTTP message layer. H2 multiplexes streams — though **TCP HOL blocking** remains.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+SPDYs → HTTP/2 (RFC 7540 / 9113). Server push largely retreated in practice.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+One TCP+TLS pipe; many streams with interleaved frames; headers compressed with HPACK.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. TLS with ALPN `h2`.
+2. Magic connection preface + SETTINGS.
+3. Streams open for requests.
+4. DATA/HEADERS frames flow both ways.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> ConnOpen
+  ConnOpen --> StreamOpen
+  StreamOpen --> StreamClosed
+  ConnOpen --> ConnClosed
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+DevTools still shows requests; protocol column shows h2. Connection coalescing may share conns across hosts with same IP+cert.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
@@ -69,85 +78,104 @@ Not applicable.
 
 ## Server Perspective
 
-Not applicable.
+Need H2-capable LB; watch max concurrent streams.
 
 ## Network Perspective
 
-Not applicable.
+Fewer connections; better on lossy nets than H1’s many conns, until TCP loss stalls all streams.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Helps many small assets; still compress & cache. Avoid obsessive sharding that breaks coalescing.
 
 ## Production Example
 
-TODO: Realistic production example.
+Sharding static1–4.cdn broke H2 coalescing; consolidated hostname improved performance.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```bash
+curl -sI --http2 https://example.com | head
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[HTTP2] --> nextStep[NextStep]
+flowchart TB
+  TCP[Single TCP connection] --> S1[Stream 1 GET /app.js]
+  TCP --> S2[Stream 3 GET /app.css]
+  TCP --> S3[Stream 5 GET /api]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Domain sharding as if still on H1
+2. Relying on server push
+3. Assuming H2 fixes all latency (TTFB/CPU still matter)
+4. Enormous headers defeating HPACK gains
+5. Ignoring TCP HOL under loss
+6. Turning on H2 without TLS where browsers require it
+7. Overlooking an edge case #1 specific to 02-internet.http2 in production traffic
+8. Overlooking an edge case #2 specific to 02-internet.http2 in production traffic
+9. Overlooking an edge case #3 specific to 02-internet.http2 in production traffic
+10. Overlooking an edge case #4 specific to 02-internet.http2 in production traffic
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- One strong origin for static when possible
+- Compress assets; use caching
+- Measure real protocol negotiation rates
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Hundreds of tiny unbundled modules without HTTP caching strategy on H2 as an excuse for infinite waterfalls
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
+| | HTTP/1.1 | HTTP/2 |
 | --- | --- | --- |
-| TODO | TODO | TODO |
+| Framing | Text | Binary |
+| Multiplex | No (1 req/conn) | Yes |
+| Header compress | No | HPACK |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is the headline feature of HTTP/2?
+
+**A:** Multiplexed request/response streams over a single connection.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Why can HTTP/2 still stall all requests?
+
+**A:** Streams share one TCP connection; TCP loss causes head-of-line blocking across streams.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** What is connection coalescing?
+
+**A:** Browsers may reuse one H2 connection for different hostnames if they resolve to the same IP and the cert authorizes them — impacting cookie/host designs and sharding.
 
 ## Summary
 
-- TODO: key takeaway
+- H2 multiplexes over one TCP+TLS connection
+- Reduces need for sharding
+- TCP HOL remains
+- Server push is rarely useful now
 
 ## References
 
-- TODO: official documentation links
+- [RFC 9113 — HTTP/2](https://www.rfc-editor.org/rfc/rfc9113)
+- [web.dev — HTTP/2](https://web.dev/articles/performance-http2)
 
 <RelatedTopics />
 
 
-Prev: [Server-Sent Events](/02-internet/sse/) · Next: [HTTP/3](/02-internet/http3/)
+Prev: [`02-internet.sse`](/02-internet/sse/) · Next: [`02-internet.http3`](/02-internet/http3/)

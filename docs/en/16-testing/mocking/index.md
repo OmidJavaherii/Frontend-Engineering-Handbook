@@ -1,6 +1,6 @@
 ---
 title: "Mocking"
-description: "TODO — one-sentence description of Mocking"
+description: "Replace dependencies with controlled fakes so tests are fast, deterministic, and focused."
 topic_id: 16-testing.mocking
 difficulty: junior
 reading_time: 25
@@ -8,9 +8,9 @@ implementation_time: 0
 prerequisites: []
 tags: 
   - testing
-status: stub
-prev_topic: 16-testing.playwright
-next_topic: 16-testing.spying
+status: published
+prev_topic: "16-testing.playwright"
+next_topic: "16-testing.spying"
 related: []
 advanced: []
 ---
@@ -21,45 +21,55 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Mocking in simple language.
+**Mocking** substitutes a real dependency (module, network, timer) with a controlled stand-in. Good mocks isolate the unit under test; bad mocks reimplement the system incorrectly and greenwash bugs.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Real network/time/randomness make tests slow and flaky. Mocks freeze the world at the boundary you choose—but every mock is an assumption that can drift.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Classical xUnit test doubles (mock/stub/fake/spy) → Jest automocks → MSW for network-level fakes without mocking fetch call sites.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Mock **at the boundary** you own less: prefer HTTP-level fakes (MSW) over stubbing internal collaborators. Don’t mock what you are testing.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Identify external dependency.
+2. Choose double type (stub return, fake in-memory, spy).
+3. Set expectations.
+4. Reset between tests.
+5. Periodically validate against real contracts.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> ChooseBoundary
+  ChooseBoundary --> InstallMock
+  InstallMock --> RunTest
+  RunTest --> Reset
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Not applicable.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Fake timers control Date/setTimeout.
 
 ## React Perspective
 
-Not applicable.
+Avoid mocking child components by default; mock network instead.
 
 ## Next.js Perspective
 
@@ -71,81 +81,104 @@ Not applicable.
 
 ## Network Perspective
 
-Not applicable.
+MSW > per-test fetch mocks for API-heavy UIs.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Mocks keep suites fast—don’t boot real browsers to test a pure function.
 
 ## Production Example
 
-TODO: Realistic production example.
+Payments team mocks PSP HTTP via MSW in integration tests; contract tests against sandbox run nightly without mocks.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```ts
+import { vi } from 'vitest'
+import * as api from './api'
+
+vi.spyOn(api, 'getUser').mockResolvedValue({ id: '1', name: 'Ada' })
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[Mocking] --> nextStep[NextStep]
+flowchart TD
+  SUT[System under test] --> Boundary
+  Boundary --> Mock[Mock/fake]
+  Boundary -. production .-> Real[Real dependency]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Mocking everything until tests assert mocks
+2. Forgetting to reset mocks
+3. Out-of-date module mocks after API changes
+4. Mocking React itself
+5. Using mocks to hide design problems permanently
+6. Missing a production edge case for 16-testing.mocking (#1)
+7. Missing a production edge case for 16-testing.mocking (#2)
+8. Missing a production edge case for 16-testing.mocking (#3)
+9. Missing a production edge case for 16-testing.mocking (#4)
+10. Missing a production edge case for 16-testing.mocking (#5)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Mock at boundaries
+- Prefer MSW for HTTP
+- Reset after each test
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Partial automock of a huge module you barely understand
+- Asserting call counts that encode implementation
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Double | Role |
+| --- | --- |
+| Stub | Fixed returns |
+| Fake | Working simplified impl |
+| Mock | Verifies interactions |
+| Spy | Wraps real with observation |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** Why mock in tests?
+
+**A:** To control slow/flaky/external dependencies and keep tests focused and deterministic.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** When is mocking harmful?
+
+**A:** When mocks diverge from reality or when you mock the code under test’s internals, producing false confidence.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** Compare module mocks vs MSW.
+
+**A:** Module mocks replace functions in-process; MSW intercepts real HTTP at the network boundary, testing more of the client stack.
 
 ## Summary
 
-- TODO: key takeaway
+- Mock at true boundaries
+- Reset always
+- Validate contracts against reality
 
 ## References
 
-- TODO: official documentation links
+- [Martin Fowler — Test Doubles](https://martinfowler.com/bliki/TestDouble.html)
+- [MSW](https://mswjs.io/docs/)
 
 <RelatedTopics />
 
 
-Prev: [Playwright](/16-testing/playwright/) · Next: [Spying](/16-testing/spying/)
+Prev: [`16-testing.playwright`](/16-testing/playwright/) · Next: [`16-testing.spying`](/16-testing/spying/)

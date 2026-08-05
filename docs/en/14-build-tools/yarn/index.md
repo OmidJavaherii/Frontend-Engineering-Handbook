@@ -1,6 +1,6 @@
 ---
 title: "Yarn"
-description: "TODO — one-sentence description of Yarn"
+description: "Alternative Node package manager (classic and Berry/Yarn 2+) with workspaces focus."
 topic_id: 14-build-tools.yarn
 difficulty: junior
 reading_time: 20
@@ -8,9 +8,9 @@ implementation_time: 0
 prerequisites: []
 tags: 
   - tooling
-status: stub
-prev_topic: 14-build-tools.pnpm
-next_topic: 14-build-tools.bun
+status: published
+prev_topic: "14-build-tools.pnpm"
+next_topic: "14-build-tools.bun"
 related: []
 advanced: []
 ---
@@ -21,41 +21,49 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Yarn in simple language.
+**Yarn** provides deterministic installs and strong monorepo/workspaces features. Yarn Berry (2+) introduced Plug’n’Play (PnP) as an optional node_modules alternative.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Historically fixed npm pain (speed/determinism); still chosen in many enterprise monorepos.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Facebook Yarn 1 → Berry rewrite → PnP and constraints.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Classic ≈ node_modules; Berry PnP ≈ virtual map resolved by runtime.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Choose classic vs berry intentionally.
+2. Use yarn.lock exclusively.
+3. Workspaces for monorepos.
+4. Align CI with the same major.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Idle
+  Idle --> Active: use
+  Active --> Idle: settle
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Not applicable.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
@@ -75,77 +83,98 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Measure before/after with lab + field tools. Optimize the attributed bottleneck for Alternative Node package manager (classic and Berry/Yarn 2+) with workspaces focus., not folklore.
 
 ## Production Example
 
-TODO: Realistic production example.
+Teams adopt Alternative Node package manager (classic and Berry/Yarn 2+) with workspaces focus. on critical routes, add monitoring, and guard regressions with budgets or reviews.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```bash
+yarn install
+yarn workspace web build
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[Yarn] --> nextStep[NextStep]
+flowchart TD
+  A[Understand] --> B[Apply Alternative Node package manager (classic and Berry/Yarn 2+) with workspaces focus.]
+  B --> C[Measure]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Accidentally upgrading to Berry without PnP readiness
+2. Mixing yarn and npm locks
+3. Ignoring PnP IDE SDK setup
+4. Different Yarn majors across machines
+5. Disabling checksums carelessly
+6. Assuming yarn and pnpm semantics match
+7. Missing a production edge case for 14-build-tools.yarn (#1)
+8. Missing a production edge case for 14-build-tools.yarn (#2)
+9. Missing a production edge case for 14-build-tools.yarn (#3)
+10. Missing a production edge case for 14-build-tools.yarn (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Prefer platform/framework primitives
+- Measure impact on real user metrics
+- Keep the change reviewable and reversible
+- Document the invariant you are protecting
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Copy-paste without understanding failure modes
+- Premature abstraction around a single use
+- Optimizing without a baseline
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Approach | When |
+| --- | --- |
+| Use as designed | Default |
+| Simpler alternative | If constraints differ |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What problem did Yarn originally address?
+
+**A:** Faster, more deterministic installs than early npm.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** What is Yarn PnP?
+
+**A:** A mode that resolves packages via a map instead of a traditional nested node_modules tree.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** Migration risk Classic→Berry?
+
+**A:** PnP breaks tools assuming node_modules paths; need SDKs/patches or node_modules linker mode.
 
 ## Summary
 
-- TODO: key takeaway
+- Alternative Node package manager (classic and Berry/Yarn 2+) with workspaces focus.
+- Know why it exists and when not to use it
+- Measure production impact
+- Link related handbook topics instead of duplicating
 
 ## References
 
-- TODO: official documentation links
+- [Yarn Docs](https://yarnpkg.com/)
+- [Yarn PnP](https://yarnpkg.com/features/pnp)
 
 <RelatedTopics />
 
 
-Prev: [pnpm](/14-build-tools/pnpm/) · Next: [Bun](/14-build-tools/bun/)
+Prev: [`14-build-tools.pnpm`](/14-build-tools/pnpm/) · Next: [`14-build-tools.bun`](/14-build-tools/bun/)

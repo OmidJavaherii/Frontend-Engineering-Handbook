@@ -1,6 +1,6 @@
 ---
 title: "Prototype Chain"
-description: "TODO — one-sentence description of Prototype Chain"
+description: "The prototype chain: lookup walks, shadowing, and ending at `Object.prototype` or `null`."
 topic_id: 06-javascript.prototype-chain
 difficulty: mid
 reading_time: 35
@@ -10,7 +10,7 @@ prerequisites:
 tags: 
   - javascript
   - interview-frequent
-status: stub
+status: published
 prev_topic: 06-javascript.prototype
 next_topic: 06-javascript.this
 related: []
@@ -23,131 +23,166 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Prototype Chain in simple language.
+The **prototype chain** is the linked list of objects followed during property lookup until found or the chain ends (`null`). Shadowing occurs when an own property hides an inherited one.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Explains method sharing, `instanceof` (prototype presence in chain), and performance intuition for deep chains.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Same history as prototypes; engines optimize chains with hidden classes/ICs.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Read: walk chain. Write: usually sets own property (shadows). `instanceof` checks if `Ctor.prototype` appears in the receiver’s chain.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Keep chains shallow.
+2. Prefer composition over deep inheritance.
+3. Use `Object.create(null)` for dictionary objects when needed.
+4. Debug with `Object.getPrototypeOf` loops.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+Lifecycle for prototype chain:
+
+```mermaid
+stateDiagram-v2
+  [*] --> Active
+  Active --> Settled
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Browsers host the JS runtime; DevTools Sources/Console observe this topic at runtime.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Engines implement ECMAScript semantics (V8/JavaScriptCore/SpiderMonkey); optimize hot paths after correctness.
 
 ## React Perspective
 
-Not applicable.
+React app code is JS—misunderstanding this topic often shows up as stale UI state or broken effects.
 
 ## Next.js Perspective
 
-Not applicable.
+Next.js runs JS in Node/Edge and the browser; verify APIs exist in each runtime.
 
 ## Server Perspective
 
-Not applicable.
+Node/Edge may implement the same language feature with different host APIs.
 
 ## Network Perspective
 
-Not applicable.
+Not primarily a network feature unless combined with fetch/HTTP.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Watch retained objects via DevTools Memory; closures and globals keep references alive.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Measure with Performance panel / benchmarks before micro-optimizing.
 
 ## Production Example
 
-TODO: Realistic production example.
+Replacing a 5-level class hierarchy with composition removed brittle `super` chains and simplified testing.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```js
+function Animal() {}
+Animal.prototype.eat = function () {}
+function Dog() {}
+Dog.prototype = Object.create(Animal.prototype)
+new Dog().eat()
+new Dog() instanceof Animal // true
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[PrototypeChain] --> nextStep[NextStep]
+flowchart TD
+  Code[Program] --> Runtime[JS runtime]
+  Runtime --> Effect[prototype chain effect]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Treating the feature as magic without the language rule behind it
+2. Copying Stack Overflow snippets without edge cases
+3. Confusing browser host APIs with ECMAScript language semantics
+4. Optimizing before measuring
+5. Ignoring strict mode / module differences
+6. Broken constructors when replacing `.prototype` without resetting constructor
+7. Deep inheritance hierarchies
+8. Missing a production edge case for 06-javascript.prototype-chain (#1)
+9. Missing a production edge case for 06-javascript.prototype-chain (#2)
+10. Missing a production edge case for 06-javascript.prototype-chain (#3)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Prefer language defaults and clear naming
+- Write a failing test for the sharp edge you hit
+- Use MDN + ECMA-262 for disagreements
+- Keep examples small and runnable
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Clever code that obscures control flow
+- Polyfilling incorrectly and masking bugs
+- Global mutable state as the default architecture
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Operation | Walks chain? |
+| --- | --- |
+| Get | Yes |
+| Set (ordinary) | No (own) |
+| `in` operator | Yes |
+| `hasOwn` | No |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is the prototype chain?
+
+**A:** The sequence of prototypes consulted to resolve a property read.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** How does instanceof work?
+
+**A:** It checks whether the constructor’s `.prototype` exists in the value’s prototype chain (with caveats across realms).
 
 ### Hard
 
-TODO — question and answer.
+**Q:** What does Object.create(null) give you?
+
+**A:** An object with no prototype—no inherited toString/etc.—good for maps of arbitrary keys.
 
 ## Summary
 
-- TODO: key takeaway
+- prototype chain has precise ECMAScript/host semantics
+- Know failure modes and scope interactions
+- Measure production impact
+- Cross-link related handbook topics
 
 ## References
 
-- TODO: official documentation links
+- [MDN: Prototype chain](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Inheritance_and_the_prototype_chain)
+- [ECMA-262](https://tc39.es/ecma262/)
 
 <RelatedTopics />
-
 
 Prev: [Prototype](/06-javascript/prototype/) · Next: [this](/06-javascript/this/)

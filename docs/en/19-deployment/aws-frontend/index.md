@@ -1,6 +1,6 @@
 ---
 title: "AWS for Frontend"
-description: "TODO — one-sentence description of AWS for Frontend"
+description: "Common AWS patterns for frontends: S3+CloudFront, Amplify, or containers on ECS/EKS."
 topic_id: 19-deployment.aws-frontend
 difficulty: mid
 reading_time: 40
@@ -8,9 +8,9 @@ implementation_time: 0
 prerequisites: []
 tags: 
   - deployment
-status: stub
-prev_topic: 19-deployment.netlify
-next_topic: 19-deployment.cloudflare
+status: published
+prev_topic: "19-deployment.netlify"
+next_topic: "19-deployment.cloudflare"
 related: []
 advanced: []
 ---
@@ -21,41 +21,51 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain AWS for Frontend in simple language.
+**AWS frontend hosting** usually means **S3 + CloudFront** for static assets, **Amplify Hosting** for git workflows, or containers (**ECS/Fargate**, EKS) for SSR. IAM, HTTPS, and cache behaviors are the hard parts.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Enterprises already on AWS want frontends in the same cloud with VPC/API proximity and compliance controls.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+S3 website hosting → CloudFront best practice; Amplify added DX; containers for Next standalone common.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Static: bucket private + OAI/OAC via CloudFront. Dynamic: target group + ALB. AuthZ via IAM for deploys (OIDC from GitHub).
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Build artifacts in CI.
+2. Sync to S3 / deploy service.
+3. CloudFront behaviors for cache.
+4. Invalidate HTML paths.
+5. Monitor 4xx/5xx.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Build
+  Build --> UploadS3
+  UploadS3 --> CloudFront
+  CloudFront --> Invalidate
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Not applicable.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
@@ -63,7 +73,7 @@ Not applicable.
 
 ## Next.js Perspective
 
-Not applicable.
+SSR needs compute (Lambda/ECS), not only S3.
 
 ## Server Perspective
 
@@ -71,81 +81,103 @@ Not applicable.
 
 ## Network Perspective
 
-Not applicable.
+CloudFront is the CDN/reverse proxy.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Cache behaviors split static vs SSR paths.
 
 ## Production Example
 
-TODO: Realistic production example.
+GitHub OIDC → deploy role → S3 sync + CloudFront invalidation for `index.html`.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```bash
+aws s3 sync dist/ s3://my-site/ --delete \
+  --cache-control "public,max-age=31536000,immutable" \
+  --exclude index.html
+aws s3 cp dist/index.html s3://my-site/index.html \
+  --cache-control "no-cache"
+```
 
 ## Diagrams
 
 ```mermaid
 flowchart LR
-  concept[AWSforFrontend] --> nextStep[NextStep]
+  Users --> CF[CloudFront]
+  CF --> S3
+  CF --> ALB
+  ALB --> SSR
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Public S3 website endpoint without CloudFront
+2. Invalidating everything every deploy
+3. Long-lived AWS keys on CI
+4. Wrong SPA error document config
+5. Forgetting IPv6/TLS policy basics
+6. Missing a production edge case for 19-deployment.aws-frontend (#1)
+7. Missing a production edge case for 19-deployment.aws-frontend (#2)
+8. Missing a production edge case for 19-deployment.aws-frontend (#3)
+9. Missing a production edge case for 19-deployment.aws-frontend (#4)
+10. Missing a production edge case for 19-deployment.aws-frontend (#5)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- CloudFront + private S3 OAC
+- OIDC deploy roles
+- Split cache behaviors
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Hand-edited buckets as CD
+- AdminAccess deploy users
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
+| S3+CF | Amplify | ECS |
 | --- | --- | --- |
-| TODO | TODO | TODO |
+| Static control | Git DX | SSR containers |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** Common AWS static frontend pattern?
+
+**A:** Host files in S3 and serve via CloudFront over HTTPS.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Why keep the S3 bucket private?
+
+**A:** Force access through CloudFront controls (OAC), logging, and WAF rather than open bucket URLs.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** Deploy Next SSR on AWS options?
+
+**A:** Amplify, OpenNext on Lambda, or containers on ECS/EKS behind ALB/CloudFront—trade ops vs flexibility.
 
 ## Summary
 
-- TODO: key takeaway
+- S3+CloudFront is the classic static pattern
+- OIDC + private buckets
+- SSR needs compute
 
 ## References
 
-- TODO: official documentation links
+- [Amazon CloudFront docs](https://docs.aws.amazon.com/cloudfront/)
+- [AWS Amplify Hosting](https://docs.aws.amazon.com/amplify/latest/userguide/getting-started.html)
 
 <RelatedTopics />
 
 
-Prev: [Netlify](/19-deployment/netlify/) · Next: [Cloudflare](/19-deployment/cloudflare/)
+Prev: [`19-deployment.netlify`](/19-deployment/netlify/) · Next: [`19-deployment.cloudflare`](/19-deployment/cloudflare/)

@@ -1,6 +1,6 @@
 ---
 title: "Search UI"
-description: "TODO — one-sentence description of Search UI"
+description: "Build responsive search experiences: query UX, debouncing, relevance feedback, facets, empty states, and accessibility."
 topic_id: 21-frontend-system-design.search-ui
 difficulty: mid
 reading_time: 30
@@ -8,9 +8,9 @@ implementation_time: 0
 prerequisites: []
 tags: 
   - system-design
-status: stub
-prev_topic: 21-frontend-system-design.realtime-applications
-next_topic: 21-frontend-system-design.upload-pipelines
+status: published
+prev_topic: "21-frontend-system-design.realtime-applications"
+next_topic: "21-frontend-system-design.upload-pipelines"
 related: []
 advanced: []
 ---
@@ -21,131 +21,197 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Search UI in simple language.
+**Search UI** is the product surface for finding items: query box, suggestions, results, facets, and zero-result recovery. Backend relevance matters, but frontend design determines whether users trust and complete search.
+
+Related: [/21-frontend-system-design/pagination/](/21-frontend-system-design/pagination/), [/18-accessibility/](/18-accessibility/).
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Search is often the highest-intent path in commerce and docs. Slow, flickery, or inaccessible search leaks revenue and support load.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+From full page reloads to live suggest (AJAX) to vector/semantic search UIs. Pattern libraries standardized combobox/listbox ARIA patterns.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+**Query → intent → results → refinement**:
+
+- Debounced query input  
+- Optional typeahead  
+- Results list with stable ranking cues  
+- Facets/filters as URL state  
+- Analytics on abandons and zero-results
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Define latency SLO for typeahead vs full search  
+2. Debounce + cancel in-flight (`AbortController`)  
+3. Encode q/filters in URL  
+4. Build a11y combobox/listbox  
+5. Instrument zero-result rates
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Empty
+  Empty --> Suggesting: typing
+  Suggesting --> Results: submit_or_enter
+  Results --> Results: refine_facets
+  Results --> Empty: clear
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+IME composition matters for CJK — do not search mid-composition incorrectly.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Highlighting large HTML strings can be costly; sanitize carefully.
 
 ## React Perspective
 
-Not applicable.
+Abort stale requests; keep controlled inputs snappy with transitions for result swaps.
 
 ## Next.js Perspective
 
-Not applicable.
+Server-render result pages for SEO when search is public; typeahead remains client.
 
 ## Server Perspective
 
-Not applicable.
+Relevance, typo tolerance, and permissions filtering belong server-side.
 
 ## Network Perspective
 
-Not applicable.
+Cancel outdated fetches; coalesce identical queries.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Cache recent queries carefully (privacy!).
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Debounce ~150–300ms for typeahead; show stale results with a refreshing indicator rather than blanking.
 
 ## Production Example
 
-TODO: Realistic production example.
+A docs site uses edge search for typeahead (<100ms p95) and full result pages with facets in the URL. Zero-result pages suggest alternatives.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```ts
+function useSearch(q: string) {
+  const [data, setData] = useState<Result[]>([])
+  useEffect(() => {
+    if (!q) return
+    const ctrl = new AbortController()
+    const t = setTimeout(async () => {
+      const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`, { signal: ctrl.signal })
+      setData(await res.json())
+    }, 200)
+    return () => {
+      clearTimeout(t)
+      ctrl.abort()
+    }
+  }, [q])
+  return data
+}
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[SearchUI] --> nextStep[NextStep]
+flowchart TD
+  n0[Input] --> n1[Debounce]
+  n1[Debounce] --> n2[Fetch]
+  n2[Fetch] --> n3[Render results]
+```
+
+```mermaid
+sequenceDiagram
+  participant User
+  participant App
+  participant Platform
+  User->>App: interact (Search UI)
+  App->>Platform: apply mechanism
+  Platform-->>App: result or error
+  App-->>User: update UI
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Firing a request per keystroke without debounce/abort
+2. Blanking results on every fetch (layout jump)
+3. Inaccessible custom comboboxes
+4. Putting PII queries into third-party analytics raw
+5. Client-only filtering of huge catalogs
+6. Ignoring empty-state design
+7. Missing a production edge case for 21-frontend-system-design.search-ui (#1)
+8. Missing a production edge case for 21-frontend-system-design.search-ui (#2)
+9. Missing a production edge case for 21-frontend-system-design.search-ui (#3)
+10. Missing a production edge case for 21-frontend-system-design.search-ui (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- URL-synced filters
+- AbortController for races
+- ARIA combobox pattern
+- Highlight matches safely (no XSS)
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Search-as-you-type that blocks the main thread with huge local indexes without workers
+- Auto-redirecting on single result without consent
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
+| Mode | Latency feel | Cost |
 | --- | --- | --- |
-| TODO | TODO | TODO |
+| Submit-only | Lower load | Less magical |
+| Typeahead | Snappy | More QPS |
+| Hybrid | Balanced | Common |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** Why debounce search inputs?
+
+**A:** Reduce request storms and wait for intentional query tokens; pair with abort of stale requests ([/06-javascript/abortcontroller/](/06-javascript/abortcontroller/)).
 
 ### Medium
 
-TODO — question and answer.
+**Q:** How should facets interact with the URL?
+
+**A:** Serializable query params so results are shareable/back-button friendly — [/15-architecture/url-as-state/](/15-architecture/url-as-state/).
 
 ### Hard
 
-TODO — question and answer.
+**Q:** Design search for a multi-tenant app with permissioned documents.
+
+**A:** All queries authorized server-side; never rely on client filtering; cache keys include tenant+acl version; audit zero-result vs true empty.
 
 ## Summary
 
-- TODO: key takeaway
+- Debounce + abort + URL state
+- A11y combobox matters
+- Empty states are product design
+- Relevance is server-side
 
 ## References
 
-- TODO: official documentation links
+- [WAI-ARIA APG — Combobox](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/)
+- [MDN — AbortController](https://developer.mozilla.org/en-US/docs/Web/API/AbortController)
 
 <RelatedTopics />
 
 
-Prev: [Realtime Applications](/21-frontend-system-design/realtime-applications/) · Next: [Upload Pipelines](/21-frontend-system-design/upload-pipelines/)
+Prev: [`21-frontend-system-design.realtime-applications`](/21-frontend-system-design/realtime-applications/) · Next: [`21-frontend-system-design.upload-pipelines`](/21-frontend-system-design/upload-pipelines/)

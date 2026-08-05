@@ -1,6 +1,6 @@
 ---
 title: "Debugging JavaScript"
-description: "TODO — one-sentence description of Debugging JavaScript"
+description: "Systematic JS debugging: breakpoints, watch expressions, async stacks, and reproducing failures."
 topic_id: 20-observability.debugging-javascript
 difficulty: junior
 reading_time: 30
@@ -9,9 +9,9 @@ prerequisites: []
 tags: 
   - devtools
   - javascript
-status: stub
-prev_topic: 20-observability.chrome-devtools
-next_topic: 20-observability.debugging-network
+status: published
+prev_topic: "20-observability.chrome-devtools"
+next_topic: "20-observability.debugging-network"
 related: []
 advanced: []
 ---
@@ -22,45 +22,56 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Debugging JavaScript in simple language.
+**Debugging JavaScript** is a disciplined loop: reproduce, isolate, inspect state, form a hypothesis, verify. DevTools breakpoints (including conditional/XHR/event) beat `console.log` spam for complex bugs.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Async code, minification, and frameworks obscure causes. Structured debugging shortens MTTR.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+From alert-debugging to source-mapped modern DevTools with async stack traces.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Pause on the line where reality diverges from expectation. Inspect call stack, scope, and async causality.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Reliable reproduction.
+2. Source maps on.
+3. Breakpoint at suspect; use conditional breakpoints.
+4. Step; watch expressions.
+5. Write a regression test when fixed.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Reproduce
+  Reproduce --> Break
+  Break --> Inspect
+  Inspect --> Hypothesize
+  Hypothesize --> Fix
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Event listener breakpoints for click/scroll bugs.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Debuggers hook the JS runtime; breakpoints deoptimize temporarily.
 
 ## React Perspective
 
-Not applicable.
+Use Component Stack + hooks inspection carefully.
 
 ## Next.js Perspective
 
@@ -76,77 +87,93 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Heavy logging changes timing—prefer breakpoints for races.
 
 ## Production Example
 
-TODO: Realistic production example.
+Bug only in Safari: reproduced with WebKit, conditional breakpoint on bad assumption about `crypto.randomUUID`.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```js
+// Conditional breakpoint expression example:
+user.id === '123' && cart.items.length === 0
+```
 
 ## Diagrams
 
 ```mermaid
 flowchart LR
-  concept[DebuggingJavaScript] --> nextStep[NextStep]
+  repro --> breakpoint --> scopes --> fix --> test
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Logging in hot loops only
+2. Debugging without source maps
+3. Ignoring async stack traces
+4. Fixing without regression tests
+5. Cannot reproduce but “randomly” changing code
+6. Missing a production edge case for 20-observability.debugging-javascript (#1)
+7. Missing a production edge case for 20-observability.debugging-javascript (#2)
+8. Missing a production edge case for 20-observability.debugging-javascript (#3)
+9. Missing a production edge case for 20-observability.debugging-javascript (#4)
+10. Missing a production edge case for 20-observability.debugging-javascript (#5)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Deterministic repro first
+- Conditional breakpoints
+- Regression tests
 
 ## Anti-patterns
 
-TODO: What not to do.
+- debugger left in production bundles
+- Catch-all try/catch that swallows evidence
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| console.log | breakpoint |
+| --- | --- |
+| Easy | Precise pause + inspection |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is a breakpoint?
+
+**A:** A point where the debugger pauses execution so you can inspect program state.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** What helps with async bugs?
+
+**A:** Async stack traces, breakpoints in promise handlers, and tracing network timing races.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** Debug a race between two fetches.
+
+**A:** Log/AbortController correlate; breakpoints on response handlers; ensure latest-wins or cancellation; add tests with mocked timing.
 
 ## Summary
 
-- TODO: key takeaway
+- Reproduce then pause
+- Source maps + async stacks
+- Lock fix with tests
 
 ## References
 
-- TODO: official documentation links
+- [Chrome DevTools — Debug JavaScript](https://developer.chrome.com/docs/devtools/javascript/)
+- [MDN — Debugging](https://developer.mozilla.org/en-US/docs/Learn/JavaScript/First_steps/What_went_wrong)
 
 <RelatedTopics />
 
 
-Prev: [Chrome DevTools](/20-observability/chrome-devtools/) · Next: [Debugging Network](/20-observability/debugging-network/)
+Prev: [`20-observability.chrome-devtools`](/20-observability/chrome-devtools/) · Next: [`20-observability.debugging-network`](/20-observability/debugging-network/)

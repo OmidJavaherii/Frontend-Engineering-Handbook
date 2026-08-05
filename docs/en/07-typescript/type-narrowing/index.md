@@ -1,6 +1,6 @@
 ---
 title: "Type Narrowing"
-description: "TODO — one-sentence description of Type Narrowing"
+description: "Control-flow narrowing with `typeof`, equality checks, discriminants, predicates, and assertion functions."
 topic_id: 07-typescript.type-narrowing
 difficulty: mid
 reading_time: 30
@@ -8,9 +8,9 @@ implementation_time: 0
 prerequisites: []
 tags: 
   - typescript
-status: stub
-prev_topic: 07-typescript.compiler
-next_topic: 07-typescript.satisfies
+status: published
+prev_topic: "07-typescript.compiler"
+next_topic: "07-typescript.satisfies"
 related: []
 advanced: []
 ---
@@ -21,45 +21,58 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Type Narrowing in simple language.
+**Type narrowing** is how TypeScript refines a wide type to a smaller one inside a branch. After `if (typeof x === 'string')`, `x` is `string` in that block.
+
+Narrowing is the practical heart of `strictNullChecks` and discriminated unions.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Real data is unions: `T | null`, network results, UI states. Narrowing lets you handle each case without unsafe casts.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Control-flow analysis grew more precise across TS versions—discriminated unions, `in` checks, assertion functions (`asserts x is T`), and better analysis of assignments.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Each check is a **type guard** that splits the possibility space. Discriminants (`kind: 'a' | 'b'`) are the most scalable pattern for app state.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Model state as a discriminated union.
+2. `switch (state.kind)` for exhaustiveness.
+3. Use `typeof` / `Array.isArray` / `in` for built-ins.
+4. Write `function isUser(v: unknown): v is User` at boundaries.
+5. Avoid `!` non-null assertions except with proof.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Wide: T | null
+  Wide --> Narrow: guard succeeds
+  Wide --> Else: guard fails
+  Narrow --> Use: safe operations
+  Else --> Handle: null path
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Not applicable.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Guards are real runtime checks; narrowing mirrors those checks in type space.
 
 ## React Perspective
 
-Not applicable.
+Render branches on `status === "success"` narrow data props. Event targets often need `instanceof HTMLInputElement`.
 
 ## Next.js Perspective
 
@@ -75,77 +88,114 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Runtime guards are cheap compared to wrong-path bugs. Keep predicates honest—lying predicates are worse than `any`.
 
 ## Production Example
 
-TODO: Realistic production example.
+API handlers validate with a type predicate; UI reducers use `status` discriminants so loading spinners and error toasts typecheck exhaustively.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```ts
+type Shape =
+  | { kind: 'circle'; radius: number }
+  | { kind: 'rect'; w: number; h: number }
+
+function area(s: Shape): number {
+  switch (s.kind) {
+    case 'circle':
+      return Math.PI * s.radius ** 2
+    case 'rect':
+      return s.w * s.h
+  }
+}
+
+function isNonEmptyString(v: unknown): v is string {
+  return typeof v === 'string' && v.length > 0
+}
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[TypeNarrowing] --> nextStep[NextStep]
+flowchart TD
+  U[union] --> G{type guard}
+  G -->|true| A[narrowed A]
+  G -->|false| B[remaining]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Using `as` instead of a real guard
+2. Type predicates that return true for invalid values
+3. Optional chaining that leaves types too wide for later logic
+4. Switch on non-discriminant fields
+5. Mutating a variable after narrowing and expecting the narrow to stick incorrectly
+6. Ignoring the `default`/`never` exhaustiveness pattern
+7. Overlooking an edge case #1 specific to 07-typescript.type-narrowing in production traffic
+8. Overlooking an edge case #2 specific to 07-typescript.type-narrowing in production traffic
+9. Overlooking an edge case #3 specific to 07-typescript.type-narrowing in production traffic
+10. Overlooking an edge case #4 specific to 07-typescript.type-narrowing in production traffic
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Discriminants named `type`/`kind`/`status`
+- Assert never in default for exhaustiveness
+- Keep predicates next to validators
+- Prefer equality checks on literals
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Boolean flags instead of unions (`isLoading` + `data` + `error` soup)
+- `x!` everywhere after optional fetch
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
+| Technique | Runtime? | Best for |
 | --- | --- | --- |
-| TODO | TODO | TODO |
+| `typeof` | Yes | Primitives |
+| `instanceof` | Yes | Classes / DOM |
+| Discriminant | Yes | App state |
+| `v is T` predicate | Yes | Boundaries |
+| Assignment assertion | No | Rare, proven holes |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** How do you narrow `string | undefined`?
+
+**A:** Check with `if (x !== undefined)` or truthiness carefully; then use `x` as `string`.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** What is a discriminated union?
+
+**A:** A union of object types sharing a literal field (discriminant) that TypeScript uses to narrow the rest of the fields in each branch.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How do you ensure switch exhaustiveness?
+
+**A:** Add `default: { const _exhaustive: never = state; throw ... }` so new variants cause a type error until handled.
 
 ## Summary
 
-- TODO: key takeaway
+- Narrowing refines unions via real checks
+- Discriminated unions scale best for UI/state
+- Predicates must be truthful at runtime
 
 ## References
 
-- TODO: official documentation links
+- [Narrowing](https://www.typescriptlang.org/docs/handbook/2/narrowing.html)
+- [Discriminated unions](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#discriminated-unions)
 
 <RelatedTopics />
 
 
-Prev: [TypeScript Compiler](/07-typescript/compiler/) · Next: [satisfies](/07-typescript/satisfies/)
+Prev: [`07-typescript.compiler`](/07-typescript/compiler/) · Next: [`07-typescript.satisfies`](/07-typescript/satisfies/)

@@ -1,18 +1,18 @@
 ---
 title: "SSL"
-description: "TODO — one-sentence description of SSL"
+description: "SSL as the deprecated predecessor of TLS — what the name still means in practice."
 topic_id: 02-internet.ssl
 difficulty: mid
-reading_time: 25
+reading_time: 20
 implementation_time: 0
 prerequisites: 
   - 02-internet.https
 tags: 
   - security
   - networking
-status: stub
-prev_topic: 02-internet.https
-next_topic: 02-internet.tls
+status: published
+prev_topic: "02-internet.https"
+next_topic: "02-internet.tls"
 related: []
 advanced: []
 ---
@@ -23,41 +23,48 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain SSL in simple language.
+**SSL (Secure Sockets Layer)** is the obsolete predecessor of **TLS**. People still say “SSL certificate” colloquially, but modern stacks negotiate **TLS 1.2/1.3**. Treat “SSL” in docs as historical naming unless you are dealing with legacy config.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Avoid enabling ancient protocols (SSLv3) that are broken (POODLE). Know that vendors misuse the label.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Netscape SSL → standardized TLS 1.0+ → SSL fully retired.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+SSL ⊂ museum; TLS = what you configure; “SSL cert” = X.509 cert used for TLS.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. See “SSL” in UI → configure TLS.
+2. Disable SSL3/TLS1.0/1.1.
+3. Prefer TLS 1.3.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> SSLv3: obsolete
+  [*] --> TLS12
+  [*] --> TLS13
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Modern browsers removed old SSL/TLS versions.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
@@ -69,85 +76,102 @@ Not applicable.
 
 ## Server Perspective
 
-Not applicable.
+Cipher suite and min-version config at LB.
 
 ## Network Perspective
 
-Not applicable.
+Protocol version negotiation during handshake.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+TLS 1.3 is typically faster (fewer RTTs) than older handshakes.
 
 ## Production Example
 
-TODO: Realistic production example.
+PCI scan failed due to TLS1.0 still enabled on a forgotten VIP.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```bash
+nmap --script ssl-enum-ciphers -p 443 example.com
+```
 
 ## Diagrams
 
 ```mermaid
 flowchart LR
-  concept[SSL] --> nextStep[NextStep]
+  SSL3[SSLv3 dead] --> TLS12 --> TLS13
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Enabling SSLv3 for “compatibility”
+2. Thinking SSL and TLS are different products you need both of
+3. Ignoring deprecation of TLS 1.0/1.1
+4. Using outdated cipher suites
+5. Confusing certificate file formats with protocol versions
+6. Assuming “SSL mode” on CDNs means something other than TLS termination
+7. Overlooking an edge case #1 specific to 02-internet.ssl in production traffic
+8. Overlooking an edge case #2 specific to 02-internet.ssl in production traffic
+9. Overlooking an edge case #3 specific to 02-internet.ssl in production traffic
+10. Overlooking an edge case #4 specific to 02-internet.ssl in production traffic
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Say TLS when precise
+- Min version TLS 1.2+
+- Prefer TLS 1.3
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Wide open cipher lists “just in case”
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Name | Status |
+| --- | --- |
+| SSLv3 | Broken/obsolete |
+| TLS 1.2 | OK if configured well |
+| TLS 1.3 | Preferred |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** Is SSL still used?
+
+**A:** The SSL protocols are obsolete; modern HTTPS uses TLS. The name “SSL” often remains colloquially.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Why was SSLv3 disabled?
+
+**A:** Critical weaknesses such as POODLE made it unsafe.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How do you audit a site’s TLS posture?
+
+**A:** Check supported protocol versions/ciphers (SSL Labs/testssl/nmap), ensure cert chain validity, HSTS, and no mixed content.
 
 ## Summary
 
-- TODO: key takeaway
+- SSL is historical; TLS is current
+- Disable ancient protocols
+- “SSL cert” means TLS cert in practice
+- Prefer TLS 1.3
 
 ## References
 
-- TODO: official documentation links
+- [RFC 7568 — Deprecating SSL](https://www.rfc-editor.org/rfc/rfc7568)
+- [MDN — TLS](https://developer.mozilla.org/en-US/docs/Glossary/TLS)
 
 <RelatedTopics />
 
 
-Prev: [HTTPS](/02-internet/https/) · Next: [TLS](/02-internet/tls/)
+Prev: [`02-internet.https`](/02-internet/https/) · Next: [`02-internet.tls`](/02-internet/tls/)

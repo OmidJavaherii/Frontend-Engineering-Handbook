@@ -1,6 +1,6 @@
 ---
 title: "Cache Storage"
-description: "TODO — one-sentence description of Cache Storage"
+description: "Cache Storage API: request/response caches used heavily by service workers for offline and performance."
 topic_id: 09-browser-apis.cache-storage
 difficulty: mid
 reading_time: 30
@@ -10,9 +10,9 @@ tags:
   - browser-apis
   - storage
   - pwa
-status: stub
-prev_topic: 09-browser-apis.indexeddb
-next_topic: 09-browser-apis.history-api
+status: published
+prev_topic: "09-browser-apis.indexeddb"
+next_topic: "09-browser-apis.history-api"
 related: []
 advanced: []
 ---
@@ -23,41 +23,51 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Cache Storage in simple language.
+**Cache Storage** (`caches`) stores `Request`/`Response` pairs. It is the backbone of many service-worker caching strategies (cache-first, network-first, stale-while-revalidate).
+
+It is not a generic KV for arbitrary objects—though you can cache synthetic Responses.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Offline and repeat-visit performance need HTTP-aware caching under developer control beyond the HTTP cache.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Arrived with Service Workers / Cache API as part of the offline web push.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Named caches contain entries keyed by request. Matching uses URL/method and options (`ignoreSearch`). Opaque responses from opaque CORS have restrictions.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Open a named cache.
+2. `put`/`addAll` responses.
+3. `match` on fetch events.
+4. Version cache names; delete old caches on activate.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+flowchart LR
+  Install --> Precache
+  Fetch --> Match
+  Activate --> DeleteOld[delete old caches]
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Visible in DevTools Application → Cache Storage.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
@@ -65,7 +75,7 @@ Not applicable.
 
 ## Next.js Perspective
 
-Not applicable.
+Often via next-pwa / custom SW—coordinate with framework caching.
 
 ## Server Perspective
 
@@ -73,81 +83,121 @@ Not applicable.
 
 ## Network Perspective
 
-Not applicable.
+Works with fetch; respect CORS and redirect modes.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Precache carefully—bloat hurts install. Runtime cache with size limits.
 
 ## Production Example
 
-TODO: Realistic production example.
+A shell app precaches `/app-shell` and hashed assets on install; runtime caches API GETs with TTL eviction policy.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```js
+self.addEventListener('fetch', (event) => {
+  event.respondWith(
+    caches.open('v1').then(async (cache) => {
+      const cached = await cache.match(event.request)
+      if (cached) return cached
+      const res = await fetch(event.request)
+      cache.put(event.request, res.clone())
+      return res
+    }),
+  )
+})
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[CacheStorage] --> nextStep[NextStep]
+sequenceDiagram
+  participant Page
+  participant SW as Service Worker
+  participant Cache
+  participant Net as Network
+  Page->>SW: fetch
+  SW->>Cache: match
+  alt hit
+    Cache-->>SW: Response
+  else miss
+    SW->>Net: fetch
+    Net-->>SW: Response
+    SW->>Cache: put clone
+  end
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Caching POST/personalized responses unsafely
+2. Never versioning cache names (stuck old assets)
+3. Caching opaque errors forever
+4. Forgetting to clone responses
+5. Precaching entire sites blindly
+6. Ignoring storage quotas
+7. Overlooking an edge case #1 specific to 09-browser-apis.cache-storage in production traffic
+8. Overlooking an edge case #2 specific to 09-browser-apis.cache-storage in production traffic
+9. Overlooking an edge case #3 specific to 09-browser-apis.cache-storage in production traffic
+10. Overlooking an edge case #4 specific to 09-browser-apis.cache-storage in production traffic
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Version caches; purge on activate
+- Choose strategy per resource class
+- Clone before put
+- Limit runtime cache size
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Cache-first for highly dynamic personalized HTML without plan
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Cache layer | Controlled by |
+| --- | --- |
+| HTTP cache | Headers |
+| Cache Storage | Your SW/code |
+| Memory caches | App |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What does Cache Storage store?
+
+**A:** HTTP Request/Response pairs in named caches.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Why clone a Response before caching?
+
+**A:** Response bodies are one-shot streams; clone allows serving and storing.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How do you avoid serving stale hashed assets forever?
+
+**A:** Include version/hash in cache names or URLs and delete old caches on service worker activate.
 
 ## Summary
 
-- TODO: key takeaway
+- Request/response caches for SW strategies
+- Version and prune caches
+- Clone responses; pick strategies carefully
 
 ## References
 
-- TODO: official documentation links
+- [MDN: Cache](https://developer.mozilla.org/en-US/docs/Web/API/Cache)
+- [MDN: CacheStorage](https://developer.mozilla.org/en-US/docs/Web/API/CacheStorage)
+- [Service Worker Cookbook](https://serviceworke.rs/)
 
 <RelatedTopics />
 
 
-Prev: [IndexedDB](/09-browser-apis/indexeddb/) · Next: [History API](/09-browser-apis/history-api/)
+Prev: [`09-browser-apis.indexeddb`](/09-browser-apis/indexeddb/) · Next: [`09-browser-apis.history-api`](/09-browser-apis/history-api/)

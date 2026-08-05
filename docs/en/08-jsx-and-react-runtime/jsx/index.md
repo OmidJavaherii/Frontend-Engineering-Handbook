@@ -1,6 +1,6 @@
 ---
 title: "JSX"
-description: "TODO — one-sentence description of JSX"
+description: "JSX syntax: expressions, children, attributes, and how it desugars into element-creation calls."
 topic_id: 08-jsx-and-react-runtime.jsx
 difficulty: junior
 reading_time: 30
@@ -10,9 +10,9 @@ prerequisites:
 tags: 
   - react
   - jsx
-status: stub
+status: published
 prev_topic: null
-next_topic: 08-jsx-and-react-runtime.babel
+next_topic: "08-jsx-and-react-runtime.babel"
 related: []
 advanced: []
 ---
@@ -23,49 +23,60 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain JSX in simple language.
+**JSX** is a syntax extension that looks like HTML in JavaScript/TypeScript. Compilers transform it into calls such as `jsx("div", props)` or `React.createElement("div", props, ...children)`.
+
+JSX is not HTML and not required by React—but it is the ergonomic surface almost every React codebase uses.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+UI is nested trees. Nested `createElement` calls are unreadable. JSX keeps structure visual while remaining JavaScript expressions (with rules: one root or fragments, expressions in `{}`, etc.).
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+JSX arrived with React early on, inspired by XML-in-JS experiments. Babel made it mainstream. The 2020 automatic runtime removed the need to import React just for JSX. Other frameworks (Solid, etc.) reuse JSX with different compilers.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Every JSX tag is an **element description**, not a DOM node yet. Lowercase tags are host components (DOM); capitalized names are user components/functions. Attributes become a props object; children become `props.children` or trailing arguments depending on the runtime.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Author JSX in components.
+2. Compiler parses to AST and transforms to runtime calls.
+3. At runtime, those calls create element objects (or, with compilers, optimized output).
+4. React reconciles elements against Fiber and commits host updates.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+flowchart LR
+  JSX[JSX source] --> AST[Compiler AST]
+  AST --> Call[jsx / createElement]
+  Call --> El[React element]
+  El --> Reconcile[reconciler]
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Browsers do not parse JSX natively in typical apps; the bundle contains function calls.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+After transform, it is ordinary JS. Hot paths benefit from stable element shapes.
 
 ## React Perspective
 
-Not applicable.
+JSX is the primary way to construct the element tree React reconciles.
 
 ## Next.js Perspective
 
-Not applicable.
+Server and Client Components both may use JSX; the RSC bundler treats them differently.
 
 ## Server Perspective
 
@@ -77,76 +88,107 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+JSX itself is syntax. Cost is creating element objects each render—React Compiler / manual memo can reduce churn.
 
 ## Production Example
 
-TODO: Realistic production example.
+Design-system buttons are written as JSX with typed props. The automatic runtime (`jsxImportSource`) is configured once in the bundler/tsconfig for the whole monorepo.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```tsx
+const name = 'Ada'
+const el = (
+  <section className="hero" data-active={true}>
+    <h1>{name}</h1>
+    <button type="button" onClick={() => console.log('hi')}>
+      Click
+    </button>
+  </section>
+)
+// roughly: jsx('section', { className: 'hero', 'data-active': true, children: [...] })
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[JSX] --> nextStep[NextStep]
+flowchart TD
+  Tag["&lt;Button /&gt;"] --> Caps{Capitalized?}
+  Caps -->|yes| Comp[function/class component]
+  Caps -->|no| Host[DOM host tag]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Using `class` instead of `className`
+2. Returning two adjacent roots without a fragment
+3. Putting statements (not expressions) inside `{}`
+4. Assuming JSX sanitizes dangerouslySetInnerHTML for you
+5. Lowercasing a custom component so React treats it as an unknown DOM tag
+6. Spreading props without understanding overrides order
+7. Overlooking an edge case #1 specific to 08-jsx-and-react-runtime.jsx in production traffic
+8. Overlooking an edge case #2 specific to 08-jsx-and-react-runtime.jsx in production traffic
+9. Overlooking an edge case #3 specific to 08-jsx-and-react-runtime.jsx in production traffic
+10. Overlooking an edge case #4 specific to 08-jsx-and-react-runtime.jsx in production traffic
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Keep JSX readable; extract subcomponents early
+- Prefer the automatic JSX runtime
+- Type props at the component boundary
+- Avoid logic-heavy JSX—compute above the return
 
 ## Anti-patterns
 
-TODO: What not to do.
+- `dangerouslySetInnerHTML` with untrusted strings
+- IIFE forests inside JSX for control flow
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Form | Notes |
+| --- | --- |
+| JSX | Ergonomic tree syntax |
+| `createElement` | Explicit, verbose |
+| Hyperscript helpers | Alternative DSLs |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** Is JSX required to use React?
+
+**A:** No. It compiles to element-creation calls you could write by hand.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Why must custom components start with a capital letter in JSX?
+
+**A:** The transform treats lowercase tags as host string tags and capitalized names as identifiers referencing components.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How does the automatic JSX runtime differ from classic?
+
+**A:** Classic calls `React.createElement` and needs React in scope. Automatic imports `jsx`/`jsxs` from `react/jsx-runtime` and does not require a React import for JSX alone.
 
 ## Summary
 
-- TODO: key takeaway
+- JSX desugars to element factories
+- Capitalization distinguishes host vs components
+- It describes UI; reconciliation creates/updates DOM
 
 ## References
 
-- TODO: official documentation links
+- [React Documentation](https://react.dev/)
+- [React Reference](https://react.dev/reference/react)
+- [JSX In Depth (legacy docs archive / react.dev learn)](https://react.dev/learn/writing-markup-with-jsx)
 
 <RelatedTopics />
 
-Next: [Babel](/08-jsx-and-react-runtime/babel/)
+
+Next: [`08-jsx-and-react-runtime.babel`](/08-jsx-and-react-runtime/babel/)

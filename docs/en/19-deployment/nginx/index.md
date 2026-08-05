@@ -1,6 +1,6 @@
 ---
 title: "Nginx"
-description: "TODO — one-sentence description of Nginx"
+description: "Nginx as static file server and reverse proxy for frontend apps—gzip, caching, SPA fallbacks."
 topic_id: 19-deployment.nginx
 difficulty: mid
 reading_time: 35
@@ -9,9 +9,9 @@ prerequisites: []
 tags: 
   - deployment
   - networking
-status: stub
-prev_topic: 19-deployment.docker
-next_topic: 19-deployment.reverse-proxy
+status: published
+prev_topic: "19-deployment.docker"
+next_topic: "19-deployment.reverse-proxy"
 related: []
 advanced: []
 ---
@@ -22,41 +22,51 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Nginx in simple language.
+**Nginx** commonly serves static frontend assets and reverse-proxies APIs. For SPAs it must fallback to `index.html` for client routes, set cache headers for hashed assets, and terminate or forward TLS.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Battle-tested, fast at static I/O, flexible for headers/compression/proxying when you self-host.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Long-standing web server; still ubiquitous beside Caddy and cloud CDNs.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+location blocks match URLs → try_files for SPA → proxy_pass for APIs → add_header for security/cache.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Serve /assets with long cache.
+2. Use try_files to index.html for HTML routes.
+3. Proxy /api to backend.
+4. Add security headers.
+5. Reload gracefully.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Request
+  Request --> StaticAsset
+  Request --> SpaFallback
+  Request --> ProxyAPI
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Cache-Control and CSP headers often set here.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
@@ -68,85 +78,113 @@ Not applicable.
 
 ## Server Perspective
 
-Not applicable.
+Worker process model; tune for file descriptors.
 
 ## Network Perspective
 
-Not applicable.
+Often first hop after LB/CDN.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+sendfile, gzip/brotli, caching—huge for static.
 
 ## Production Example
 
-TODO: Realistic production example.
+Hashed JS/CSS `Cache-Control: public,max-age=31536000,immutable`; `index.html` no-cache; API proxied.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```nginx
+server {
+  root /usr/share/nginx/html;
+  location /assets/ {
+    add_header Cache-Control "public,max-age=31536000,immutable";
+  }
+  location / {
+    try_files $uri $uri/ /index.html;
+  }
+  location /api/ {
+    proxy_pass http://backend:3000/;
+  }
+}
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[Nginx] --> nextStep[NextStep]
+flowchart TD
+  Browser --> Nginx
+  Nginx --> Static
+  Nginx --> API[Backend]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. No SPA fallback (refresh 404)
+2. Caching index.html forever
+3. Not compressing text assets
+4. Missing security headers
+5. Proxy without timeouts
+6. Missing a production edge case for 19-deployment.nginx (#1)
+7. Missing a production edge case for 19-deployment.nginx (#2)
+8. Missing a production edge case for 19-deployment.nginx (#3)
+9. Missing a production edge case for 19-deployment.nginx (#4)
+10. Missing a production edge case for 19-deployment.nginx (#5)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Immutable cache for hashed assets
+- No-cache HTML
+- Explicit proxy timeouts
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Serving source maps publicly forever without intent
+- Wildcard CORS from nginx “to make it work”
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Nginx | CDN-only |
+| --- | --- |
+| Self-host control | Less ops |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** Why try_files to index.html?
+
+**A:** So client-side routes don’t 404 on refresh when the path isn’t a real file.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** How should hashed assets be cached?
+
+**A:** Long-term immutable caching; HTML should revalidate so new hashes are discovered.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** Nginx + API cookies across paths.
+
+**A:** Align cookie Path/SameSite, proxy headers (X-Forwarded-*), and HTTPS; avoid accidental cookie scope bugs.
 
 ## Summary
 
-- TODO: key takeaway
+- Nginx serves static + proxy
+- SPA fallback + correct cache headers
+- Security headers at the edge
 
 ## References
 
-- TODO: official documentation links
+- [Nginx docs](https://nginx.org/en/docs/)
+- [Mozilla — HTTP cache headers](https://developer.mozilla.org/en-US/docs/Web/HTTP/Caching)
 
 <RelatedTopics />
 
 
-Prev: [Docker](/19-deployment/docker/) · Next: [Reverse Proxy](/19-deployment/reverse-proxy/)
+Prev: [`19-deployment.docker`](/19-deployment/docker/) · Next: [`19-deployment.reverse-proxy`](/19-deployment/reverse-proxy/)

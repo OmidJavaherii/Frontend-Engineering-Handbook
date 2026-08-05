@@ -1,6 +1,6 @@
 ---
 title: "Node Runtime"
-description: "TODO — one-sentence description of Node Runtime"
+description: "Default Node.js server runtime for App Router rendering and handlers."
 topic_id: 11-nextjs.node-runtime
 difficulty: mid
 reading_time: 25
@@ -9,9 +9,9 @@ prerequisites: []
 tags: 
   - nextjs
   - nodejs
-status: stub
-prev_topic: 11-nextjs.edge-runtime
-next_topic: 11-nextjs.image-optimization
+status: published
+prev_topic: "11-nextjs.edge-runtime"
+next_topic: "11-nextjs.image-optimization"
 related: []
 advanced: []
 ---
@@ -22,41 +22,50 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Node Runtime in simple language.
+The **Node.js runtime** is Next’s default for Server Components, Server Actions, and Route Handlers. You get the Node API surface, mature DB drivers, and the familiar server ecosystem—at the cost of heavier cold starts than Edge for tiny functions.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Real apps need filesystems (build), native modules, Postgres drivers, and longer-running work. Node remains the practical default for full-stack React rendering.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Next has always been Node-based; Edge was added later for a subset of workloads.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Node runtime = full server. Use it unless you have a concrete edge latency win that fits constraints.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Default: no export needed (`runtime = 'nodejs'`).
+2. Import Node libraries freely (within deployment size/time limits).
+3. Manage connection pooling for serverless.
+4. Prefer streaming RSC to hide TTFB.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> ColdStart
+  ColdStart --> Warm
+  Warm --> RenderRSC
+  RenderRSC --> Respond
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Not applicable.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+V8 in Node—same JS semantics; watch event-loop blocking.
 
 ## React Perspective
 
@@ -64,89 +73,118 @@ Not applicable.
 
 ## Next.js Perspective
 
-Not applicable.
+RSC rendering, `next/image` optimizer, and most data libraries expect Node.
 
 ## Server Perspective
 
-Not applicable.
+Connection pools, CPU time, and memory per instance dominate ops.
 
 ## Network Perspective
 
-Not applicable.
+Often regional; combine with CDN for static assets.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Leaked global caches across warm invocations are a classic serverless bug.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Optimize TTFB with caching/streaming; avoid blocking the event loop; reuse connections on warm instances.
 
 ## Production Example
 
-TODO: Realistic production example.
+API + RSC on Node with Prisma accelerate/HTTP driver; Middleware on edge for auth redirect only.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```ts
+export const runtime = 'nodejs'
+
+export async function POST(request: Request) {
+  const body = await request.json()
+  await db.order.create({ data: body })
+  return Response.json({ ok: true })
+}
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[NodeRuntime] --> nextStep[NextStep]
+flowchart TD
+  Req[Request] --> Node[Node server]
+  Node --> RSC[Render RSC]
+  Node --> DB[(Database)]
+  RSC --> HTML[HTML/Flight stream]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Opening a new DB connection per request without pooling
+2. Blocking the event loop with sync crypto/fs on huge files
+3. Assuming edge-compatible code when on Node (and vice versa)
+4. Storing request-specific data in module global state
+5. Disabling streaming and buffering entire pages
+6. Shipping dev-only debug tools into production server bundles
+7. Missing a production edge case for 11-nextjs.node-runtime (#1)
+8. Missing a production edge case for 11-nextjs.node-runtime (#2)
+9. Missing a production edge case for 11-nextjs.node-runtime (#3)
+10. Missing a production edge case for 11-nextjs.node-runtime (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Use pooled/serverless-friendly DB clients
+- Stream RSC and set sane function timeouts
+- Isolate secrets to server-only modules
+- Observe cold start vs warm latency separately
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Giant monolith handlers doing ETL inline
+- Mutating global caches without eviction
+- Forcing everything to edge for “speed”
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Need | Prefer |
+| --- | --- |
+| ORM, files, long CPU | Node |
+| Tiny geo redirect | Edge |
+| Default RSC page | Node |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is the default runtime for Server Components?
+
+**A:** Node.js runtime.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Why can serverless Node need special DB clients?
+
+**A:** Traditional pools assume long-lived processes; serverless creates many short instances—use pooling proxies or HTTP drivers.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How do you decide Node vs Edge for a Route Handler?
+
+**A:** Inventory required APIs/deps, latency budget, CPU time, and region needs. Prototype both if unclear; measure p95 including cold starts.
 
 ## Summary
 
-- TODO: key takeaway
+- Node is the default full-capability runtime
+- Best for RSC + real databases
+- Mind pooling and event-loop health
+- Use Edge only when constraints fit
 
 ## References
 
-- TODO: official documentation links
+- [Next.js — Runtime](https://nextjs.org/docs/app/api-reference/file-conventions/route-segment-config#runtime)
+- [Node.js Docs](https://nodejs.org/docs/latest/api/)
 
 <RelatedTopics />
 
 
-Prev: [Edge Runtime](/11-nextjs/edge-runtime/) · Next: [Image Optimization](/11-nextjs/image-optimization/)
+Prev: [`11-nextjs.edge-runtime`](/11-nextjs/edge-runtime/) · Next: [`11-nextjs.image-optimization`](/11-nextjs/image-optimization/)

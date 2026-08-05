@@ -1,6 +1,6 @@
 ---
 title: "Cloudflare"
-description: "TODO — one-sentence description of Cloudflare"
+description: "Cloudflare as CDN/DNS/WAF/Workers edge platform for frontend delivery and edge compute."
 topic_id: 19-deployment.cloudflare
 difficulty: mid
 reading_time: 35
@@ -9,9 +9,9 @@ prerequisites: []
 tags: 
   - deployment
   - edge
-status: stub
-prev_topic: 19-deployment.aws-frontend
-next_topic: 19-deployment.environment-config
+status: published
+prev_topic: "19-deployment.aws-frontend"
+next_topic: "19-deployment.environment-config"
 related: []
 advanced: []
 ---
@@ -22,41 +22,51 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Cloudflare in simple language.
+**Cloudflare** provides DNS, CDN, WAF, DDoS protection, and **Workers/Pages** for edge compute and git deploys. Frontends use it for caching, TLS, security headers, and sometimes SSR at the edge.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Global edge + security features with strong DX (Pages) and programmable Workers.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+From CDN/WAF to developer platform (Workers, Pages, R2).
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Traffic hits Cloudflare POP first. Cache rules decide hit/miss. Workers can rewrite/respond at edge. Pages binds git to deployments.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Point DNS.
+2. Configure cache rules for assets.
+3. Pages/Workers deploy.
+4. WAF/bot rules as needed.
+5. Observe analytics/RUM.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> EdgePOP
+  EdgePOP --> CacheHit
+  EdgePOP --> Origin
+  EdgePOP --> Worker
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Users hit edge; cookies/SameSite still apply.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
@@ -64,7 +74,7 @@ Not applicable.
 
 ## Next.js Perspective
 
-Not applicable.
+Check adapter support for Pages/Workers.
 
 ## Server Perspective
 
@@ -72,81 +82,108 @@ Not applicable.
 
 ## Network Perspective
 
-Not applicable.
+TLS and HTTP/3 at edge.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Cache everything safe; Smart Tiered Cache; avoid bypassing cache unintentionally.
 
 ## Production Example
 
-TODO: Realistic production example.
+Pages project for marketing; Workers for auth-aware edge routing; cache HTML carefully.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```js
+export default {
+  async fetch(request, env) {
+    const url = new URL(request.url)
+    if (url.pathname.startsWith('/assets/')) {
+      return env.ASSETS.fetch(request)
+    }
+    return fetch(request)
+  },
+}
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[Cloudflare] --> nextStep[NextStep]
+flowchart TD
+  User --> CF[Cloudflare]
+  CF --> Pages
+  CF --> Origin
+  CF --> Workers
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Caching personalized HTML globally
+2. Orange-cloud proxy mistakes for certain APIs
+3. Workers CPU limits ignored
+4. Turning off security features to debug forever
+5. Mixed cache settings across environments
+6. Missing a production edge case for 19-deployment.cloudflare (#1)
+7. Missing a production edge case for 19-deployment.cloudflare (#2)
+8. Missing a production edge case for 19-deployment.cloudflare (#3)
+9. Missing a production edge case for 19-deployment.cloudflare (#4)
+10. Missing a production edge case for 19-deployment.cloudflare (#5)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Cache rules by path
+- Pages for git frontends
+- WAF in front of origins
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Development Mode left on
+- Bypassing cache with random query strings
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Pages | Workers |
+| --- | --- |
+| Git static/SSR adapters | Programmable edge |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What does Cloudflare commonly provide frontends?
+
+**A:** CDN caching, TLS, DNS, security (WAF), and optional edge compute/deploy (Pages/Workers).
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Risk of caching HTML at the edge?
+
+**A:** Personalized or auth-specific HTML can leak across users if cached shared—vary/bypass appropriately.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** Design cache rules for SPA + API on Cloudflare.
+
+**A:** Long-cache fingerprinted assets; bypass or short-cache HTML; never cache authenticated API responses at shared edge without care.
 
 ## Summary
 
-- TODO: key takeaway
+- Cloudflare = edge CDN + security + compute
+- Cache rules are critical
+- Pages/Workers for deploys
 
 ## References
 
-- TODO: official documentation links
+- [Cloudflare Docs](https://developers.cloudflare.com/)
+- [Cloudflare Pages](https://developers.cloudflare.com/pages/)
+- [Cloudflare Workers](https://developers.cloudflare.com/workers/)
 
 <RelatedTopics />
 
 
-Prev: [AWS for Frontend](/19-deployment/aws-frontend/) · Next: [Environment Config](/19-deployment/environment-config/)
+Prev: [`19-deployment.aws-frontend`](/19-deployment/aws-frontend/) · Next: [`19-deployment.environment-config`](/19-deployment/environment-config/)

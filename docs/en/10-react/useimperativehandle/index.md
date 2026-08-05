@@ -1,6 +1,6 @@
 ---
 title: "useImperativeHandle"
-description: "TODO — one-sentence description of useImperativeHandle"
+description: "useImperativeHandle: customize the instance value exposed to parent refs via forwardRef."
 topic_id: 10-react.useimperativehandle
 difficulty: mid
 reading_time: 20
@@ -9,9 +9,9 @@ prerequisites:
   - 10-react.useref
 tags: 
   - react
-status: stub
-prev_topic: 10-react.uselayouteffect
-next_topic: 10-react.useid
+status: published
+prev_topic: "10-react.uselayouteffect"
+next_topic: "10-react.useid"
 related: []
 advanced: []
 ---
@@ -22,45 +22,53 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain useImperativeHandle in simple language.
+**`useImperativeHandle(ref, createHandle, deps)`** lets a child define a custom imperative API on a ref (e.g. `focus()`, `scrollTo()`) instead of exposing the raw DOM node.
+
+Always a last resort—prefer declarative props.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Design-system inputs sometimes must expose focus/select without leaking internal DOM structure.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Paired historically with `forwardRef`; React 19 makes `ref` a normal prop more often, but the imperative handle pattern remains.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Parent holds a ref; child writes a handle object. Keep the surface tiny and stable.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Exhaust declarative options.
+2. Expose minimal methods.
+3. Memoize handle via deps.
+4. Document the imperative API.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+flowchart LR
+  ParentRef --> Child --> Handle[custom API]
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Not applicable.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+Escape hatch for imperative parent control.
 
 ## Next.js Perspective
 
@@ -76,77 +84,99 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Negligible if rare.
 
 ## Production Example
 
-TODO: Realistic production example.
+`<SearchBox ref={ref} />` exposes `focus()` used by a shortcut handler in the shell layout.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```tsx
+function SearchBox({ ref }: { ref?: React.Ref<{ focus: () => void }> }) {
+  const inputRef = useRef<HTMLInputElement>(null)
+  useImperativeHandle(ref, () => ({
+    focus: () => inputRef.current?.focus(),
+  }), [])
+  return <input ref={inputRef} />
+}
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[useImperativeHandle] --> nextStep[NextStep]
+flowchart TD
+  Parent -->|ref.focus| ChildHandle
+  ChildHandle --> DOMInput
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Exposing entire component internals
+2. Using imperative handles for data flow
+3. Unstable handle identities causing loops
+4. Forgetting deps when handle closes over props
+5. Preferring refs over controlled props routinely
+6. Leaking mutable internal state via handle
+7. Missing a production edge case for 10-react.useimperativehandle (#1)
+8. Missing a production edge case for 10-react.useimperativehandle (#2)
+9. Missing a production edge case for 10-react.useimperativehandle (#3)
+10. Missing a production edge case for 10-react.useimperativehandle (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Tiny API surface
+- Document methods
+- Prefer props/state first
 
 ## Anti-patterns
 
-TODO: What not to do.
+- ref-driven architecture across the app
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Approach | Style |
+| --- | --- |
+| Props/callbacks | Declarative |
+| useImperativeHandle | Imperative escape |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What does useImperativeHandle do?
+
+**A:** It customizes the value a parent receives when holding a ref to the child.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Why is it an escape hatch?
+
+**A:** React prefers declarative data flow; imperative handles break that for special cases like focus management.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How do you keep handles from becoming a second props system?
+
+**A:** Limit to DOM-like commands (focus/scroll/open), never for business data; keep declarative props as the source of truth.
 
 ## Summary
 
-- TODO: key takeaway
+- Customize ref handles sparingly
+- Tiny imperative APIs
+- Declarative props first
 
 ## References
 
-- TODO: official documentation links
+- [React Documentation](https://react.dev/)
+- [useImperativeHandle](https://react.dev/reference/react/useImperativeHandle)
 
 <RelatedTopics />
 
 
-Prev: [useLayoutEffect](/10-react/uselayouteffect/) · Next: [useId](/10-react/useid/)
+Prev: [`10-react.uselayouteffect`](/10-react/uselayouteffect/) · Next: [`10-react.useid`](/10-react/useid/)

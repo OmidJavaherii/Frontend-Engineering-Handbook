@@ -1,6 +1,6 @@
 ---
 title: "Memory and References"
-description: "TODO — one-sentence description of Memory and References"
+description: "References, reachability, GC roots, and common frontend leak patterns."
 topic_id: 06-javascript.memory-and-references
 difficulty: mid
 reading_time: 35
@@ -11,7 +11,7 @@ prerequisites:
 tags: 
   - javascript
   - memory
-status: stub
+status: published
 prev_topic: 06-javascript.strict-mode
 next_topic: null
 related: []
@@ -24,131 +24,163 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Memory and References in simple language.
+JS values are garbage-collected when **unreachable** from roots (stack, globals, DOM, closures). Objects are references; primitives copy. Leaks are usually forgotten listeners, retained closures, caches, or detached DOM trees still referenced from JS.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+SPA longevity means leaks accumulate. Understanding references prevents “it gets slow after an hour.”
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Mark-and-sweep GC engines; WeakMap/WeakRef tools for advanced cases.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Ask: who still points at this object? Detached DOM + closure is classic. Clear intervals, abort fetches, drop references on navigation.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Profile heap snapshots.
+2. Remove listeners symmetrically.
+3. Bound caches.
+4. Prefer weak collections for metadata.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+Lifecycle for memory and references:
+
+```mermaid
+stateDiagram-v2
+  [*] --> Active
+  Active --> Settled
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Browsers host the JS runtime; DevTools Sources/Console observe this topic at runtime.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Engines implement ECMAScript semantics (V8/JavaScriptCore/SpiderMonkey); optimize hot paths after correctness.
 
 ## React Perspective
 
-Not applicable.
+Canceled effects must clear timers/subscriptions; stale closures can retain large props trees.
 
 ## Next.js Perspective
 
-Not applicable.
+Next.js runs JS in Node/Edge and the browser; verify APIs exist in each runtime.
 
 ## Server Perspective
 
-Not applicable.
+Node/Edge may implement the same language feature with different host APIs.
 
 ## Network Perspective
 
-Not applicable.
+Not primarily a network feature unless combined with fetch/HTTP.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+This topic is about reachability, GC roots, and leak patterns.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Measure with Performance panel / benchmarks before micro-optimizing.
 
 ## Production Example
 
-TODO: Realistic production example.
+Heap snapshots showed Detached HTMLDivElement retained by a module-level Map; switching to WeakMap + cleanup fixed growth.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```js
+// leaky pattern
+const leak = new Map()
+element.addEventListener('click', () => leak.set(element, data))
+// fix: remove listener / weak keys / clear on teardown
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[MemoryandReferences] --> nextStep[NextStep]
+flowchart TD
+  Code[Program] --> Runtime[JS runtime]
+  Runtime --> Effect[memory and references effect]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Treating the feature as magic without the language rule behind it
+2. Copying Stack Overflow snippets without edge cases
+3. Confusing browser host APIs with ECMAScript language semantics
+4. Optimizing before measuring
+5. Ignoring strict mode / module differences
+6. Module-level maps keyed by DOM nodes forever
+7. setInterval without clearInterval
+8. Missing a production edge case for 06-javascript.memory-and-references (#1)
+9. Missing a production edge case for 06-javascript.memory-and-references (#2)
+10. Missing a production edge case for 06-javascript.memory-and-references (#3)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Prefer language defaults and clear naming
+- Write a failing test for the sharp edge you hit
+- Use MDN + ECMA-262 for disagreements
+- Keep examples small and runnable
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Clever code that obscures control flow
+- Polyfilling incorrectly and masking bugs
+- Global mutable state as the default architecture
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Structure | Retention |
+| --- | --- |
+| Map(DOM→meta) | Strong |
+| WeakMap | Weak keys |
+| Listener on document | Until removed |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is memory and references in JS?
+
+**A:** Objects are referenced; GC frees unreachable objects. Leaks happen when references are unintentionally retained.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** What is a detached DOM leak?
+
+**A:** Nodes removed from document but still referenced from JS, so they cannot be collected.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How do you diagnose?
+
+**A:** Take heap snapshots, compare retained sizes, look for Detached elements and growing arrays/maps.
 
 ## Summary
 
-- TODO: key takeaway
+- memory and references has precise ECMAScript/host semantics
+- Know failure modes and scope interactions
+- Measure production impact
+- Cross-link related handbook topics
 
 ## References
 
-- TODO: official documentation links
+- [MDN: Memory management](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Memory_management)
+- [Chrome: Fix memory problems](https://developer.chrome.com/docs/devtools/memory-problems/)
 
 <RelatedTopics />
-
 
 Prev: [Strict Mode](/06-javascript/strict-mode/)

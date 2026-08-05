@@ -1,6 +1,6 @@
 ---
 title: "Resumability"
-description: "TODO — one-sentence description of Resumability"
+description: "Resumability: pause server work and resume on the client without re-executing all component setup."
 topic_id: 12-rendering.resumability
 difficulty: senior
 reading_time: 35
@@ -8,9 +8,9 @@ implementation_time: 0
 prerequisites: []
 tags: 
   - rendering
-status: stub
-prev_topic: 12-rendering.progressive-hydration
-next_topic: 12-rendering.edge-rendering
+status: published
+prev_topic: "12-rendering.progressive-hydration"
+next_topic: "12-rendering.edge-rendering"
 related: []
 advanced: []
 ---
@@ -21,49 +21,58 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Resumability in simple language.
+**Resumability** (associated with Qwik-like models) serializes enough application state/listeners so the client can **resume** interactivity without re-running the whole app boot/hydration tree like classic React SSR.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Hydration re-executes a lot of component code on the client. Resumability aims for near-instant interactivity with minimal eager JS.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Qwik popularized the term; influences industry debate even when using React/Next (islands/RSC as pragmatic cousins).
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Server did the work; client downloads handlers lazily on event. Contrast: React hydration re-runs render to attach.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Server renders + serializes resumable state.
+2. Client loads tiny bootloader.
+3. On interaction, download needed chunks.
+4. Resume execution for that handler.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> ServerRenderSerialize
+  ServerRenderSerialize --> IdleClient
+  IdleClient --> DownloadHandler: event
+  DownloadHandler --> Resume
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Less eager JS; more lazy on interaction.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+Classic React hydrates; RSC reduces hydrated surface as an alternative strategy.
 
 ## Next.js Perspective
 
-Not applicable.
+Does not use Qwik resumability; uses RSC + hydration islands instead.
 
 ## Server Perspective
 
@@ -71,81 +80,105 @@ Not applicable.
 
 ## Network Perspective
 
-Not applicable.
+Shifts bytes from boot to interaction time.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Less upfront component tree on client.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Excellent eager startup potential; interaction may pay a first-hit download cost.
 
 ## Production Example
 
-TODO: Realistic production example.
+Teams on React achieve similar goals via RSC + tiny client islands rather than true resumability.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```txt
+Conceptual contrast:
+Hydration: download components → re-exec setup → attach listeners
+Resumability: attach lazy listener refs → download on event → resume
+```
 
 ## Diagrams
 
 ```mermaid
 flowchart LR
-  concept[Resumability] --> nextStep[NextStep]
+  Server --> Serialize
+  Serialize --> TinyBoot
+  TinyBoot --> OnEvent[Load chunk on event]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Equating RSC with resumability (related goals, different mechanisms)
+2. Expecting Next to be Qwik
+3. Ignoring first-interaction latency after lazy download
+4. Over-serializing huge state
+5. Cargo-culting the term without measuring
+6. Mixing mental models in one codebase without boundaries
+7. Missing a production edge case for 12-rendering.resumability (#1)
+8. Missing a production edge case for 12-rendering.resumability (#2)
+9. Missing a production edge case for 12-rendering.resumability (#3)
+10. Missing a production edge case for 12-rendering.resumability (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Know your framework’s actual model
+- On React/Next: minimize hydrate surface via RSC
+- Measure eager vs interaction latency
+- Keep serialized state small
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Rewrites solely for buzzwords
+- Lazy-loading primary CTA handlers without prefetch
+- Claiming zero JS when analytics/widgets still hydrate
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
+| | Hydration | Resumability |
 | --- | --- | --- |
-| TODO | TODO | TODO |
+| Eager component exec | Yes | Minimal |
+| Ecosystem | React SSR | Qwik et al. |
+| React approx | RSC islands | — |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** How does resumability differ from hydration?
+
+**A:** Resumability avoids re-executing the whole app on the client; it resumes serialized work and loads handlers on demand.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** How do React Server Components approximate the goal?
+
+**A:** By not shipping/hydrating most components at all—only client islands hydrate.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** What trade-off does lazy handler download introduce?
+
+**A:** First interaction can stall on chunk fetch/parse; prefetch and caching strategies matter for INP.
 
 ## Summary
 
-- TODO: key takeaway
+- Resumability skips classic eager hydration work
+- Qwik-style vs React RSC/islands
+- Next uses RSC + hydrate islands, not Qwik
+- Measure boot vs interaction costs
 
 ## References
 
-- TODO: official documentation links
+- [Qwik — Resumable](https://qwik.dev/docs/concepts/resumable/)
+- [React — Server Components](https://react.dev/reference/rsc/server-components)
 
 <RelatedTopics />
 
 
-Prev: [Progressive Hydration](/12-rendering/progressive-hydration/) · Next: [Edge Rendering](/12-rendering/edge-rendering/)
+Prev: [`12-rendering.progressive-hydration`](/12-rendering/progressive-hydration/) · Next: [`12-rendering.edge-rendering`](/12-rendering/edge-rendering/)

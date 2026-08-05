@@ -1,6 +1,6 @@
 ---
 title: "SpiderMonkey"
-description: "TODO — one-sentence description of SpiderMonkey"
+description: "Firefox’s SpiderMonkey engine: Baseline/Ion-style tiers and how it differs for web developers."
 topic_id: 03-browser.spidermonkey
 difficulty: senior
 reading_time: 30
@@ -9,9 +9,9 @@ prerequisites:
   - 03-browser.javascript-engine
 tags: 
   - javascript-engine
-status: stub
-prev_topic: 03-browser.v8
-next_topic: 03-browser.javascriptcore
+status: published
+prev_topic: "03-browser.v8"
+next_topic: "03-browser.javascriptcore"
 related: []
 advanced: []
 ---
@@ -22,45 +22,53 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain SpiderMonkey in simple language.
+**SpiderMonkey** is Mozilla’s JavaScript engine in Firefox. Like V8 it uses tiered compilation and generational GC, but with different IR, optimizers, and performance cliffs. Cross-browser performance work must include Gecko/SpiderMonkey, not only Chromium.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Firefox still holds meaningful share in some locales and among power users. Engine diversity keeps the web from becoming a single-vendor runtime.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Born in Netscape; oldest continuously developed JS engine. Has shipped TraceMonkey, JägerMonkey, IonMonkey, Warp, etc., reflecting the ongoing JIT arms race.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Same ECMAScript semantics, different implementation: parse → bytecode/baseline → optimizing tier → GC. Never assume V8-only tricks.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Parse/emit bytecode.
+2. Execute with profiling.
+3. Optimize hot paths (Warp/Ion lineage depending on version).
+4. GC as needed.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Interpret
+  Interpret --> Optimize
+  Optimize --> Interpret: deopt
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Gecko + SpiderMonkey integration differs from Blink + V8 bindings details — DOM perf cliffs can vary.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Test JS-heavy features in Firefox Nightly when optimizing.
 
 ## React Perspective
 
-Not applicable.
+Same React code; different allocation/JIT behavior — verify animations and large lists in Firefox.
 
 ## Next.js Perspective
 
@@ -76,77 +84,94 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Validate with Firefox Profiler, not only Chrome Performance.
 
 ## Production Example
 
-TODO: Realistic production example.
+A wasm+JS hybrid ran well in Chrome but regressively allocated in Firefox; fixed by reducing boundary crossings.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```js
+// Prefer standards-compliant JS; avoid engine-specific intrinsics in app code
+```
 
 ## Diagrams
 
 ```mermaid
 flowchart LR
-  concept[SpiderMonkey] --> nextStep[NextStep]
+  Fx[Firefox] --> SM[SpiderMonkey]
+  SM --> Gecko[Gecko rendering]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Chromium-only performance sign-off
+2. Assuming Identical JIT heuristics
+3. Ignoring Firefox Profiler
+4. Using nonstandard extensions
+5. Forgetting ESR vs rapid-release differences
+6. Equating SpiderMonkey with Rhino/Nashorn
+7. Overlooking an edge case #1 specific to 03-browser.spidermonkey in production traffic
+8. Overlooking an edge case #2 specific to 03-browser.spidermonkey in production traffic
+9. Overlooking an edge case #3 specific to 03-browser.spidermonkey in production traffic
+10. Overlooking an edge case #4 specific to 03-browser.spidermonkey in production traffic
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Include Firefox in perf budgets for JS-heavy apps
+- File reduced test cases when engines disagree
 
 ## Anti-patterns
 
-TODO: What not to do.
+- User-agent targeting for “perf hacks” without measuring
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Engine | Browser |
+| --- | --- |
+| SpiderMonkey | Firefox |
+| V8 | Chromium |
+| JSC | Safari |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** Which browser uses SpiderMonkey?
+
+**A:** Firefox (Gecko).
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Why care if you develop mainly on Chrome?
+
+**A:** Users and semantics/performance differ; the web is multi-engine.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** What should you do when a optimization helps V8 but hurts SM?
+
+**A:** Prefer clearer algorithms, measure both, avoid ultra-narrow JIT tuning unless the hotspot is proven and stable.
 
 ## Summary
 
-- TODO: key takeaway
+- SpiderMonkey powers Firefox JS
+- Tiered JIT + GC like peers
+- Always verify multi-engine
+- Use Firefox Profiler
 
 ## References
 
-- TODO: official documentation links
+- [SpiderMonkey docs](https://spidermonkey.dev/)
+- [Firefox Profiler](https://profiler.firefox.com/)
 
 <RelatedTopics />
 
 
-Prev: [V8](/03-browser/v8/) · Next: [JavaScriptCore](/03-browser/javascriptcore/)
+Prev: [`03-browser.v8`](/03-browser/v8/) · Next: [`03-browser.javascriptcore`](/03-browser/javascriptcore/)

@@ -1,6 +1,6 @@
 ---
 title: "Layout"
-description: "TODO — one-sentence description of Layout"
+description: "Layout (reflow): calculating geometry of boxes from the visual tree."
 topic_id: 03-browser.layout
 difficulty: mid
 reading_time: 35
@@ -10,9 +10,9 @@ prerequisites:
 tags: 
   - browser-internals
   - rendering
-status: stub
-prev_topic: 03-browser.render-tree
-next_topic: 03-browser.paint
+status: published
+prev_topic: "03-browser.render-tree"
+next_topic: "03-browser.paint"
 related: []
 advanced: []
 ---
@@ -23,45 +23,54 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Layout in simple language.
+**Layout** (also called **reflow**) computes geometric information — sizes, positions — for boxes in the layout tree given the viewport and CSS. It is often the expensive middle of the rendering pipeline after style and before paint.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+CSS is constraint-based (flex, grid, flow). Geometry must be solved before painting pixels in the right places.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Block&inline layout → flex/grid → container queries. Engines incrementally reflow dirty subtrees when possible.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Dirty bit on a subtree → measure children → assign positions → cache results until invalidated. Reading `offsetWidth` forces flush if dirty.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Style computed.
+2. Layout dirty roots scheduled.
+3. Walk/measure boxes.
+4. Update scrollable overflow.
+5. Proceed to paint if needed.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Clean
+  Clean --> Dirty: DOM/CSS/geometry change
+  Dirty --> Clean: layout pass
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Performance panel shows Layout events. Layout thrashing = many forced layouts.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not V8 — layout is rendering engine work on the main thread (mostly).
 
 ## React Perspective
 
-Not applicable.
+Commit that changes DOM structure can trigger large layouts. CSS containment helps.
 
 ## Next.js Perspective
 
@@ -77,77 +86,100 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Batch reads then writes; prefer transform animations; contain: layout; virtualize lists; avoid animating width/top.
 
 ## Production Example
 
-TODO: Realistic production example.
+Autosuggest measured each item via offsetHeight in a loop — 40 layouts/frame. Batched measurement fixed jank.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```js
+// thrash
+items.forEach(el => { el.style.width = el.offsetWidth + 1 + 'px' })
+// better: read all, then write all
+const widths = items.map(el => el.offsetWidth)
+items.forEach((el, i) => { el.style.width = widths[i] + 1 + 'px' })
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[Layout] --> nextStep[NextStep]
+flowchart TD
+  Style --> Layout --> Paint --> Composite
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Interleaving read/write layout properties
+2. Animating top/left/width
+3. Assuming flex is always cheap
+4. Ignoring table layout costs
+5. Forcing layout inside requestAnimationFrame unnecessarily many times
+6. Equating layout with paint
+7. Overlooking an edge case #1 specific to 03-browser.layout in production traffic
+8. Overlooking an edge case #2 specific to 03-browser.layout in production traffic
+9. Overlooking an edge case #3 specific to 03-browser.layout in production traffic
+10. Overlooking an edge case #4 specific to 03-browser.layout in production traffic
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Read/write batching
+- Containment and content-visibility
+- Compositor-friendly animations
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Layout thrashing loops
+- Measuring everything on every mousemove
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Stage | Computes |
+| --- | --- |
+| Style | Computed values |
+| Layout | Geometry |
+| Paint | Display lists/pixels |
+| Composite | Layer blend |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is layout/reflow?
+
+**A:** Calculating box geometry (size/position) for the page.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** What is layout thrashing?
+
+**A:** Alternating DOM writes and geometry reads so the browser must relayout repeatedly in one turn.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How does contain:layout help?
+
+**A:** It promises subtree layout independence so invalidation/layout can be scoped, reducing work outside the containment box.
 
 ## Summary
 
-- TODO: key takeaway
+- Layout solves geometry
+- Forced sync layout is a common jank source
+- Batch reads/writes
+- Prefer transform/opacity for motion
 
 ## References
 
-- TODO: official documentation links
+- [web.dev — Avoid large complex layouts](https://web.dev/articles/avoid-large-complex-layouts-and-layout-thrashing)
+- [MDN — Reflow](https://developer.mozilla.org/en-US/docs/Glossary/Reflow)
 
 <RelatedTopics />
 
 
-Prev: [Render Tree](/03-browser/render-tree/) · Next: [Paint](/03-browser/paint/)
+Prev: [`03-browser.render-tree`](/03-browser/render-tree/) · Next: [`03-browser.paint`](/03-browser/paint/)

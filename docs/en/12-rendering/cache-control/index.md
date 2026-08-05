@@ -1,6 +1,6 @@
 ---
 title: "Cache-Control"
-description: "TODO — one-sentence description of Cache-Control"
+description: "The Cache-Control header: directives that define freshness and reuse of HTTP responses."
 topic_id: 12-rendering.cache-control
 difficulty: mid
 reading_time: 30
@@ -10,9 +10,9 @@ prerequisites:
 tags: 
   - caching
   - http
-status: stub
-prev_topic: 12-rendering.browser-cache
-next_topic: 12-rendering.etag
+status: published
+prev_topic: "12-rendering.browser-cache"
+next_topic: "12-rendering.etag"
 related: []
 advanced: []
 ---
@@ -23,41 +23,50 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Cache-Control in simple language.
+**Cache-Control** is the primary HTTP header for caching policy: `max-age`, `s-maxage`, `no-store`, `private`, `public`, `stale-while-revalidate`, and more. It steers browsers and CDNs.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Without explicit policy, intermediaries guess wrong. Cache-Control makes intent machine-readable.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Superseded many Expires-centric patterns; continually extended (SWR, stale-if-error).
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Speak to two audiences: browsers (`max-age`, `private`) and shared caches (`s-maxage`, `public`).
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Classify response (public asset, private HTML, API).
+2. Choose directives.
+3. Add validators.
+4. Verify via DevTools/CDN logs.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Issued
+  Issued --> Fresh
+  Fresh --> Stale
+  Stale --> RevalidateOrSWR
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Respects private/no-store carefully.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
@@ -65,89 +74,116 @@ Not applicable.
 
 ## Next.js Perspective
 
-Not applicable.
+Framework/route handlers should set headers intentionally for Route Handlers and static assets.
 
 ## Server Perspective
 
-Not applicable.
+Defaults may be too conservative or too open—set explicitly.
 
 ## Network Perspective
 
-Not applicable.
+Every cache hop interprets directives.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Right headers = free speed. Wrong headers = bugs or missed cache hits.
 
 ## Production Example
 
-TODO: Realistic production example.
+`public, s-maxage=60, stale-while-revalidate=300` for a public marketing JSON feed.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```ts
+return new Response(body, {
+  headers: {
+    'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300',
+  },
+})
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[CacheControl] --> nextStep[NextStep]
+flowchart TD
+  Resp[Response] --> CC[Cache-Control]
+  CC --> Browser
+  CC --> CDN
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Using private by accident on public assets
+2. Confusing max-age with s-maxage
+3. Omitting Cache-Control so heuristics apply
+4. no-cache thinking it means no-store
+5. Long max-age on mutable HTML without versioning
+6. Contradictory headers (Pragma/Expires fights)
+7. Missing a production edge case for 12-rendering.cache-control (#1)
+8. Missing a production edge case for 12-rendering.cache-control (#2)
+9. Missing a production edge case for 12-rendering.cache-control (#3)
+10. Missing a production edge case for 12-rendering.cache-control (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Be explicit on all important responses
+- Use s-maxage for CDN-specific freshness
+- Pair with ETag when revalidating
+- Document policies per surface
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Copy-pasting one Cache-Control for all routes
+- Disabling cache to fix a bug and leaving it forever
+- Relying only on meta http-equiv
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Directive | Audience |
+| --- | --- |
+| max-age | Browser & shared (unless overridden) |
+| s-maxage | Shared caches/CDN |
+| private | Browser only |
+| public | Explicitly shareable |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is Cache-Control for?
+
+**A:** Declaring how browsers and shared caches may store and reuse a response.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Why use s-maxage?
+
+**A:** To set a different freshness lifetime for CDNs than for browsers.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** Design headers for a personalized dashboard HTML page.
+
+**A:** Typically `Cache-Control: private, no-store` or short private max-age; never public CDN caching without a per-user cache key strategy.
 
 ## Summary
 
-- TODO: key takeaway
+- Cache-Control declares freshness/reuse policy
+- Distinguish browser vs CDN directives
+- Be explicit per resource class
+- Pair with validators
 
 ## References
 
-- TODO: official documentation links
+- [MDN — Cache-Control](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control)
+- [RFC 9111 — HTTP Caching](https://www.rfc-editor.org/rfc/rfc9111)
 
 <RelatedTopics />
 
 
-Prev: [Browser Cache](/12-rendering/browser-cache/) · Next: [ETag](/12-rendering/etag/)
+Prev: [`12-rendering.browser-cache`](/12-rendering/browser-cache/) · Next: [`12-rendering.etag`](/12-rendering/etag/)

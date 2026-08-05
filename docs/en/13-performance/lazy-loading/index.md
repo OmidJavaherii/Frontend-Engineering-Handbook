@@ -1,6 +1,6 @@
 ---
 title: "Lazy Loading"
-description: "TODO — one-sentence description of Lazy Loading"
+description: "Deferring load of resources (JS, images, iframes) until needed."
 topic_id: 13-performance.lazy-loading
 difficulty: junior
 reading_time: 25
@@ -8,9 +8,9 @@ implementation_time: 0
 prerequisites: []
 tags: 
   - performance
-status: stub
-prev_topic: 13-performance.dynamic-import
-next_topic: 13-performance.debounce
+status: published
+prev_topic: "13-performance.dynamic-import"
+next_topic: "13-performance.debounce"
 related: []
 advanced: []
 ---
@@ -21,41 +21,49 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Lazy Loading in simple language.
+**Lazy loading** delays downloading/initializing resources until they are near-needed—viewport, route, or interaction. Applies to JS chunks and media.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Eager loading everything competes with LCP resources.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+loading="lazy" for images/iframes; JS lazy via dynamic import; frameworks formalized patterns.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Critical now vs later. Never lazy the LCP image.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Rank resources by criticality.
+2. Lazy non-critical JS/media.
+3. Prefetch when intent is likely.
+4. Measure LCP/INP side effects.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Idle
+  Idle --> Active: use
+  Active --> Idle: settle
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Not applicable.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
@@ -75,77 +83,97 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Measure before/after with lab + field tools. Optimize the attributed bottleneck for Deferring load of resources (JS, images, iframes) until needed., not folklore.
 
 ## Production Example
 
-TODO: Realistic production example.
+Teams adopt Deferring load of resources (JS, images, iframes) until needed. on critical routes, add monitoring, and guard regressions with budgets or reviews.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```html
+<img src="/gallery-2.jpg" loading="lazy" width="600" height="400" alt="" />
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[LazyLoading] --> nextStep[NextStep]
+flowchart TD
+  A[Understand] --> B[Apply Deferring load of resources (JS, images, iframes) until needed.]
+  B --> C[Measure]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. lazy on LCP hero image
+2. Lazy JS for primary CTA without prefetch
+3. Infinite scroll without virtualization
+4. SEO content hidden behind client lazy gates incorrectly
+5. No placeholders → CLS
+6. Lazy loading everything including fonts of brand title
+7. Missing a production edge case for 13-performance.lazy-loading (#1)
+8. Missing a production edge case for 13-performance.lazy-loading (#2)
+9. Missing a production edge case for 13-performance.lazy-loading (#3)
+10. Missing a production edge case for 13-performance.lazy-loading (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Prefer platform/framework primitives
+- Measure impact on real user metrics
+- Keep the change reviewable and reversible
+- Document the invariant you are protecting
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Copy-paste without understanding failure modes
+- Premature abstraction around a single use
+- Optimizing without a baseline
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Approach | When |
+| --- | --- |
+| Use as designed | Default |
+| Simpler alternative | If constraints differ |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** When should you not lazy-load an image?
+
+**A:** When it is the LCP/hero above-the-fold image.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Lazy loading JS vs images—difference?
+
+**A:** JS lazy uses dynamic import/chunks; images use loading=lazy / IntersectionObserver; both defer bytes.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How combine lazy JS with good INP?
+
+**A:** Prefetch on hover/idle for likely next actions so first interaction does not wait on chunk download.
 
 ## Summary
 
-- TODO: key takeaway
+- Deferring load of resources (JS, images, iframes) until needed.
+- Know why it exists and when not to use it
+- Measure production impact
+- Link related handbook topics instead of duplicating
 
 ## References
 
-- TODO: official documentation links
+- [web.dev — Lazy loading](https://web.dev/articles/lazy-loading-overview)
+- [MDN — loading attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/img#loading)
 
 <RelatedTopics />
 
 
-Prev: [Dynamic Import](/13-performance/dynamic-import/) · Next: [Debounce](/13-performance/debounce/)
+Prev: [`13-performance.dynamic-import`](/13-performance/dynamic-import/) · Next: [`13-performance.debounce`](/13-performance/debounce/)

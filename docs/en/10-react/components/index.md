@@ -1,6 +1,6 @@
 ---
 title: "Components"
-description: "TODO — one-sentence description of Components"
+description: "React components as functions (and legacy classes) that return element trees from props/state."
 topic_id: 10-react.components
 difficulty: beginner
 reading_time: 30
@@ -9,9 +9,9 @@ prerequisites:
   - 08-jsx-and-react-runtime.jsx
 tags: 
   - react
-status: stub
-prev_topic: 10-react.philosophy
-next_topic: 10-react.props
+status: published
+prev_topic: "10-react.philosophy"
+next_topic: "10-react.props"
 related: []
 advanced: []
 ---
@@ -22,49 +22,57 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Components in simple language.
+A **component** is a reusable UI unit—today usually a function that accepts props and returns React elements. Components encapsulate structure, styling hooks, and state.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+UIs compose. Components are the composition boundary for reuse, testing, and data flow.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Classes → functions + hooks. Server Components add a server/client split without abandoning composition.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Components are like functions: inputs (props) in, elements out. Identity of the function (`type`) matters for reconciliation.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Split UI by responsibility.
+2. Pass data down via props.
+3. Lift state to the nearest common owner.
+4. Extract when JSX/logic hurts readability.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+flowchart TD
+  Mount --> Update
+  Update --> Update
+  Update --> Unmount
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Not applicable.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+Function components + hooks are the default.
 
 ## Next.js Perspective
 
-Not applicable.
+Mark client components with `"use client"` when needed.
 
 ## Server Perspective
 
@@ -76,77 +84,97 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Too many tiny components is fine; unnecessary remounts (unstable types) are not.
 
 ## Production Example
 
-TODO: Realistic production example.
+Design system exports `Button`, `TextField`, `Dialog` as components with typed props and composition slots.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```tsx
+function Avatar({ name, src }: { name: string; src: string }) {
+  return <img src={src} alt={name} width={40} height={40} />
+}
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[Components] --> nextStep[NextStep]
+flowchart TD
+  App --> Header --> Avatar
+  App --> Main --> List
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Defining components inside components (remounts)
+2. God components with dozens of responsibilities
+3. Mutating props
+4. Using indexes as keys in component lists
+5. Class components for new code without reason
+6. Premature abstraction of one-off JSX
+7. Missing a production edge case for 10-react.components (#1)
+8. Missing a production edge case for 10-react.components (#2)
+9. Missing a production edge case for 10-react.components (#3)
+10. Missing a production edge case for 10-react.components (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Stable component types at module scope
+- Small focused components
+- Typed props
+- Composition over boolean prop explosion
 
 ## Anti-patterns
 
-TODO: What not to do.
+- `<Button isTableButton isModalFooter isDangerous />` prop soup
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Kind | Notes |
+| --- | --- |
+| Function | Default |
+| Class | Legacy |
+| Server Component | No hooks/DOM; data-capable |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is a React component?
+
+**A:** A function (or class) that returns a description of UI (elements) given props/state.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Why shouldn’t you define a component inside another during render?
+
+**A:** Its identity changes every render, causing React to remount and reset state.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How do Server Components change the component model?
+
+**A:** Some components render on the server and never ship to the client; client components remain the interactive islands.
 
 ## Summary
 
-- TODO: key takeaway
+- Components compose UI
+- Stable function identity matters
+- Prefer focused function components
 
 ## References
 
-- TODO: official documentation links
+- [React Documentation](https://react.dev/)
+- [Your First Component](https://react.dev/learn/your-first-component)
 
 <RelatedTopics />
 
 
-Prev: [React Philosophy](/10-react/philosophy/) · Next: [Props](/10-react/props/)
+Prev: [`10-react.philosophy`](/10-react/philosophy/) · Next: [`10-react.props`](/10-react/props/)

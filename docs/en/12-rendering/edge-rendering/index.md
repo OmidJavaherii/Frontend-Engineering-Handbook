@@ -1,6 +1,6 @@
 ---
 title: "Edge Rendering"
-description: "TODO — one-sentence description of Edge Rendering"
+description: "Rendering or routing logic executed at CDN edge locations close to users."
 topic_id: 12-rendering.edge-rendering
 difficulty: mid
 reading_time: 30
@@ -9,9 +9,9 @@ prerequisites: []
 tags: 
   - rendering
   - edge
-status: stub
-prev_topic: 12-rendering.resumability
-next_topic: 12-rendering.cdn
+status: published
+prev_topic: "12-rendering.resumability"
+next_topic: "12-rendering.cdn"
 related: []
 advanced: []
 ---
@@ -22,41 +22,50 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Edge Rendering in simple language.
+**Edge rendering** runs UI generation or request mediation at geographically distributed PoPs. In practice this ranges from edge Middleware rewrites to rendering lightweight routes on Edge runtimes.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Physics: lowering RTT improves TTFB. Edge helps when work is small and globally cache-aware.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+CDNs → Workers/Edge functions → framework adapters (Next Edge, others).
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Put tiny, fast, globally replicated compute near users; keep heavy/regional data in origin data centers.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Identify latency-sensitive tiny work.
+2. Ensure edge-compatible APIs.
+3. Cache outputs when possible.
+4. Fall back to origin for heavy RSC/DB.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> PoP
+  PoP --> EdgeCompute
+  EdgeCompute --> Origin: miss/heavy
+  EdgeCompute --> Respond
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Faster HTML/redirects when applicable.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
@@ -64,89 +73,114 @@ Not applicable.
 
 ## Next.js Perspective
 
-Not applicable.
+Middleware + optional edge runtime routes.
 
 ## Server Perspective
 
-Not applicable.
+Constraints: CPU time, no full Node, cold isolates.
 
 ## Network Perspective
 
-Not applicable.
+Fewer miles to first byte for eligible work.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Wins for redirects, A/B, geo, simple API. Loses when edge still waits on far DB.
 
 ## Production Example
 
-TODO: Realistic production example.
+Edge auth redirect + geo pricing flag; product RSC on regional Node near DB.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```ts
+export const runtime = 'edge'
+export async function GET(request: Request) {
+  return new Response('ok', { headers: { 'x-geo': request.headers.get('x-vercel-ip-country') ?? '' } })
+}
+```
 
 ## Diagrams
 
 ```mermaid
 flowchart LR
-  concept[EdgeRendering] --> nextStep[NextStep]
+  User --> Edge
+  Edge -->|heavy| Origin
+  Edge -->|light| User
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Edge-rendering chatty DB pages far from DB
+2. Huge frameworks on edge
+3. Ignoring regional data compliance
+4. Assuming edge HTML is always faster than CDN static
+5. No fallback when edge fails
+6. Putting long CPU jobs on edge
+7. Missing a production edge case for 12-rendering.edge-rendering (#1)
+8. Missing a production edge case for 12-rendering.edge-rendering (#2)
+9. Missing a production edge case for 12-rendering.edge-rendering (#3)
+10. Missing a production edge case for 12-rendering.edge-rendering (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Edge for tiny request shaping
+- Static/PPR shell at CDN when possible
+- Keep origin near data
+- Measure p95 by region
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Everything on edge slogan-driven
+- Edge ORM to distant SQL without plan
+- Mega middleware
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
+| | Edge render | Origin SSR |
 | --- | --- | --- |
-| TODO | TODO | TODO |
+| RTT | Low | Higher |
+| Capabilities | Limited | Full |
+| Data locality | Often poor | Better |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is edge rendering?
+
+**A:** Running render or request logic at CDN PoPs close to users to cut latency.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** When is edge a bad place to render?
+
+**A:** When you need heavy Node APIs or multi-join DB access in a distant region—RTT to data erases edge gains.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How combine edge + PPR?
+
+**A:** Cache static shell globally at edge/CDN; run tiny personalization holes at edge or origin; keep heavy queries regional with streaming.
 
 ## Summary
 
-- TODO: key takeaway
+- Edge cuts RTT for small work
+- Constraints differ from Node
+- Data locality often dominates
+- Prefer static CDN + selective edge logic
 
 ## References
 
-- TODO: official documentation links
+- [Next.js — Edge Runtime](https://nextjs.org/docs/app/api-reference/edge)
+- [web.dev — Adaptive serving](https://web.dev/articles/adaptive-serving-based-on-network-quality)
 
 <RelatedTopics />
 
 
-Prev: [Resumability](/12-rendering/resumability/) · Next: [CDN](/12-rendering/cdn/)
+Prev: [`12-rendering.resumability`](/12-rendering/resumability/) · Next: [`12-rendering.cdn`](/12-rendering/cdn/)

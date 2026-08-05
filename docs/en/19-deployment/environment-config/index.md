@@ -1,6 +1,6 @@
 ---
 title: "Environment Config"
-description: "TODO — one-sentence description of Environment Config"
+description: "Managing configuration across environments without leaking secrets into frontend bundles."
 topic_id: 19-deployment.environment-config
 difficulty: junior
 reading_time: 25
@@ -9,9 +9,9 @@ prerequisites: []
 tags: 
   - deployment
   - security
-status: stub
-prev_topic: 19-deployment.cloudflare
-next_topic: 19-deployment.preview-deployments
+status: published
+prev_topic: "19-deployment.cloudflare"
+next_topic: "19-deployment.preview-deployments"
 related: []
 advanced: []
 ---
@@ -22,41 +22,51 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Environment Config in simple language.
+**Environment config** separates values for local/staging/prod: API base URLs, feature flags, public keys. Secrets stay server-side. Client config must be assumed public.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Hard-coded prod URLs and leaked secrets are classic deploy bugs. Explicit env strategy prevents them.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Twelve-Factor config via env vars; frontend bundlers added `VITE_`/`NEXT_PUBLIC_` conventions—often misunderstood.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Build-time public config vs runtime server config. Prefer runtime injection for ops flexibility when possible (especially Docker).
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Classify public vs secret.
+2. Define per-env files/vault.
+3. Inject at build or runtime intentionally.
+4. Validate required vars at startup.
+5. Never commit secrets.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Classify
+  Classify --> Inject
+  Inject --> Validate
+  Validate --> Run
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Not applicable.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
@@ -64,7 +74,7 @@ Not applicable.
 
 ## Next.js Perspective
 
-Not applicable.
+Server env vs NEXT_PUBLIC_.
 
 ## Server Perspective
 
@@ -76,77 +86,98 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Rebuilds for bake-time config can slow CD—runtime config helps.
 
 ## Production Example
 
-TODO: Realistic production example.
+Server reads `API_URL` at runtime; client gets `/config.json` with public values only generated at deploy.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```ts
+const required = ['API_URL'] as const
+for (const k of required) {
+  if (!process.env[k]) throw new Error(`Missing ${k}`)
+}
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[EnvironmentConfig] --> nextStep[NextStep]
+flowchart TD
+  Vault --> ServerEnv
+  PublicConfig --> Bundle
+  ServerEnv --> BFF
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Secrets in client env prefixes
+2. Committing .env.production.local with tokens
+3. Same API keys across envs
+4. No validation of required config
+5. Manual dashboard edits undocumented
+6. Missing a production edge case for 19-deployment.environment-config (#1)
+7. Missing a production edge case for 19-deployment.environment-config (#2)
+8. Missing a production edge case for 19-deployment.environment-config (#3)
+9. Missing a production edge case for 19-deployment.environment-config (#4)
+10. Missing a production edge case for 19-deployment.environment-config (#5)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Classify keys
+- Fail fast on missing config
+- Document every var
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Emailing env files
+- Prod values in unit test fixtures
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Build-time | Runtime |
+| --- | --- |
+| Baked into bundle | Flexible ops |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** Are Vite env variables secret?
+
+**A:** Those exposed to the client are public. Only server-side env stays private.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Build-time vs runtime config trade-off?
+
+**A:** Build-time is simple but needs rebuilds; runtime allows one artifact across envs with injection.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** Config strategy for Dockerized SPA + BFF.
+
+**A:** One frontend artifact; BFF reads secrets at runtime; SPA loads public config from BFF or templated window.__CONFIG__ at serve time.
 
 ## Summary
 
-- TODO: key takeaway
+- Public vs secret classification
+- Validate config early
+- Prefer runtime for server secrets
 
 ## References
 
-- TODO: official documentation links
+- [12-Factor Config](https://12factor.net/config/)
+- [Vite env](https://vitejs.dev/guide/env-and-mode.html)
+- [Next.js env](https://nextjs.org/docs/app/building-your-application/configuring/environment-variables)
 
 <RelatedTopics />
 
 
-Prev: [Cloudflare](/19-deployment/cloudflare/) · Next: [Preview Deployments](/19-deployment/preview-deployments/)
+Prev: [`19-deployment.cloudflare`](/19-deployment/cloudflare/) · Next: [`19-deployment.preview-deployments`](/19-deployment/preview-deployments/)

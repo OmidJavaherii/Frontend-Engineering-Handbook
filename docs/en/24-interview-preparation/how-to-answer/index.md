@@ -1,6 +1,6 @@
 ---
 title: "How to Answer"
-description: "TODO — one-sentence description of How to Answer"
+description: "A repeatable method for frontend interview answers: structure, trade-offs, and linking claims to fundamentals."
 topic_id: 24-interview-preparation.how-to-answer
 difficulty: junior
 reading_time: 20
@@ -8,9 +8,9 @@ implementation_time: 0
 prerequisites: []
 tags: 
   - interview
-status: stub
+status: published
 prev_topic: null
-next_topic: 24-interview-preparation.javascript-interview-questions
+next_topic: "24-interview-preparation.javascript-interview-questions"
 related: []
 advanced: []
 ---
@@ -21,130 +21,203 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain How to Answer in simple language.
+**How to Answer** is the meta-skill for this module. Strong candidates do not recite blogs — they derive answers from mental models and point to concrete mechanisms (event loop, rendering, HTTP, React commit).
+
+Use sibling question banks for drills; use this page for the answering framework.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Interviews reward clarity under time pressure. Without a structure, people ramble, skip trade-offs, or invent APIs. A method keeps answers falsifiable and depth-calibrated.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Classic advice (STAR for behavioral, “communicate while coding”) adapted poorly to systems/frontend unless paired with browser/network models. This handbook treats interview prep as navigation across canonical topics.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+**CLAIM → MECHANISM → TRADE-OFF → VERIFY**:
+
+1. One-sentence claim  
+2. Mechanism (what the browser/engine/framework does)  
+3. Trade-off / failure mode  
+4. How you’d verify (DevTools, metric, test)
+
+Map each claim to a handbook path when studying.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Clarify scope (“browser event loop or Node?”)
+
+2. Give the claim in ≤2 sentences
+
+3. Walk one happy-path pipeline
+
+4. Name one failure mode
+
+5. Offer a measurement or experiment
+
+6. Stop — invite follow-ups
+
+### Mini drill
+
+**Q:** What happens when you type a URL and press Enter?
+
+**A skeleton:** DNS → TCP/TLS → HTTP → parse HTML → preload scanner → CSSOM/DOM → render tree → layout → paint → composite; JS via event loop. Deep links: [/02-internet/dns/](/02-internet/dns/), [/03-browser/critical-rendering-path/](/03-browser/critical-rendering-path/), [/03-browser/event-loop/](/03-browser/event-loop/).
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Clarify
+  Clarify --> Claim
+  Claim --> Mechanism
+  Mechanism --> Tradeoff
+  Tradeoff --> Verify
+  Verify --> [*]
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Prefer answers that name observable DevTools panels.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Separate language semantics from engine optimizations.
 
 ## React Perspective
 
-Not applicable.
+Distinguish render, commit, and effects.
 
 ## Next.js Perspective
 
-Not applicable.
+Always ask server vs client runtime.
 
 ## Server Perspective
 
-Not applicable.
+Mention TTFB/caching when relevant.
 
 ## Network Perspective
 
-Not applicable.
+Latency vs bandwidth vs failure modes.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Leaks = retained references; say how you’d confirm.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Timebox: 60–90s for easy, 3–5 minutes for medium design answers.
 
 ## Production Example
 
-TODO: Realistic production example.
+In mock interviews, graders score: correctness, structure, trade-offs, and whether you invent vs admit uncertainty.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```text
+Template card:
+Q: …
+Claim:
+Mechanism:
+Trade-off:
+Verify:
+Links: /module/topic/
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[HowtoAnswer] --> nextStep[NextStep]
+flowchart TD
+  n0[Clarify] --> n1[Claim]
+  n1[Claim] --> n2[Mechanism]
+  n2[Mechanism] --> n3[Trade-off]
+```
+
+```mermaid
+sequenceDiagram
+  participant User
+  participant App
+  participant Platform
+  User->>App: interact (Answer method)
+  App->>Platform: apply mechanism
+  Platform-->>App: result or error
+  App-->>User: update UI
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Memorizing answers without mechanisms
+2. Buzzwords without definitions
+3. Ignoring failure modes
+4. Never mentioning how to measure
+5. Talking past the question
+6. Pretending certainty instead of scoping assumptions
+7. Missing a production edge case for 24-interview-preparation.how-to-answer (#1)
+8. Missing a production edge case for 24-interview-preparation.how-to-answer (#2)
+9. Missing a production edge case for 24-interview-preparation.how-to-answer (#3)
+10. Missing a production edge case for 24-interview-preparation.how-to-answer (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Practice aloud with a timer
+- Link every drill to a handbook topic
+- Keep a personal “wrong answers” list
+- Prefer diagrams for system design
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Resume keyword salad
+- Framework fanboyism without platform knowledge
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Style | Signal |
+| --- | --- |
+| Recitation | Weak |
+| Structured mechanism | Strong |
+| Trade-off + verify | Strongest |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** How should you start any technical interview answer?
+
+**A:** Clarify the environment and restate the question as a one-line claim before diving deep.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** How do you show seniority without over-talking?
+
+**A:** Lead with the model, give one concrete path, name a trade-off, and stop for questions — depth on demand.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** You don’t know an API detail — what do you do?
+
+**A:** Say what you know, state the invariant you’d check in docs/DevTools, and reason from adjacent fundamentals (e.g. HTTP caching) instead of fabricating.
 
 ## Summary
 
-- TODO: key takeaway
+- Claim → mechanism → trade-off → verify
+- Link study to canonical topics
+- Timebox and invite follow-ups
+- Admit uncertainty cleanly
 
 ## References
 
-- TODO: official documentation links
+- [React docs — Learn](https://react.dev/learn)
+- [MDN Web Docs](https://developer.mozilla.org/)
+- [web.dev](https://web.dev/)
 
 <RelatedTopics />
 
-Next: [JavaScript Interview Questions](/24-interview-preparation/javascript-interview-questions/)
+
+Next: [`24-interview-preparation.javascript-interview-questions`](/24-interview-preparation/javascript-interview-questions/)

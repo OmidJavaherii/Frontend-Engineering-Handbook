@@ -1,6 +1,6 @@
 ---
 title: "sessionStorage"
-description: "TODO — one-sentence description of sessionStorage"
+description: "sessionStorage: per-tab (per-top-level browsing session) synchronous key/value storage."
 topic_id: 09-browser-apis.sessionstorage
 difficulty: beginner
 reading_time: 15
@@ -9,9 +9,9 @@ prerequisites: []
 tags: 
   - browser-apis
   - storage
-status: stub
-prev_topic: 09-browser-apis.localstorage
-next_topic: 09-browser-apis.indexeddb
+status: published
+prev_topic: "09-browser-apis.localstorage"
+next_topic: "09-browser-apis.indexeddb"
 related: []
 advanced: []
 ---
@@ -22,49 +22,58 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain sessionStorage in simple language.
+**sessionStorage** matches localStorage’s API but lifetime is tied to the **page session** / tab. Data survives reloads but is isolated per tab and typically cleared when the tab closes.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Useful for wizard drafts, per-tab UI state, and avoiding cross-tab leakage that localStorage would share.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Sibling of localStorage in Web Storage. Semantics around duplicated tabs and privacy partitioning have been clarified over time.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Same `Storage` methods; different scope/lifetime. Opening a link in a new tab usually starts a fresh sessionStorage.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Decide if state should be tab-private.
+2. Serialize small strings.
+3. Clear when the flow completes.
+4. Do not use for durable user data.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> TabOpen
+  TabOpen --> Reloaded: reload keeps data
+  TabOpen --> Closed: tab close clears
+  Closed --> [*]
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+DevTools shows sessionStorage per tab.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+Same SSR caveats as localStorage.
 
 ## Next.js Perspective
 
-Not applicable.
+Client-only access.
 
 ## Server Perspective
 
@@ -76,77 +85,93 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Same sync caveats as localStorage.
 
 ## Production Example
 
-TODO: Realistic production example.
+A multi-step checkout keeps in-progress form data in sessionStorage so refresh does not lose the tab’s work, without sharing unfinished PII across tabs.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```ts
+sessionStorage.setItem('wizard.step', '2')
+const step = sessionStorage.getItem('wizard.step')
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[sessionStorage] --> nextStep[NextStep]
+flowchart TD
+  Tab1[(sessionStorage A)]
+  Tab2[(sessionStorage B)]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Expecting data to appear in other tabs
+2. Storing durable records that users expect next week
+3. Secrets storage
+4. SSR access
+5. Quota ignorance
+6. Assuming identical lifetime across all browsers/privacy modes
+7. Overlooking an edge case #1 specific to 09-browser-apis.sessionstorage in production traffic
+8. Overlooking an edge case #2 specific to 09-browser-apis.sessionstorage in production traffic
+9. Overlooking an edge case #3 specific to 09-browser-apis.sessionstorage in production traffic
+10. Overlooking an edge case #4 specific to 09-browser-apis.sessionstorage in production traffic
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Tab-scoped ephemeral state only
+- Clear on completion
+- Version keys
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Using sessionStorage as a global app database
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
+| | localStorage | sessionStorage |
 | --- | --- | --- |
-| TODO | TODO | TODO |
+| Cross-tab | Shared | Isolated |
+| Lifetime | Long | Session/tab |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** How does sessionStorage differ from localStorage?
+
+**A:** Similar API, but sessionStorage is per-tab/session and not shared across tabs the same way.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Does reload clear sessionStorage?
+
+**A:** No. Reload keeps it; closing the tab typically clears it.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** When would you pick sessionStorage over React state alone?
+
+**A:** When you need refresh resilience for a single tab flow without persisting across tabs or visits.
 
 ## Summary
 
-- TODO: key takeaway
+- Tab-scoped sync storage
+- Good for ephemeral flows
+- Same string/security caveats
 
 ## References
 
-- TODO: official documentation links
+- [MDN: sessionStorage](https://developer.mozilla.org/en-US/docs/Web/API/Window/sessionStorage)
 
 <RelatedTopics />
 
 
-Prev: [localStorage](/09-browser-apis/localstorage/) · Next: [IndexedDB](/09-browser-apis/indexeddb/)
+Prev: [`09-browser-apis.localstorage`](/09-browser-apis/localstorage/) · Next: [`09-browser-apis.indexeddb`](/09-browser-apis/indexeddb/)

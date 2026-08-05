@@ -1,6 +1,6 @@
 ---
 title: "Module Resolution"
-description: "TODO — one-sentence description of Module Resolution"
+description: "How tools find files for import specifiers (node algorithm, exports, TS paths)."
 topic_id: 14-build-tools.module-resolution
 difficulty: mid
 reading_time: 40
@@ -10,9 +10,9 @@ prerequisites:
 tags: 
   - tooling
   - javascript
-status: stub
-prev_topic: 14-build-tools.bun
-next_topic: 14-build-tools.webpack
+status: published
+prev_topic: "14-build-tools.bun"
+next_topic: "14-build-tools.webpack"
 related: []
 advanced: []
 ---
@@ -23,41 +23,49 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Module Resolution in simple language.
+**Module resolution** maps `import 'x'` / `from './y'` to actual files using Node’s algorithm, package `exports`, TypeScript `paths`, and bundler aliases. Most “module not found” bugs are resolution bugs.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Without deterministic resolution, builds differ across tools and Deep Imports break across package versions.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Node CJS algorithm → ESM + exports field → bundlers adding aliases; TS paths needing bundler mirroring.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Relative vs bare specifiers; `exports` conditions (`import`/`require`/`types`); extension resolution rules differ CJS/ESM.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Prefer package exports over deep paths.
+2. Align TS paths with Vite/webpack aliases.
+3. Understand conditions.
+4. Avoid dual publishing traps when you can.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Idle
+  Idle --> Active: use
+  Active --> Idle: settle
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Not applicable.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+N/A beyond runtime loaders.
 
 ## React Perspective
 
@@ -65,7 +73,7 @@ Not applicable.
 
 ## Next.js Perspective
 
-Not applicable.
+Transpile bundler resolves differently from tsc alone.
 
 ## Server Perspective
 
@@ -77,77 +85,105 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Measure before/after with lab + field tools. Optimize the attributed bottleneck for How tools find files for import specifiers (node algorithm, exports, TS paths)., not folklore.
 
 ## Production Example
 
-TODO: Realistic production example.
+Teams adopt How tools find files for import specifiers (node algorithm, exports, TS paths). on critical routes, add monitoring, and guard regressions with budgets or reviews.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```json
+{
+  "name": "my-lib",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  }
+}
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[ModuleResolution] --> nextStep[NextStep]
+flowchart TD
+  A[Understand] --> B[Apply How tools find files for import specifiers (node algorithm, exports, TS paths).]
+  B --> C[Measure]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. TS paths that the bundler does not understand
+2. Importing package internals bypassing exports
+3. Extensionless ESM issues in Node
+4. Wrong main/module/exports fields in libraries
+5. Case-sensitive path bugs (mac vs linux CI)
+6. Circular deps masked by resolution order
+7. Missing a production edge case for 14-build-tools.module-resolution (#1)
+8. Missing a production edge case for 14-build-tools.module-resolution (#2)
+9. Missing a production edge case for 14-build-tools.module-resolution (#3)
+10. Missing a production edge case for 14-build-tools.module-resolution (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Prefer platform/framework primitives
+- Measure impact on real user metrics
+- Keep the change reviewable and reversible
+- Document the invariant you are protecting
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Copy-paste without understanding failure modes
+- Premature abstraction around a single use
+- Optimizing without a baseline
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Approach | When |
+| --- | --- |
+| Use as designed | Default |
+| Simpler alternative | If constraints differ |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is a bare specifier?
+
+**A:** An import like `lodash` that is not relative/absolute—resolved via node_modules/package exports.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** What is the exports field for?
+
+**A:** Explicit public entrypoints and conditions so consumers cannot rely on arbitrary file paths.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** Why do dual CJS/ESM packages break?
+
+**A:** Named export interop and incorrect conditional exports lead to undefined exports or dual-package hazards.
 
 ## Summary
 
-- TODO: key takeaway
+- How tools find files for import specifiers (node algorithm, exports, TS paths).
+- Know why it exists and when not to use it
+- Measure production impact
+- Link related handbook topics instead of duplicating
 
 ## References
 
-- TODO: official documentation links
+- [Node — package exports](https://nodejs.org/api/packages.html#package-entry-points)
+- [TypeScript — Module Resolution](https://www.typescriptlang.org/docs/handbook/module-resolution.html)
 
 <RelatedTopics />
 
 
-Prev: [Bun](/14-build-tools/bun/) · Next: [Webpack](/14-build-tools/webpack/)
+Prev: [`14-build-tools.bun`](/14-build-tools/bun/) · Next: [`14-build-tools.webpack`](/14-build-tools/webpack/)

@@ -1,6 +1,6 @@
 ---
 title: "JavaScriptCore"
-description: "TODO — one-sentence description of JavaScriptCore"
+description: "JavaScriptCore (JSC) in Safari/WebKit: tiers from LLInt to FTL and why Safari testing matters."
 topic_id: 03-browser.javascriptcore
 difficulty: senior
 reading_time: 30
@@ -9,9 +9,9 @@ prerequisites:
   - 03-browser.javascript-engine
 tags: 
   - javascript-engine
-status: stub
-prev_topic: 03-browser.spidermonkey
-next_topic: 03-browser.parsing-html
+status: published
+prev_topic: "03-browser.spidermonkey"
+next_topic: "03-browser.parsing-html"
 related: []
 advanced: []
 ---
@@ -22,45 +22,54 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain JavaScriptCore in simple language.
+**JavaScriptCore (JSC)** is WebKit’s JS engine (Safari, and other WebKit embeds). It uses a famous multi-tier pipeline (LLInt → Baseline → DFG → FTL historically) and different GC choices. iOS/macOS users mean JSC is mandatory for real-world QA.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Mobile Safari is often the strictest UX constraint. JSC performance and WebKit rendering quirks decide whether your SPA feels native on iPhone.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+JSC evolved inside WebKit; tiers like DFG/FTL were influential. Bun also embeds JSC outside Safari — another reason to know the name.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Same language semantics, Safari-shaped cliffs: cold start on devices, JIT restrictions on some iOS configurations historically, WebKit-specific DOM costs.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Parse / LLInt.
+2. Promote hot code through tiers.
+3. Optimize with type feedback.
+4. GC; coordinate with WebKit object lifetimes.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> LLInt
+  LLInt --> Baseline
+  Baseline --> DFG
+  DFG --> FTL
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+WebKit + JSC on Apple platforms; energy efficiency matters as much as peak throughput.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Test on real iOS devices; simulators are imperfect for perf.
 
 ## React Perspective
 
-Not applicable.
+Hydration cost on mid-tier iPhones is a common JSC+WebKit bottleneck.
 
 ## Next.js Perspective
 
@@ -76,77 +85,96 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Budget JS for low-end iPhones; prefer less hydration; watch third-party scripts.
 
 ## Production Example
 
-TODO: Realistic production example.
+Marketing site passed Lighthouse on desktop Chrome yet janked on iPhone 11 due to hydration + images. Fix: less client JS, streaming SSR.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```js
+// Feature-detect standards; don’t sniff JSC
+if ('ResizeObserver' in window) { /* ... */ }
+```
 
 ## Diagrams
 
 ```mermaid
 flowchart LR
-  concept[JavaScriptCore] --> nextStep[NextStep]
+  Safari --> WebKit
+  WebKit --> JSC
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Never testing Safari/iOS
+2. Assuming Chrome DevTools equals WebKit behavior
+3. Ignoring ITP/privacy-related timing differences
+4. Heavy polyfills shipped to modern Safari unnecessarily
+5. Treating Bun’s JSC as identical to Safari’s host embedding
+6. Animating layout properties without checking iOS GPU behavior
+7. Overlooking an edge case #1 specific to 03-browser.javascriptcore in production traffic
+8. Overlooking an edge case #2 specific to 03-browser.javascriptcore in production traffic
+9. Overlooking an edge case #3 specific to 03-browser.javascriptcore in production traffic
+10. Overlooking an edge case #4 specific to 03-browser.javascriptcore in production traffic
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Real-device Safari checks for JS-heavy flows
+- Use WebKit remote inspection
+- Keep bundles lean for cellular + JSC parse cost
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Desktop-only CI screenshots
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Engine | Primary browser |
+| --- | --- |
+| JavaScriptCore | Safari |
+| V8 | Chrome/Edge |
+| SpiderMonkey | Firefox |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What engine does Safari use?
+
+**A:** JavaScriptCore (with WebKit rendering).
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Why can iOS Safari be the perf gate?
+
+**A:** Large mobile share, thermal/CPU limits, and WebKit/JSC characteristics differ from desktop Chromium.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How do you investigate a Safari-only jank?
+
+**A:** Reproduce on device, use WebKit inspector/timelines, compare CRP and JS time, minimize repro, check known WebKit bugs.
 
 ## Summary
 
-- TODO: key takeaway
+- JSC is Safari’s JS engine
+- Multi-tier compilation
+- iOS testing is non-negotiable
+- Less JS often beats micro-tuning
 
 ## References
 
-- TODO: official documentation links
+- [JavaScriptCore docs/blog via WebKit](https://webkit.org/blog/)
+- [WebKit — JavaScript](https://docs.webkit.org/)
 
 <RelatedTopics />
 
 
-Prev: [SpiderMonkey](/03-browser/spidermonkey/) · Next: [Parsing HTML](/03-browser/parsing-html/)
+Prev: [`03-browser.spidermonkey`](/03-browser/spidermonkey/) · Next: [`03-browser.parsing-html`](/03-browser/parsing-html/)

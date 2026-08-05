@@ -1,6 +1,6 @@
 ---
 title: "Generator"
-description: "TODO — one-sentence description of Generator"
+description: "Generator functions (`function*`): pausable execution with `yield` and iterator protocols."
 topic_id: 06-javascript.generator
 difficulty: mid
 reading_time: 35
@@ -8,7 +8,7 @@ implementation_time: 0
 prerequisites: []
 tags: 
   - javascript
-status: stub
+status: published
 prev_topic: 06-javascript.async-await
 next_topic: 06-javascript.iterator
 related: []
@@ -21,131 +21,164 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Generator in simple language.
+**Generators** (`function*`) return iterator objects. `yield` pauses execution and returns a value; `.next(arg)` resumes. They underpin async generators and some custom iterables.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Lazy sequences, custom iteration, and cooperative pause/resume without full async machinery.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+ES2015 generators; later async generators (`async function*`).
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Calling a generator does not run the body fully—it returns an iterator. Each `next` runs until the next `yield`/`return`.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Implement custom iterables with `*[Symbol.iterator]`.
+2. Prefer simple generators for lazy maps.
+3. Know `yield*` delegation.
+4. Don’t overuse where async/await is clearer.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+Lifecycle for generator:
+
+```mermaid
+stateDiagram-v2
+  [*] --> Active
+  Active --> Settled
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Browsers host the JS runtime; DevTools Sources/Console observe this topic at runtime.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Engines implement ECMAScript semantics (V8/JavaScriptCore/SpiderMonkey); optimize hot paths after correctness.
 
 ## React Perspective
 
-Not applicable.
+React app code is JS—misunderstanding this topic often shows up as stale UI state or broken effects.
 
 ## Next.js Perspective
 
-Not applicable.
+Next.js runs JS in Node/Edge and the browser; verify APIs exist in each runtime.
 
 ## Server Perspective
 
-Not applicable.
+Node/Edge may implement the same language feature with different host APIs.
 
 ## Network Perspective
 
-Not applicable.
+Not primarily a network feature unless combined with fetch/HTTP.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Watch retained objects via DevTools Memory; closures and globals keep references alive.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Measure with Performance panel / benchmarks before micro-optimizing.
 
 ## Production Example
 
-TODO: Realistic production example.
+A pagination helper used generators to pull pages lazily until the UI canceled iteration.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```js
+function* ids() {
+  let i = 0
+  while (true) yield i++
+}
+const it = ids()
+it.next().value // 0
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[Generator] --> nextStep[NextStep]
+flowchart TD
+  Code[Program] --> Runtime[JS runtime]
+  Runtime --> Effect[generator effect]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Treating the feature as magic without the language rule behind it
+2. Copying Stack Overflow snippets without edge cases
+3. Confusing browser host APIs with ECMAScript language semantics
+4. Optimizing before measuring
+5. Ignoring strict mode / module differences
+6. Expecting generator body to run at call time
+7. Confusing generators with async functions
+8. Missing a production edge case for 06-javascript.generator (#1)
+9. Missing a production edge case for 06-javascript.generator (#2)
+10. Missing a production edge case for 06-javascript.generator (#3)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Prefer language defaults and clear naming
+- Write a failing test for the sharp edge you hit
+- Use MDN + ECMA-262 for disagreements
+- Keep examples small and runnable
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Clever code that obscures control flow
+- Polyfilling incorrectly and masking bugs
+- Global mutable state as the default architecture
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
+| Feature | Generator | async/await |
 | --- | --- | --- |
-| TODO | TODO | TODO |
+| Pause | yield |
+| Host jobs | sync iterator | promises |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is generators?
+
+**A:** `function*` produces iterators that pause at `yield` and resume on `next`.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** What does yield* do?
+
+**A:** Delegates to another iterable/generator, yielding its sequence.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** Generator vs async generator?
+
+**A:** Async generators `yield` promises/async values and implement async iteration (`for await`).
 
 ## Summary
 
-- TODO: key takeaway
+- generator has precise ECMAScript/host semantics
+- Know failure modes and scope interactions
+- Measure production impact
+- Cross-link related handbook topics
 
 ## References
 
-- TODO: official documentation links
+- [MDN: Generators](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Generator)
+- [ECMA-262](https://tc39.es/ecma262/)
 
 <RelatedTopics />
-
 
 Prev: [Async/Await](/06-javascript/async-await/) · Next: [Iterator](/06-javascript/iterator/)

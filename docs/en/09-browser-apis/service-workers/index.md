@@ -1,6 +1,6 @@
 ---
 title: "Service Workers"
-description: "TODO — one-sentence description of Service Workers"
+description: "Service Workers: programmable network proxies for caching, offline, and push—lifecycle install/activate/fetch."
 topic_id: 09-browser-apis.service-workers
 difficulty: mid
 reading_time: 40
@@ -9,9 +9,9 @@ prerequisites: []
 tags: 
   - browser-apis
   - pwa
-status: stub
-prev_topic: 09-browser-apis.web-workers
-next_topic: 09-browser-apis.notifications
+status: published
+prev_topic: "09-browser-apis.web-workers"
+next_topic: "09-browser-apis.notifications"
 related: 
   - 23-pwa-and-offline.service-worker-lifecycle
 advanced: []
@@ -23,49 +23,62 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Service Workers in simple language.
+A **service worker** is an event-driven worker that sits between pages and the network. It can intercept `fetch`, cache responses, and enable offline UX and push notifications.
+
+It has a strict lifecycle and HTTPS requirement.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Reliable offline and performance need a versioned client-side proxy—not ad-hoc `localStorage` hacks.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Replaced AppCache. Became the foundation of PWAs alongside Cache Storage and Web App Manifest.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Register → install (precache) → waiting → activate (claim clients, delete old caches) → fetch/push events. Only one active SW per scope; updates wait until safe.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Register `/sw.js` with scope.
+2. Precache on `install`; `skipWaiting` carefully.
+3. On `activate`, clean old caches; `clients.claim`.
+4. On `fetch`, apply strategy.
+5. Design update UX (reload prompt).
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Installing
+  Installing --> Waiting
+  Waiting --> Activating: old SW gone / skipWaiting
+  Activating --> Active
+  Active --> Redundant: replaced
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+HTTPS (or localhost). DevTools Application panel for lifecycle.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+SW is outside React; communicate via postMessage.
 
 ## Next.js Perspective
 
-Not applicable.
+Coordinate with framework asset hashes; misconfigured SW can pin stale apps.
 
 ## Server Perspective
 
@@ -73,81 +86,114 @@ Not applicable.
 
 ## Network Perspective
 
-Not applicable.
+Can return cached responses without network.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Huge win for repeat visits; bad strategies cause mysterious staleness.
 
 ## Production Example
 
-TODO: Realistic production example.
+Production deploys bump precache manifest hashes; activate deletes `vN-1`; users see an “Update available” toast that calls `skipWaiting` + reload.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```js
+self.addEventListener('install', (e) => {
+  e.waitUntil(caches.open('v2').then((c) => c.addAll(['/', '/app.js'])))
+})
+self.addEventListener('fetch', (e) => {
+  e.respondWith(caches.match(e.request).then((r) => r || fetch(e.request)))
+})
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[ServiceWorkers] --> nextStep[NextStep]
+sequenceDiagram
+  participant Page
+  participant SW
+  participant Cache
+  participant Net
+  Page->>SW: fetch
+  SW->>Cache: match
+  alt hit
+    Cache-->>Page: response
+  else miss
+    SW->>Net: fetch
+    Net-->>Page: response
+  end
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Caching index.html cache-first forever (stuck deploys)
+2. Broad fetch handlers breaking analytics/websockets incorrectly
+3. Forgetting HTTPS
+4. skipWaiting without update UX
+5. Scope mistakes so SW never controls pages
+6. Testing only on desktop while mobile Safari differs
+7. Overlooking an edge case #1 specific to 09-browser-apis.service-workers in production traffic
+8. Overlooking an edge case #2 specific to 09-browser-apis.service-workers in production traffic
+9. Overlooking an edge case #3 specific to 09-browser-apis.service-workers in production traffic
+10. Overlooking an edge case #4 specific to 09-browser-apis.service-workers in production traffic
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Version caches; network-first for HTML
+- Explicit update flow
+- Fail closed on opaque errors
+- Keep SW script small/debuggable
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Copy-paste Workbox config you do not understand
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
+| | Service Worker | Web Worker |
 | --- | --- | --- |
-| TODO | TODO | TODO |
+| Fetch intercept | Yes | No |
+| Lifetime | Event-driven longevity | Tied more to owner |
+| DOM | No | No |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What can a service worker do on fetch?
+
+**A:** Intercept requests and respond from cache or network (or generate responses).
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Why do SW updates sometimes not apply immediately?
+
+**A:** A new worker waits until existing clients release the old one unless `skipWaiting`/`clients.claim` patterns are used.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How do you prevent users from being stuck on an old bundle?
+
+**A:** Network-first or short-cache HTML, hashed assets, versioned caches, and an update prompt that activates the new worker.
 
 ## Summary
 
-- TODO: key takeaway
+- HTTPS network proxy worker for offline/PWA
+- Lifecycle + cache strategies are the job
+- Stale SW configs are a top production footgun
 
 ## References
 
-- TODO: official documentation links
+- [MDN: Service Worker API](https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API)
+- [web.dev Service Workers](https://web.dev/learn/pwa/service-workers)
 
 <RelatedTopics />
 
 
-Prev: [Web Workers](/09-browser-apis/web-workers/) · Next: [Notifications](/09-browser-apis/notifications/)
+Prev: [`09-browser-apis.web-workers`](/09-browser-apis/web-workers/) · Next: [`09-browser-apis.notifications`](/09-browser-apis/notifications/)

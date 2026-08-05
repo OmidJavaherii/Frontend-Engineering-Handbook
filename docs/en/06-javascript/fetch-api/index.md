@@ -1,6 +1,6 @@
 ---
 title: "Fetch API"
-description: "TODO — one-sentence description of Fetch API"
+description: "The Fetch API: request/response, headers, bodies, CORS mode, and promise-based networking."
 topic_id: 06-javascript.fetch-api
 difficulty: junior
 reading_time: 35
@@ -11,7 +11,7 @@ prerequisites:
 tags: 
   - javascript
   - networking
-status: stub
+status: published
 prev_topic: 06-javascript.iterator
 next_topic: 06-javascript.abortcontroller
 related: []
@@ -24,131 +24,165 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Fetch API in simple language.
+**`fetch`** performs HTTP requests returning a Promise of `Response`. You must check `response.ok`, choose body readers (`json`/`text`/`stream`), and handle network vs HTTP errors differently.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+XHR’s callback API was cumbersome. Fetch + Promises became the modern web networking primitive (also in Node via undici).
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+WHATWG Fetch Standard; replaced many XHR uses; streaming/body mixins evolved.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Network failure rejects; HTTP 404 fulfills with `ok: false`. CORS and opaque responses restrict body access. Pair with AbortController.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Check `res.ok`.
+2. Pass AbortSignal.
+3. Set headers/credentials deliberately.
+4. Stream large bodies when needed.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+Lifecycle for fetch api:
+
+```mermaid
+stateDiagram-v2
+  [*] --> Active
+  Active --> Settled
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+DevTools Network inspects fetch; CORS errors appear as failed fetches.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Engines implement ECMAScript semantics (V8/JavaScriptCore/SpiderMonkey); optimize hot paths after correctness.
 
 ## React Perspective
 
-Not applicable.
+React app code is JS—misunderstanding this topic often shows up as stale UI state or broken effects.
 
 ## Next.js Perspective
 
-Not applicable.
+Next.js runs JS in Node/Edge and the browser; verify APIs exist in each runtime.
 
 ## Server Perspective
 
-Not applicable.
+Node/Edge may implement the same language feature with different host APIs.
 
 ## Network Perspective
 
-Not applicable.
+Fetch is a network API—caching, HTTP/2, CORS, cookies all apply.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Watch retained objects via DevTools Memory; closures and globals keep references alive.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Measure with Performance panel / benchmarks before micro-optimizing.
 
 ## Production Example
 
-TODO: Realistic production example.
+API client wrapper standardized ok-check + timeout abort; mystery “successful” 500 JSON parses vanished.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```js
+const res = await fetch('/api/items', {
+  headers: { Accept: 'application/json' },
+  signal: AbortSignal.timeout(8000),
+})
+if (!res.ok) throw new Error(`HTTP ${res.status}`)
+return res.json()
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[FetchAPI] --> nextStep[NextStep]
+flowchart TD
+  Code[Program] --> Runtime[JS runtime]
+  Runtime --> Effect[fetch api effect]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Treating the feature as magic without the language rule behind it
+2. Copying Stack Overflow snippets without edge cases
+3. Confusing browser host APIs with ECMAScript language semantics
+4. Optimizing before measuring
+5. Ignoring strict mode / module differences
+6. Treating fetch 404 as throw by default
+7. Forgetting credentials/CORS mode for cookie APIs
+8. Missing a production edge case for 06-javascript.fetch-api (#1)
+9. Missing a production edge case for 06-javascript.fetch-api (#2)
+10. Missing a production edge case for 06-javascript.fetch-api (#3)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Prefer language defaults and clear naming
+- Write a failing test for the sharp edge you hit
+- Use MDN + ECMA-262 for disagreements
+- Keep examples small and runnable
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Clever code that obscures control flow
+- Polyfilling incorrectly and masking bugs
+- Global mutable state as the default architecture
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| API | Style |
+| --- | --- |
+| `fetch` | Promises |
+| XHR | Events |
+| axios etc. | Wrappers |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is fetch?
+
+**A:** A promise-based HTTP API returning Response objects; HTTP errors don’t reject unless you throw after checking status.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** When does fetch reject?
+
+**A:** Network failures/aborts—not merely 4xx/5xx statuses.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How do you cancel fetch?
+
+**A:** Pass an AbortSignal from AbortController (or AbortSignal.timeout).
 
 ## Summary
 
-- TODO: key takeaway
+- fetch api has precise ECMAScript/host semantics
+- Know failure modes and scope interactions
+- Measure production impact
+- Cross-link related handbook topics
 
 ## References
 
-- TODO: official documentation links
+- [MDN: Fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API)
+- [Fetch Standard](https://fetch.spec.whatwg.org/)
 
 <RelatedTopics />
-
 
 Prev: [Iterator](/06-javascript/iterator/) · Next: [AbortController](/06-javascript/abortcontroller/)

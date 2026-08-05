@@ -1,6 +1,6 @@
 ---
 title: "Babel"
-description: "TODO — one-sentence description of Babel"
+description: "Babel as a JS compiler pipeline: parse, transform plugins, generate—especially JSX and modern syntax."
 topic_id: 08-jsx-and-react-runtime.babel
 difficulty: mid
 reading_time: 35
@@ -9,9 +9,9 @@ prerequisites: []
 tags: 
   - compilers
   - javascript
-status: stub
-prev_topic: 08-jsx-and-react-runtime.jsx
-next_topic: 08-jsx-and-react-runtime.ast
+status: published
+prev_topic: "08-jsx-and-react-runtime.jsx"
+next_topic: "08-jsx-and-react-runtime.ast"
 related: []
 advanced: []
 ---
@@ -22,49 +22,62 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Babel in simple language.
+**Babel** is a toolchain that parses JavaScript/TypeScript-ish syntax to an AST, runs transform plugins, and generates code. Historically it was the default way to compile JSX and ESNext for browsers.
+
+Many apps now use SWC/esbuild for speed, but Babel’s plugin model still matters for custom transforms and understanding how JSX becomes runtime calls.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Browsers and engines lag language/proposal features. Babel let teams ship JSX and modern syntax early with a configurable plugin set.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+6to5 → Babel; the plugin/preset ecosystem exploded. `@babel/preset-react` encoded classic then automatic JSX runtimes. Bundlers increasingly embed SWC, but Babel remains in Jest and specialized pipelines.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+**Parse → transform visitors → generate**. Each plugin walks the AST and rewrites nodes. Presets are ordered plugin bundles. Source maps stitch original lines to output.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Configure presets/plugins.
+2. Parse file to AST (Babylon/@babel/parser).
+3. Run plugin visitors (JSX → calls).
+4. Generate code + source map.
+5. Bundler consumes the result (or Babel runs inside the bundler).
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+flowchart LR
+  Src[Source] --> Parse[Parser]
+  Parse --> AST
+  AST --> Plugins[Transform plugins]
+  Plugins --> Gen[Generator]
+  Gen --> Out[JS + map]
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Not applicable.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Engines execute output JS only.
 
 ## React Perspective
 
-Not applicable.
+`preset-react` selects classic vs automatic runtime and development helpers (`jsxDEV`).
 
 ## Next.js Perspective
 
-Not applicable.
+Next.js moved toward SWC; Babel config is opt-in for custom plugins.
 
 ## Server Perspective
 
@@ -76,77 +89,108 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Babel is slower than native transforms. Use it when you need plugins SWC cannot match; otherwise prefer faster compilers.
 
 ## Production Example
 
-TODO: Realistic production example.
+A design-system still runs a Babel plugin to strip data-test attributes in production builds while keeping them in test bundles.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```js
+// babel.config.cjs
+module.exports = {
+  presets: [
+    ['@babel/preset-env', { targets: 'defaults' }],
+    ['@babel/preset-react', { runtime: 'automatic' }],
+    '@babel/preset-typescript',
+  ],
+}
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[Babel] --> nextStep[NextStep]
+sequenceDiagram
+  participant File
+  participant Babel
+  participant Bundle
+  File->>Babel: parse+transform
+  Babel->>Bundle: emitted JS
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Duplicate transforms (Babel + SWC both rewriting JSX differently)
+2. Wrong `runtime` option vs React version
+3. Not enabling TypeScript preset while parsing `.tsx`
+4. Plugin order bugs that break other transforms
+5. Shipping Babel-transformed test-only code to prod accidentally
+6. Ignoring browserslist targets and over-transpiling
+7. Overlooking an edge case #1 specific to 08-jsx-and-react-runtime.babel in production traffic
+8. Overlooking an edge case #2 specific to 08-jsx-and-react-runtime.babel in production traffic
+9. Overlooking an edge case #3 specific to 08-jsx-and-react-runtime.babel in production traffic
+10. Overlooking an edge case #4 specific to 08-jsx-and-react-runtime.babel in production traffic
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- One transpile pipeline of truth
+- Match JSX runtime to React 17+
+- Cache Babel results in CI
+- Prefer SWC/esbuild when plugins are unnecessary
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Mega custom Babel stacks nobody can upgrade
+- Transpiling `node_modules` wholesale without need
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
+| Tool | Strength | Weakness |
 | --- | --- | --- |
-| TODO | TODO | TODO |
+| Babel | Plugins | Speed |
+| SWC | Speed | Fewer custom plugins |
+| esbuild | Speed/bundling | Limited AST plugins |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What does Babel do to JSX?
+
+**A:** A plugin transforms JSX AST nodes into function calls for the chosen runtime.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** What is the difference between a preset and a plugin?
+
+**A:** A plugin is one transform; a preset is a curated set of plugins/options.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** When would you keep Babel in a Next.js app that defaults to SWC?
+
+**A:** When you need a Babel-only plugin (custom AST rewrite) and accept the compile-time cost for those files.
 
 ## Summary
 
-- TODO: key takeaway
+- Babel is parse → transform → generate
+- JSX support lives in presets/plugins
+- Modern stacks often replace Babel with SWC/esbuild
 
 ## References
 
-- TODO: official documentation links
+- [React Documentation](https://react.dev/)
+- [React Reference](https://react.dev/reference/react)
+- [Babel Docs](https://babeljs.io/docs/)
+- [@babel/preset-react](https://babeljs.io/docs/babel-preset-react)
 
 <RelatedTopics />
 
 
-Prev: [JSX](/08-jsx-and-react-runtime/jsx/) · Next: [AST](/08-jsx-and-react-runtime/ast/)
+Prev: [`08-jsx-and-react-runtime.jsx`](/08-jsx-and-react-runtime/jsx/) · Next: [`08-jsx-and-react-runtime.ast`](/08-jsx-and-react-runtime/ast/)

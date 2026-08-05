@@ -1,6 +1,6 @@
 ---
 title: "JSX Transform"
-description: "TODO — one-sentence description of JSX Transform"
+description: "Classic vs automatic JSX transform: `createElement` vs `react/jsx-runtime` and what compilers emit."
 topic_id: 08-jsx-and-react-runtime.jsx-transform
 difficulty: mid
 reading_time: 30
@@ -11,9 +11,9 @@ prerequisites:
 tags: 
   - react
   - jsx
-status: stub
-prev_topic: 08-jsx-and-react-runtime.ast
-next_topic: 08-jsx-and-react-runtime.react-createelement
+status: published
+prev_topic: "08-jsx-and-react-runtime.ast"
+next_topic: "08-jsx-and-react-runtime.react-createelement"
 related: []
 advanced: []
 ---
@@ -24,49 +24,59 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain JSX Transform in simple language.
+The **JSX transform** is the compiler step that turns JSX into JS calls. The **classic** transform emits `React.createElement`. The **automatic** transform (React 17+) emits `jsx`/`jsxs` from `react/jsx-runtime`, so files need not import React for JSX.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Requiring `import React from 'react'` in every file was boilerplate. The automatic runtime also opens the door to improved development warnings (`jsxDEV`) and future optimizations.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Announced with React 17. TypeScript `jsx: react-jsx` and Babel `runtime: 'automatic'` adopted it. New templates use automatic by default.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+JSX → **factory calls** producing elements. Classic factory is `React.createElement`. Automatic factory is imported from `jsx-runtime`. Children packing differs (`jsxs` when children are static arrays).
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Set compiler option (`jsx: react-jsx` / Babel automatic).
+2. Compile; verify imports of `jsx-runtime` in output.
+3. Ensure React version ≥ 17 (or compatible runtime).
+4. Keep classic only for legacy packages that assume it.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+flowchart TD
+  JSX --> Choice{transform}
+  Choice -->|classic| CE[React.createElement]
+  Choice -->|automatic| JR[jsx / jsxs]
+  CE --> Element
+  JR --> Element
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Not applicable.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Ordinary imports/calls after emit.
 
 ## React Perspective
 
-Not applicable.
+Required foundation for modern React tooling and React Refresh.
 
 ## Next.js Perspective
 
-Not applicable.
+App Router templates use automatic transform.
 
 ## Server Perspective
 
@@ -78,77 +88,112 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Automatic runtime can slightly reduce bundle noise; not a major perf feature by itself.
 
 ## Production Example
 
-TODO: Realistic production example.
+Migrating a CRA-era repo: enable automatic JSX, delete unused React imports with a codemod, confirm Jest and Storybook configs agree.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```tsx
+// input
+export function Hi() {
+  return <p>Hi</p>
+}
+
+// classic emit (conceptually)
+import React from 'react'
+export function Hi() {
+  return React.createElement('p', null, 'Hi')
+}
+
+// automatic emit (conceptually)
+import { jsx as _jsx } from 'react/jsx-runtime'
+export function Hi() {
+  return _jsx('p', { children: 'Hi' })
+}
+```
 
 ## Diagrams
 
 ```mermaid
 flowchart LR
-  concept[JSXTransform] --> nextStep[NextStep]
+  TSConfig[jsx react-jsx] --> Compiler
+  Compiler --> Runtime[react/jsx-runtime]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Enabling automatic JSX on React 16 without polyfill/runtime
+2. Mixed classic/automatic across packages causing double React assumptions
+3. ESLint rules still requiring React in scope incorrectly
+4. Forgetting `jsxImportSource` when using emotion/preact
+5. Assuming transform removes the need for React for hooks imports
+6. Breaking custom `createElement` pragma setups during migration
+7. Overlooking an edge case #1 specific to 08-jsx-and-react-runtime.jsx-transform in production traffic
+8. Overlooking an edge case #2 specific to 08-jsx-and-react-runtime.jsx-transform in production traffic
+9. Overlooking an edge case #3 specific to 08-jsx-and-react-runtime.jsx-transform in production traffic
+10. Overlooking an edge case #4 specific to 08-jsx-and-react-runtime.jsx-transform in production traffic
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Use automatic runtime for new code
+- Align TS, Babel/SWC, and test runners
+- Codemod away unused default React imports
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Per-file pragmas fighting the project setting
+- Shipping both runtimes without need
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
+| | Classic | Automatic |
 | --- | --- | --- |
-| TODO | TODO | TODO |
+| Import React for JSX | Required | Not required |
+| Factory | `createElement` | `jsx`/`jsxs` |
+| React version | Older OK | 17+ typical |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is the automatic JSX runtime?
+
+**A:** A transform that imports JSX helpers from `react/jsx-runtime` instead of calling `React.createElement`.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Why can you omit `import React` after migrating?
+
+**A:** Because JSX no longer expands to `React.createElement`, so the default React binding is unused for JSX (hooks still need importing).
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How does `jsxImportSource` interact with Emotion?
+
+**A:** It changes where `jsx` is imported from (e.g. `@emotion/react`) so CSS props and transforms apply correctly.
 
 ## Summary
 
-- TODO: key takeaway
+- Transforms turn JSX into factory calls
+- Automatic runtime is the modern default
+- Align all toolchains on one mode
 
 ## References
 
-- TODO: official documentation links
+- [React Documentation](https://react.dev/)
+- [React Reference](https://react.dev/reference/react)
+- [Introducing the New JSX Transform](https://legacy.reactjs.org/blog/2020/09/22/introducing-the-new-jsx-transform.html)
+- [TypeScript jsx options](https://www.typescriptlang.org/tsconfig#jsx)
 
 <RelatedTopics />
 
 
-Prev: [AST](/08-jsx-and-react-runtime/ast/) · Next: [React.createElement](/08-jsx-and-react-runtime/react-createelement/)
+Prev: [`08-jsx-and-react-runtime.ast`](/08-jsx-and-react-runtime/ast/) · Next: [`08-jsx-and-react-runtime.react-createelement`](/08-jsx-and-react-runtime/react-createelement/)

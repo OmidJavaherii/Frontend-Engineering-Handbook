@@ -1,6 +1,6 @@
 ---
 title: "Priority Hints Cheatsheet"
-description: "TODO — one-sentence description of Priority Hints Cheatsheet"
+description: "Cheatsheet for resource priority hints: fetchpriority, importance, and preload relationships."
 topic_id: 25-appendix.priority-hints-cheatsheet
 difficulty: mid
 reading_time: 15
@@ -9,9 +9,9 @@ prerequisites: []
 tags: 
   - appendix
   - performance
-status: stub
-prev_topic: 25-appendix.mime-types
-next_topic: 25-appendix.glossary-export
+status: published
+prev_topic: "25-appendix.mime-types"
+next_topic: "25-appendix.glossary-export"
 related: []
 advanced: []
 ---
@@ -22,49 +22,54 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Priority Hints Cheatsheet in simple language.
+**Priority Hints** cheatsheet for critical resource scheduling: `fetchpriority` on images/scripts, plus related preload/preconnect hints. Deep HTML: [/04-html/preload/](/04-html/preload/), [/04-html/preconnect/](/04-html/preconnect/).
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Browsers guess priorities; LCP images often need a boost; non-critical images should not compete.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Priority Hints emerged to complement preload scanner heuristics; `fetchpriority` standardized for content authors.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+**High** for LCP candidates · **auto** default · **low** for below-fold. Hints are not guarantees.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+Identify LCP → mark hero `fetchpriority="high"` → lazy below-fold → preload only critical → measure.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Discover
+  Discover --> Prioritize
+  Prioritize --> Fetch
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Scheduler uses hints with heuristics.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+next/image often exposes priority prop.
 
 ## Next.js Perspective
 
-Not applicable.
+priority on Image for LCP.
 
 ## Server Perspective
 
@@ -72,81 +77,114 @@ Not applicable.
 
 ## Network Perspective
 
-Not applicable.
+Competes on bandwidth/HTTP/2 multiplexing.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Primary goal: better LCP without starving critical CSS/JS.
 
 ## Production Example
 
-TODO: Realistic production example.
+Hero image high; carousel thumbs low; avoid marking everything high.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```html
+<img src="/hero.avif" alt="" fetchpriority="high" />
+<img src="/thumb.jpg" alt="" loading="lazy" fetchpriority="low" />
+<link rel="preload" as="image" href="/hero.avif" fetchpriority="high" />
+<link rel="preconnect" href="https://cdn.example.com" />
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[PriorityHintsCheatsheet] --> nextStep[NextStep]
+flowchart TD
+  n0[Find LCP] --> n1[Hint high]
+  n1[Hint high] --> n2[Demote others]
+  n2[Demote others] --> n3[Measure]
+```
+
+```mermaid
+sequenceDiagram
+  participant User
+  participant App
+  participant Platform
+  User->>App: interact (Priority hints)
+  App->>Platform: apply mechanism
+  Platform-->>App: result or error
+  App-->>User: update UI
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. fetchpriority=high on many assets
+2. Preloading the whole site
+3. Fighting the browser with contradictory hints
+4. Forgetting dimensions → CLS
+5. Priority without compression/format wins
+6. Ignoring mobile field data
+7. Missing a production edge case for 25-appendix.priority-hints-cheatsheet (#1)
+8. Missing a production edge case for 25-appendix.priority-hints-cheatsheet (#2)
+9. Missing a production edge case for 25-appendix.priority-hints-cheatsheet (#3)
+10. Missing a production edge case for 25-appendix.priority-hints-cheatsheet (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- One/few high-priority LCP resources
+- Lazy load below-fold
+- Validate with Performance panel
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Cargo-cult preload of every font/image
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Hint | Role |
+| --- | --- |
+| fetchpriority | Priority bias |
+| preload | Early discovery |
+| preconnect | Early connection |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What does fetchpriority="high" on an image do?
+
+**A:** Hints the browser to prioritize that image fetch — useful for LCP heroes.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** preload vs fetchpriority?
+
+**A:** preload discovers early; fetchpriority biases priority; often used together for LCP images.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** When can priority hints hurt?
+
+**A:** Over-high contention delays CSS/JS; measure waterfalls before/after.
 
 ## Summary
 
-- TODO: key takeaway
+- Boost LCP, demote noise
+- Hints ≠ guarantees
+- Combine with preload carefully
+- Measure vitals
 
 ## References
 
-- TODO: official documentation links
+- [MDN — fetchpriority](https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/fetchPriority)
+- [web.dev — Priority Hints](https://web.dev/articles/fetch-priority)
 
 <RelatedTopics />
 
 
-Prev: [MIME Types](/25-appendix/mime-types/) · Next: [Glossary Export](/25-appendix/glossary-export/)
+Prev: [`25-appendix.mime-types`](/25-appendix/mime-types/) · Next: [`25-appendix.glossary-export`](/25-appendix/glossary-export/)

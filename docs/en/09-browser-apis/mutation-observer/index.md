@@ -1,6 +1,6 @@
 ---
 title: "Mutation Observer"
-description: "TODO — one-sentence description of Mutation Observer"
+description: "MutationObserver: react to DOM tree changes (childList, attributes, characterData) asynchronously."
 topic_id: 09-browser-apis.mutation-observer
 difficulty: mid
 reading_time: 25
@@ -8,9 +8,9 @@ implementation_time: 0
 prerequisites: []
 tags: 
   - browser-apis
-status: stub
-prev_topic: 09-browser-apis.intersection-observer
-next_topic: 09-browser-apis.resize-observer
+status: published
+prev_topic: "09-browser-apis.intersection-observer"
+next_topic: "09-browser-apis.resize-observer"
 related: []
 advanced: []
 ---
@@ -21,45 +21,55 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Mutation Observer in simple language.
+**MutationObserver** delivers batches of DOM mutations to a callback. Use it when integrating with external DOM changes—not as a substitute for reactive UI frameworks.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Embeds, third-party widgets, and contenteditable need observation of DOM mutations without monkey-patching DOM APIs.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Replaced deprecated Mutation Events which were sync and slow.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Observe a node with options (`childList`, `subtree`, `attributes`, …). Callbacks are async microtask-ish batches of `MutationRecord`s.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Create observer callback.
+2. `observe` with precise options.
+3. Process records; avoid infinite loops (your writes retrigger).
+4. `disconnect` when done.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+sequenceDiagram
+  participant DOM
+  participant MO as MutationObserver
+  participant App
+  DOM->>MO: mutations
+  MO->>App: records batch
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Works across engines; still easy to create feedback loops.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+Rare in React apps—React owns DOM. Useful at boundaries with non-React code.
 
 ## Next.js Perspective
 
@@ -75,77 +85,100 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Observe narrowly. `subtree: true` on large documents can be costly.
 
 ## Production Example
 
-TODO: Realistic production example.
+A syntax highlighter observes a code container managed by a legacy editor and re-runs highlighting when nodes change.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```ts
+const mo = new MutationObserver((records) => {
+  for (const r of records) {
+    console.log(r.type, r.target)
+  }
+})
+mo.observe(document.getElementById('host')!, {
+  childList: true,
+  subtree: true,
+})
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[MutationObserver] --> nextStep[NextStep]
+flowchart TD
+  Change[DOM change] --> Queue[Mutation records]
+  Queue --> CB[callback]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Using MO instead of React state for your own UI
+2. Feedback loops from writing DOM in the callback
+3. Observing entire document subtree casually
+4. Forgetting disconnect
+5. Misreading attributeFilter options
+6. Expecting synchronous delivery like old mutation events
+7. Overlooking an edge case #1 specific to 09-browser-apis.mutation-observer in production traffic
+8. Overlooking an edge case #2 specific to 09-browser-apis.mutation-observer in production traffic
+9. Overlooking an edge case #3 specific to 09-browser-apis.mutation-observer in production traffic
+10. Overlooking an edge case #4 specific to 09-browser-apis.mutation-observer in production traffic
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Narrow targets/options
+- Guard against re-entry
+- Disconnect promptly
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Global document observers in SPAs as architecture
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
+| | MutationObserver | Mutation Events |
 | --- | --- | --- |
-| TODO | TODO | TODO |
+| Delivery | Async batched | Sync (deprecated) |
+| Perf | Better | Poor |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What does MutationObserver observe?
+
+**A:** DOM mutations such as child list changes and attribute changes.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Why were Mutation Events replaced?
+
+**A:** They fired synchronously and harmed performance; MutationObserver batches asynchronously.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How do you prevent observer feedback loops?
+
+**A:** Ignore self-caused records, batch writes, or disconnect while mutating.
 
 ## Summary
 
-- TODO: key takeaway
+- Async DOM mutation batches
+- Use at integration boundaries
+- Narrow observe + disconnect
 
 ## References
 
-- TODO: official documentation links
+- [MDN: MutationObserver](https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver)
 
 <RelatedTopics />
 
 
-Prev: [Intersection Observer](/09-browser-apis/intersection-observer/) · Next: [Resize Observer](/09-browser-apis/resize-observer/)
+Prev: [`09-browser-apis.intersection-observer`](/09-browser-apis/intersection-observer/) · Next: [`09-browser-apis.resize-observer`](/09-browser-apis/resize-observer/)

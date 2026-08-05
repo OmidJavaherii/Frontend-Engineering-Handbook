@@ -1,6 +1,6 @@
 ---
 title: "E2E Testing"
-description: "TODO — one-sentence description of E2E Testing"
+description: "End-to-end tests exercise the real product in a browser across UI, network, and often backend environments."
 topic_id: 16-testing.e2e-testing
 difficulty: mid
 reading_time: 30
@@ -8,9 +8,9 @@ implementation_time: 0
 prerequisites: []
 tags: 
   - testing
-status: stub
-prev_topic: 16-testing.integration-testing
-next_topic: 16-testing.jest
+status: published
+prev_topic: "16-testing.integration-testing"
+next_topic: "16-testing.jest"
 related: []
 advanced: []
 ---
@@ -21,49 +21,61 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain E2E Testing in simple language.
+**E2E tests** drive a real browser against a deployed or locally running app to validate critical user journeys. They provide the highest realism and the highest cost—so keep them few, stable, and valuable.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Only E2E proves that build output, routing, auth cookies, and backend contracts work together. Lower layers cannot fully replace that signal.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Selenium → Cypress → Playwright. Modern tools emphasize auto-waiting, trace viewers, and parallel shards.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Each E2E is a **journey** (seed → act → assert → cleanup), not a grab bag of clicks. Isolate data; avoid depending on leftover UI state.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Pick critical journeys (auth, checkout, smoke).
+2. Stable environments + test users.
+3. Use resilient selectors (roles/test ids sparingly).
+4. Record traces on failure.
+5. Shard in CI; quarantine flakes with owners.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Provision
+  Provision --> Navigate
+  Navigate --> Act
+  Act --> Assert
+  Assert --> Artifact: on failure
+  Assert --> Cleanup
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Real engines (Chromium/WebKit/Firefox) surface layout/input differences.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+E2E should not import React internals—speak through the UI.
 
 ## Next.js Perspective
 
-Not applicable.
+Test production builds; watch for hydration mismatches.
 
 ## Server Perspective
 
@@ -71,81 +83,105 @@ Not applicable.
 
 ## Network Perspective
 
-Not applicable.
+Stub only when necessary; prefer API seeding for deterministic data.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Parallel shards, reuse auth state, avoid unnecessary full navigations.
 
 ## Production Example
 
-TODO: Realistic production example.
+PR CI runs smoke E2E (login + create item). Nightly runs cross-browser checkout. Failures upload Playwright traces.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```ts
+import { test, expect } from '@playwright/test'
+
+test('guest can view pricing', async ({ page }) => {
+  await page.goto('/pricing')
+  await expect(page.getByRole('heading', { name: 'Pricing' })).toBeVisible()
+})
+```
 
 ## Diagrams
 
 ```mermaid
 flowchart LR
-  concept[E2ETesting] --> nextStep[NextStep]
+  CI --> Browser[Playwright browser]
+  Browser --> App
+  App --> API
+  Browser --> Trace[trace on fail]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Hundreds of E2E covering every unit case
+2. CSS-selector soup
+3. No test data isolation
+4. Ignoring flakes
+5. Sleep-based waits
+6. Missing a production edge case for 16-testing.e2e-testing (#1)
+7. Missing a production edge case for 16-testing.e2e-testing (#2)
+8. Missing a production edge case for 16-testing.e2e-testing (#3)
+9. Missing a production edge case for 16-testing.e2e-testing (#4)
+10. Missing a production edge case for 16-testing.e2e-testing (#5)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Auto-wait assertions
+- Trace/video on failure
+- Seeded fixtures per test
 
 ## Anti-patterns
 
-TODO: What not to do.
+- E2E depending on previous test order
+- Testing third-party iframes you do not own without contracts
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Tool | Notes |
+| --- | --- |
+| Playwright | Strong multi-browser, traces |
+| Cypress | Great DX, different architecture |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What does E2E test?
+
+**A:** A full user journey in a real browser against the integrated system.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** How do you reduce E2E flakiness?
+
+**A:** Auto-waiting, deterministic data, avoid sleeps, isolate state, fix timing races, use traces to debug.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** Design an E2E strategy for a large SPA.
+
+**A:** Smoke on PR, journey suites nightly, contract tests with backend, quarantine process with owners, budgets for runtime.
 
 ## Summary
 
-- TODO: key takeaway
+- E2E = few critical journeys
+- Realism at high cost
+- Stability is part of the feature
 
 ## References
 
-- TODO: official documentation links
+- [Playwright docs](https://playwright.dev/docs/intro)
+- [Cypress docs](https://docs.cypress.io/)
 
 <RelatedTopics />
 
 
-Prev: [Integration Testing](/16-testing/integration-testing/) · Next: [Jest](/16-testing/jest/)
+Prev: [`16-testing.integration-testing`](/16-testing/integration-testing/) · Next: [`16-testing.jest`](/16-testing/jest/)

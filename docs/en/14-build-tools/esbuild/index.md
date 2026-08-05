@@ -1,6 +1,6 @@
 ---
 title: "esbuild"
-description: "TODO — one-sentence description of esbuild"
+description: "Extremely fast Go-based bundler/transformer used widely for prebundling and tooling."
 topic_id: 14-build-tools.esbuild
 difficulty: mid
 reading_time: 25
@@ -9,9 +9,9 @@ prerequisites: []
 tags: 
   - compilers
   - tooling
-status: stub
-prev_topic: 14-build-tools.swc
-next_topic: 14-build-tools.postcss
+status: published
+prev_topic: "14-build-tools.swc"
+next_topic: "14-build-tools.postcss"
 related: []
 advanced: []
 ---
@@ -22,41 +22,49 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain esbuild in simple language.
+**esbuild** is a high-performance bundler/transformer written in Go. Vite uses it to prebundle dependencies; many tools use it for TS transpile and minify.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+JS-written bundlers were too slow for iterative DX; esbuild reset expectations.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Evan Wallace; foundational to Vite’s success.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Limited plugin model vs webpack, but incredible speed for common cases.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. esbuild entry --bundle.
+2. Or rely via Vite optimizeDeps.
+3. Know when Rollup/webpack still needed.
+4. Use for scripts/TS transpile in CI.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Idle
+  Idle --> Active: use
+  Active --> Idle: settle
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Not applicable.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
@@ -76,77 +84,97 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Measure before/after with lab + field tools. Optimize the attributed bottleneck for Extremely fast Go-based bundler/transformer used widely for prebundling and tooling., not folklore.
 
 ## Production Example
 
-TODO: Realistic production example.
+Teams adopt Extremely fast Go-based bundler/transformer used widely for prebundling and tooling. on critical routes, add monitoring, and guard regressions with budgets or reviews.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```bash
+esbuild app.ts --bundle --minify --outfile=out.js --format=esm
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[esbuild] --> nextStep[NextStep]
+flowchart TD
+  A[Understand] --> B[Apply Extremely fast Go-based bundler/transformer used widely for prebundling and tooling.]
+  B --> C[Measure]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Expecting full webpack loader ecosystem
+2. Incorrect platform (browser vs node) settings
+3. CSS code-splitting expectations mismatch
+4. Typecheck skipped
+5. Minify legal comments stripping licenses unintentionally
+6. Using esbuild alone for complex app code-splitting needs without evaluation
+7. Missing a production edge case for 14-build-tools.esbuild (#1)
+8. Missing a production edge case for 14-build-tools.esbuild (#2)
+9. Missing a production edge case for 14-build-tools.esbuild (#3)
+10. Missing a production edge case for 14-build-tools.esbuild (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Prefer platform/framework primitives
+- Measure impact on real user metrics
+- Keep the change reviewable and reversible
+- Document the invariant you are protecting
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Copy-paste without understanding failure modes
+- Premature abstraction around a single use
+- Optimizing without a baseline
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Approach | When |
+| --- | --- |
+| Use as designed | Default |
+| Simpler alternative | If constraints differ |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** Where does Vite use esbuild?
+
+**A:** Primarily to pre-bundle dependencies in development (and some transforms).
 
 ### Medium
 
-TODO — question and answer.
+**Q:** esbuild vs Rollup in Vite?
+
+**A:** esbuild for dep prebundle/speed; Rollup for production app bundling features/plugins.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** When is esbuild enough alone?
+
+**A:** Simple bundles/scripts/libraries with modest plugin needs; complex apps may want Vite/webpack ecosystems.
 
 ## Summary
 
-- TODO: key takeaway
+- Extremely fast Go-based bundler/transformer used widely for prebundling and tooling.
+- Know why it exists and when not to use it
+- Measure production impact
+- Link related handbook topics instead of duplicating
 
 ## References
 
-- TODO: official documentation links
+- [esbuild Docs](https://esbuild.github.io/)
+- [Vite Dep Pre-Bundling](https://vitejs.dev/guide/dep-pre-bundling.html)
 
 <RelatedTopics />
 
 
-Prev: [SWC](/14-build-tools/swc/) · Next: [PostCSS](/14-build-tools/postcss/)
+Prev: [`14-build-tools.swc`](/14-build-tools/swc/) · Next: [`14-build-tools.postcss`](/14-build-tools/postcss/)

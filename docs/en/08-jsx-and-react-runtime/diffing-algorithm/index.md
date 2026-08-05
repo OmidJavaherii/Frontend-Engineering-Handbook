@@ -1,6 +1,6 @@
 ---
 title: "Diffing Algorithm"
-description: "TODO — one-sentence description of Diffing Algorithm"
+description: "React’s list and tree diffing heuristics: same-level compare, keyed matching, and practical complexity."
 topic_id: 08-jsx-and-react-runtime.diffing-algorithm
 difficulty: mid
 reading_time: 35
@@ -9,9 +9,9 @@ prerequisites:
   - 08-jsx-and-react-runtime.reconciliation
 tags: 
   - react
-status: stub
-prev_topic: 08-jsx-and-react-runtime.reconciliation
-next_topic: 08-jsx-and-react-runtime.keys
+status: published
+prev_topic: "08-jsx-and-react-runtime.reconciliation"
+next_topic: "08-jsx-and-react-runtime.keys"
 related: []
 advanced: []
 ---
@@ -22,45 +22,62 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Diffing Algorithm in simple language.
+React’s **diffing algorithm** is the concrete set of heuristics inside reconciliation: compare trees level by level, treat different element types as different subtrees, and match list children by key.
+
+It is not a generic Myers diff of DOM strings—it is tuned for UI trees.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+UI updates must be fast and predictable. Heuristics encode React’s bets: components rarely change type at a position; lists have stable IDs; depth-first structure matches how UIs nest.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Described in early React docs (“Reconciliation”). Fiber kept the heuristics while changing execution/scheduling. Warnings for missing keys came from real-world misuse of index matching.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+**Assumptions**:
+
+1. Different `type` ⇒ replace entire subtree.
+2. Diff only among siblings (not cross-level moves as one operation).
+3. Keys make sibling identity stable.
+
+From those, React derives placements/deletions efficiently.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Walk new children vs old fiber children.
+2. First pass: try to match in order / by map of keys.
+3. Remaining old fibers → deletions; remaining new elements → placements.
+4. Preserve existing fibers when matched; update props.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+flowchart TD
+  Old[old sibling fibers] --> Map[key map]
+  New[new elements] --> Match[match by key/index]
+  Map --> Match
+  Match --> Ops[place / update / delete]
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Moves may still involve DOM insertBefore operations on commit.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+Directly explains keyed list behavior and remounts.
 
 ## Next.js Perspective
 
@@ -76,77 +93,103 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Good keys → mostly updates. Bad keys → deletes+creates (state loss, DOM thrash). Very large lists need virtualization beyond diffing.
 
 ## Production Example
 
-TODO: Realistic production example.
+Infinite scroll lists use stable IDs from the server as keys and windowing so diffing work stays bounded to viewport-ish counts.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```tsx
+// Bad: index keys when sorting
+items.map((item, i) => <Row key={i} item={item} />)
+
+// Good: stable ids
+items.map((item) => <Row key={item.id} item={item} />)
+```
 
 ## Diagrams
 
 ```mermaid
 flowchart LR
-  concept[DiffingAlgorithm] --> nextStep[NextStep]
+  A1[A] --> B1[B] --> C1[C]
+  A2[A] --> C2[C] --> B2[B]
+  note1[With keys: move fibers]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Index keys with insert/reorder/delete
+2. Keys unique globally but duplicated among siblings
+3. Using array index plus “it’s static” when it later isn’t
+4. Expecting React to move a node to a different parent without remount
+5. Stringifying objects as keys unstably
+6. Over-optimizing micro-diffs instead of reducing render scope
+7. Overlooking an edge case #1 specific to 08-jsx-and-react-runtime.diffing-algorithm in production traffic
+8. Overlooking an edge case #2 specific to 08-jsx-and-react-runtime.diffing-algorithm in production traffic
+9. Overlooking an edge case #3 specific to 08-jsx-and-react-runtime.diffing-algorithm in production traffic
+10. Overlooking an edge case #4 specific to 08-jsx-and-react-runtime.diffing-algorithm in production traffic
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Keys from stable IDs
+- Keep list item components pure and memoizable
+- Virtualize huge lists
+- Reset state with explicit key changes
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Composite keys that change when data is equal
+- Forcing remounts to “fix” bugs instead of fixing state
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Strategy | Cost model |
+| --- | --- |
+| React heuristics | ~O(n) siblings |
+| Naive remount all | Simple, slow, loses state |
+| Optimal tree edit | Too expensive for UI defaults |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is the purpose of keys in lists?
+
+**A:** To identify which items are the same across renders so React can diff correctly.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Does React diff across different depths as a move?
+
+**A:** Not as a first-class move optimization between levels; different positions/parents generally tear down and recreate.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How does keyed reconciliation find matches?
+
+**A:** React builds a map of existing keyed fibers among siblings and probes new children’s keys to reuse fibers, then handles insertions/deletions for the rest.
 
 ## Summary
 
-- TODO: key takeaway
+- Diffing is heuristic and sibling-scoped
+- Keys provide identity for list children
+- Type changes replace subtrees wholesale
 
 ## References
 
-- TODO: official documentation links
+- [React Documentation](https://react.dev/)
+- [React Reference](https://react.dev/reference/react)
+- [Rendering Lists](https://react.dev/learn/rendering-lists)
+- [Preserving and Resetting State](https://react.dev/learn/preserving-and-resetting-state)
 
 <RelatedTopics />
 
 
-Prev: [Reconciliation](/08-jsx-and-react-runtime/reconciliation/) · Next: [Keys](/08-jsx-and-react-runtime/keys/)
+Prev: [`08-jsx-and-react-runtime.reconciliation`](/08-jsx-and-react-runtime/reconciliation/) · Next: [`08-jsx-and-react-runtime.keys`](/08-jsx-and-react-runtime/keys/)

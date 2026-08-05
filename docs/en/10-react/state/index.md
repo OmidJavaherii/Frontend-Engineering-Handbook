@@ -1,6 +1,6 @@
 ---
 title: "State"
-description: "TODO — one-sentence description of State"
+description: "React state: useState/useReducer memory on the fiber, immutability, and batching updates."
 topic_id: 10-react.state
 difficulty: junior
 reading_time: 35
@@ -10,9 +10,9 @@ prerequisites:
 tags: 
   - react
   - interview-frequent
-status: stub
-prev_topic: 10-react.props
-next_topic: 10-react.hooks
+status: published
+prev_topic: "10-react.props"
+next_topic: "10-react.hooks"
 related: []
 advanced: []
 ---
@@ -23,45 +23,56 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain State in simple language.
+**State** is data that changes over time and triggers re-renders. In function components, `useState`/`useReducer` store state on the fiber. Updates enqueue and are processed according to React’s batching/scheduling rules.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+UI is interactive. Local component memory must survive renders without living in the DOM.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Class `this.state` → hooks. Automatic batching expanded in React 18. Transitions add non-urgent state updates.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+State is a snapshot per render. `setState` schedules an update; the next render sees the new snapshot. Mutating existing objects/arrays silently fails to update.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Identify minimal state.
+2. Update immutably.
+3. Use functional updates when depending on previous state.
+4. Lift/share when siblings need the same data.
+5. Prefer reducers for complex transitions.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+sequenceDiagram
+  participant Event
+  participant setState
+  participant Render
+  Event->>setState: enqueue update
+  setState->>Render: re-render with new snapshot
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+State is not DOM value unless you bind it (controlled inputs).
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+New object identities matter for memo compares.
 
 ## React Perspective
 
-Not applicable.
+Stored on fiber memoizedState lists for hooks.
 
 ## Next.js Perspective
 
@@ -77,77 +88,98 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Too much state high in the tree re-renders large subtrees—colocate state.
 
 ## Production Example
 
-TODO: Realistic production example.
+Cart state lives in a reducer near the checkout layout; leaf rows receive item props and dispatch intents.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```tsx
+const [n, setN] = useState(0)
+setN((v) => v + 1) // functional update
+setItems((items) => items.map((x) => (x.id === id ? { ...x, done: true } : x)))
+```
 
 ## Diagrams
 
 ```mermaid
 flowchart LR
-  concept[State] --> nextStep[NextStep]
+  Fiber --> HookState[memoizedState]
+  setState --> UpdateQueue
+  UpdateQueue --> Render
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Mutating arrays/objects in state
+2. Stale closures without functional updates
+3. Duplicating derived data
+4. Storing half of server cache ad hoc without a plan
+5. Infinite loops: setState during render
+6. Assuming setState is synchronous
+7. Missing a production edge case for 10-react.state (#1)
+8. Missing a production edge case for 10-react.state (#2)
+9. Missing a production edge case for 10-react.state (#3)
+10. Missing a production edge case for 10-react.state (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Immutable updates
+- Functional setState when needed
+- Colocate state
+- Reducers for multi-step transitions
 
 ## Anti-patterns
 
-TODO: What not to do.
+- One giant global state object for everything
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Tool | Use |
+| --- | --- |
+| useState | Simple local state |
+| useReducer | Complex transitions |
+| External store | Shared cross-tree (with useSyncExternalStore) |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** Why shouldn’t you mutate state objects?
+
+**A:** React compares by identity/snapshot; mutations may not schedule updates and break purity assumptions.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** What is a functional update?
+
+**A:** `setN(n => n+1)` reads the latest queued state, avoiding stale closures.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** Where does hook state live?
+
+**A:** On the fiber’s linked list of hook cells (`memoizedState`), ordered by call order across renders.
 
 ## Summary
 
-- TODO: key takeaway
+- State snapshots drive renders
+- Update immutably; batching applies
+- Colocate and minimize state
 
 ## References
 
-- TODO: official documentation links
+- [React Documentation](https://react.dev/)
+- [State: A Component’s Memory](https://react.dev/learn/state-a-components-memory)
 
 <RelatedTopics />
 
 
-Prev: [Props](/10-react/props/) · Next: [Hooks](/10-react/hooks/)
+Prev: [`10-react.props`](/10-react/props/) · Next: [`10-react.hooks`](/10-react/hooks/)

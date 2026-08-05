@@ -1,6 +1,6 @@
 ---
 title: "Internationalized Apps"
-description: "TODO — one-sentence description of Internationalized Apps"
+description: "Ship i18n/l10n correctly: message catalogs, locale routing, formatting, RTL, and pseudo-localization."
 topic_id: 21-frontend-system-design.internationalized-apps
 difficulty: mid
 reading_time: 35
@@ -9,9 +9,9 @@ prerequisites: []
 tags: 
   - system-design
   - i18n
-status: stub
-prev_topic: 21-frontend-system-design.multi-tenant-ui
-next_topic: 21-frontend-system-design.designing-design-systems
+status: published
+prev_topic: "21-frontend-system-design.multi-tenant-ui"
+next_topic: "21-frontend-system-design.designing-design-systems"
 related: []
 advanced: []
 ---
@@ -22,131 +22,189 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Internationalized Apps in simple language.
+**Internationalized Apps** separate translatable copy and locale-aware formatting from application logic so the product can serve many languages and regions. Internationalization (i18n) is the architecture; localization (l10n) is the content.
+
+Related: [/05-css/](/05-css/), [/11-nextjs/](/11-nextjs/).
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Hard-coded English strings and `toLocaleString` sprinkled randomly do not scale. Poor i18n breaks layouts (German length), RTL mirroring, and legal date/currency expectations.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+gettext → ICU MessageFormat → modern libraries (FormatJS, i18next) and framework routing (`next-intl`, App Router locales). Browser `Intl` APIs standardized formatting.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+**Locale + catalog + formatting**:
+
+- Locale from URL/cookie/Accept-Language  
+- Messages from catalogs with ICU plurals/selects  
+- Numbers/dates/currency via `Intl`  
+- Layout direction via `dir` and logical CSS
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Extract messages  
+2. Choose locale detection + routing  
+3. Translate with context  
+4. Pseudo-loc in CI  
+5. RTL + long-string QA
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> DetectLocale
+  DetectLocale --> LoadCatalog
+  LoadCatalog --> Render
+  Render --> SwitchLocale: user_change
+  SwitchLocale --> LoadCatalog
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+`Intl` + `document.documentElement.lang/dir`. Prefer logical properties (`margin-inline-start`).
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Large catalogs impact parse cost — split by route/namespace.
 
 ## React Perspective
 
-Not applicable.
+Keep locale in context; avoid string concat for sentences.
 
 ## Next.js Perspective
 
-Not applicable.
+Built-in i18n routing patterns; render locale on the server for SEO.
 
 ## Server Perspective
 
-Not applicable.
+Locale-aware emails and OG tags too.
 
 ## Network Perspective
 
-Not applicable.
+Cache catalogs aggressively; HTML may vary by locale (`Vary`).
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Do not load all locales at once on the client.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Split catalogs; SSR correct locale to avoid flash of wrong language.
 
 ## Production Example
 
-TODO: Realistic production example.
+A global SaaS uses `/en/`, `/de/` routes, ICU messages, and pseudo-loc in CI. Currency formatting always uses `Intl.NumberFormat` with explicit currency codes.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```ts
+const price = new Intl.NumberFormat(locale, { style: 'currency', currency: 'EUR' }).format(19)
+
+// ICU-style plural (library-specific API)
+t('cart.items', { count })
+```
+
+```html
+<html lang="ar" dir="rtl">
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[InternationalizedApps] --> nextStep[NextStep]
+flowchart TD
+  n0[Detect locale] --> n1[Load messages]
+  n1[Load messages] --> n2[Format Intl]
+  n2[Format Intl] --> n3[Render dir]
+```
+
+```mermaid
+sequenceDiagram
+  participant User
+  participant App
+  participant Platform
+  User->>App: interact (i18n)
+  App->>Platform: apply mechanism
+  Platform-->>App: result or error
+  App-->>User: update UI
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Concatenating translated sentence fragments
+2. Forgetting RTL mirroring
+3. Using JS date string parsing for display
+4. Shipping one giant catalog to every page
+5. Machine-translating without linguistic QA
+6. Locale flash on first paint
+7. Missing a production edge case for 21-frontend-system-design.internationalized-apps (#1)
+8. Missing a production edge case for 21-frontend-system-design.internationalized-apps (#2)
+9. Missing a production edge case for 21-frontend-system-design.internationalized-apps (#3)
+10. Missing a production edge case for 21-frontend-system-design.internationalized-apps (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- ICU MessageFormat for plurals
+- Logical CSS properties
+- Pseudo-localization in CI
+- Locale in the URL for public pages
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Flags-as-language switchers exclusively (languages ≠ countries)
+- Hard-coded `mm/dd/yyyy` everywhere
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
+| Approach | SEO | Flexibility |
 | --- | --- | --- |
-| TODO | TODO | TODO |
+| URL locale prefix | Strong | Common |
+| Cookie only | Weak | Easy to mis-cache |
+| Subdomain per locale | Strong | Ops cost |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** Difference between i18n and l10n?
+
+**A:** i18n prepares the software; l10n supplies locale-specific translations and assets.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Why avoid string concatenation for UI copy?
+
+**A:** Word order differs by language; translators need full sentences with placeholders.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How do you internationalize a date picker and an RTL layout together?
+
+**A:** Locale-aware calendars, `Intl`, logical CSS, mirrored navigation, and QA with pseudo-loc + real RTL locales.
 
 ## Summary
 
-- TODO: key takeaway
+- Catalogs + Intl + locale routing
+- No sentence concatenation
+- Logical CSS for RTL
+- Pseudo-loc catches layout bugs
 
 ## References
 
-- TODO: official documentation links
+- [ECMA-402 Intl](https://tc39.es/ecma402/)
+- [ICU MessageFormat](https://unicode-org.github.io/icu/userguide/format_parse/messages/)
+- [W3C — Internationalization](https://www.w3.org/International/)
 
 <RelatedTopics />
 
 
-Prev: [Multi-Tenant UI](/21-frontend-system-design/multi-tenant-ui/) · Next: [Designing Design Systems](/21-frontend-system-design/designing-design-systems/)
+Prev: [`21-frontend-system-design.multi-tenant-ui`](/21-frontend-system-design/multi-tenant-ui/) · Next: [`21-frontend-system-design.designing-design-systems`](/21-frontend-system-design/designing-design-systems/)

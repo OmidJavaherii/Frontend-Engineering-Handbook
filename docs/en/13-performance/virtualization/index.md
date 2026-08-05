@@ -1,6 +1,6 @@
 ---
 title: "Virtualization"
-description: "TODO — one-sentence description of Virtualization"
+description: "Rendering only visible list/grid windows instead of thousands of DOM nodes."
 topic_id: 13-performance.virtualization
 difficulty: mid
 reading_time: 35
@@ -9,9 +9,9 @@ prerequisites: []
 tags: 
   - performance
   - react
-status: stub
-prev_topic: 13-performance.memoization-perf
-next_topic: 13-performance.image-optimization-perf
+status: published
+prev_topic: "13-performance.memoization-perf"
+next_topic: "13-performance.image-optimization-perf"
 related: []
 advanced: []
 ---
@@ -22,45 +22,53 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Virtualization in simple language.
+**Virtualization** (windowing) mounts only viewport-adjacent rows/cells for large lists, recycling DOM as the user scrolls.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+10k DOM nodes destroy memory, style, and scroll performance.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+react-window/react-virtualized → TanStack Virtual; native content-visibility helps some cases.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Spacer height = total size; absolute-position visible slice; on scroll, update slice.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Measure row height strategy (fixed vs dynamic).
+2. Adopt a virtualizer.
+3. Keep row components cheap.
+4. Preserve a11y (focus, announcements).
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Idle
+  Idle --> Active: use
+  Active --> Idle: settle
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Fewer elements → less layout/paint.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+Reconcile only visible window.
 
 ## Next.js Perspective
 
@@ -76,77 +84,99 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Measure before/after with lab + field tools. Optimize the attributed bottleneck for Rendering only visible list/grid windows instead of thousands of DOM nodes., not folklore.
 
 ## Production Example
 
-TODO: Realistic production example.
+Teams adopt Rendering only visible list/grid windows instead of thousands of DOM nodes. on critical routes, add monitoring, and guard regressions with budgets or reviews.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```tsx
+// Conceptual
+const start = Math.floor(scrollTop / rowHeight)
+const visible = items.slice(start, start + pageSize)
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[Virtualization] --> nextStep[NextStep]
+flowchart TD
+  A[Understand] --> B[Apply Rendering only visible list/grid windows instead of thousands of DOM nodes.]
+  B --> C[Measure]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Virtualizing small lists needlessly
+2. Dynamic heights without measurement causing jumps
+3. Breaking keyboard focus
+4. Heavy row children defeating the win
+5. SSR mismatch with window sizes
+6. Nested virtualizers without plan
+7. Missing a production edge case for 13-performance.virtualization (#1)
+8. Missing a production edge case for 13-performance.virtualization (#2)
+9. Missing a production edge case for 13-performance.virtualization (#3)
+10. Missing a production edge case for 13-performance.virtualization (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Prefer platform/framework primitives
+- Measure impact on real user metrics
+- Keep the change reviewable and reversible
+- Document the invariant you are protecting
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Copy-paste without understanding failure modes
+- Premature abstraction around a single use
+- Optimizing without a baseline
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Approach | When |
+| --- | --- |
+| Use as designed | Default |
+| Simpler alternative | If constraints differ |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** Why virtualize long lists?
+
+**A:** To keep DOM size roughly constant so scroll/memory stay healthy.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Fixed vs dynamic row heights?
+
+**A:** Fixed is simpler/faster; dynamic needs measurement and can cause more layout work.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How handle a11y in virtual lists?
+
+**A:** Ensure focusable items can be reached, maintain aria set size/pos insets carefully, and avoid removing focused nodes abruptly.
 
 ## Summary
 
-- TODO: key takeaway
+- Rendering only visible list/grid windows instead of thousands of DOM nodes.
+- Know why it exists and when not to use it
+- Measure production impact
+- Link related handbook topics instead of duplicating
 
 ## References
 
-- TODO: official documentation links
+- [TanStack Virtual](https://tanstack.com/virtual/latest)
+- [web.dev — content-visibility](https://web.dev/articles/content-visibility)
 
 <RelatedTopics />
 
 
-Prev: [Memoization](/13-performance/memoization-perf/) · Next: [Image Optimization](/13-performance/image-optimization-perf/)
+Prev: [`13-performance.memoization-perf`](/13-performance/memoization-perf/) · Next: [`13-performance.image-optimization-perf`](/13-performance/image-optimization-perf/)

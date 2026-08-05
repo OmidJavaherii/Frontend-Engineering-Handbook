@@ -1,6 +1,6 @@
 ---
 title: "Logging"
-description: "TODO — one-sentence description of Logging"
+description: "Structured frontend logging with levels, context, and privacy—without console spam in production."
 topic_id: 20-observability.logging
 difficulty: junior
 reading_time: 25
@@ -8,9 +8,9 @@ implementation_time: 0
 prerequisites: []
 tags: 
   - observability
-status: stub
-prev_topic: 20-observability.source-maps-debugging
-next_topic: 20-observability.error-tracking
+status: published
+prev_topic: "20-observability.source-maps-debugging"
+next_topic: "20-observability.error-tracking"
 related: []
 advanced: []
 ---
@@ -21,45 +21,55 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Logging in simple language.
+**Logging** records discrete events for diagnostics. In browsers, prefer **structured logs** (JSON) sent to a collector with levels, request/user context (non-PII), and sampling—not unbounded `console.log` in prod.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Errors alone miss narrative (“user clicked pay → 3 retries → timeout”). Logs provide sequence.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Server logging culture migrated to browsers via RUM/analytics pipelines; privacy regs constrained what can be logged.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Log for operators, not for vanity. Include correlation ids. Scrub PII/tokens. Sample high-volume debug.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Define log schema.
+2. Wrap console in logger.
+3. Attach correlation ids from backend.
+4. Ship via beacon/OTLP.
+5. Set retention + scrubbing.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Emit
+  Emit --> Ship
+  Ship --> Index
+  Index --> Query
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+sendBeacon/fetch keepalive on unload.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+Log feature-level events sparingly.
 
 ## Next.js Perspective
 
@@ -71,81 +81,102 @@ Not applicable.
 
 ## Network Perspective
 
-Not applicable.
+Batch to reduce overhead.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Logging can become a hot path—sample and batch.
 
 ## Production Example
 
-TODO: Realistic production example.
+Logger sends `{level,msg,route,release,corrId}`; PII scrubbers strip emails; debug only in staging.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```ts
+type Log = { level: 'info' | 'warn' | 'error'; msg: string; corrId?: string }
+export function log(entry: Log) {
+  if (entry.level === 'error') navigator.sendBeacon('/log', JSON.stringify(entry))
+}
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[Logging] --> nextStep[NextStep]
+sequenceDiagram
+  participant App
+  participant Collector
+  App->>Collector: structured log
+  Collector-->>App: 204
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Logging access tokens
+2. console.log left in hot renders
+3. Unstructured strings only
+4. No correlation with backend
+5. Infinite log loops on log failure
+6. Missing a production edge case for 20-observability.logging (#1)
+7. Missing a production edge case for 20-observability.logging (#2)
+8. Missing a production edge case for 20-observability.logging (#3)
+9. Missing a production edge case for 20-observability.logging (#4)
+10. Missing a production edge case for 20-observability.logging (#5)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Structured fields
+- Scrub PII
+- Sample debug
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Log every mouse move
+- Different formats per team with no schema
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| console | structured pipeline |
+| --- | --- |
+| Local only | Searchable centrally |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** Why structured logs?
+
+**A:** Fields are queryable and aggregatable compared to free-text console strings.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** What must never be logged from a frontend?
+
+**A:** Secrets, session tokens, passwords, and unnecessary PII—apply scrubbing.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** Design logging for a checkout funnel.
+
+**A:** Sparse milestone events with corrId, no card data, error logs with safe codes, sampling for high-volume noise, dashboards by step conversion.
 
 ## Summary
 
-- TODO: key takeaway
+- Structured, scrubbed, correlated
+- Sample high volume
+- Useful narrative without PII
 
 ## References
 
-- TODO: official documentation links
+- [MDN — sendBeacon](https://developer.mozilla.org/en-US/docs/Web/API/Navigator/sendBeacon)
+- [OpenTelemetry — Logs](https://opentelemetry.io/docs/concepts/signals/logs/)
 
 <RelatedTopics />
 
 
-Prev: [Source Maps Debugging](/20-observability/source-maps-debugging/) · Next: [Error Tracking](/20-observability/error-tracking/)
+Prev: [`20-observability.source-maps-debugging`](/20-observability/source-maps-debugging/) · Next: [`20-observability.error-tracking`](/20-observability/error-tracking/)

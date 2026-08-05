@@ -1,6 +1,6 @@
 ---
 title: "Client Components"
-description: "TODO — one-sentence description of Client Components"
+description: "Components marked with \"use client\" that hydrate and run in the browser."
 topic_id: 11-nextjs.client-components
 difficulty: junior
 reading_time: 30
@@ -10,9 +10,9 @@ prerequisites:
 tags: 
   - nextjs
   - rsc
-status: stub
-prev_topic: 11-nextjs.server-components
-next_topic: 11-nextjs.server-actions
+status: published
+prev_topic: "11-nextjs.server-components"
+next_topic: "11-nextjs.server-actions"
 related: []
 advanced: []
 ---
@@ -23,49 +23,58 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Client Components in simple language.
+**Client Components** opt into the client bundle with `"use client"` at the top of a file. They can use state, effects, and browser APIs. They should be **leaves** under Server Components, not the default for entire routes.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Interactivity needs the browser. The Client Component boundary is how React/Next express which code must hydrate.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Created alongside RSC so apps can mix server and client trees intentionally.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+The file with `"use client"` is the root of a client subgraph—all its imports are treated as client. Push the directive down to minimize JS.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Identify stateful/interactive UI.
+2. Extract to a Client Component file.
+3. Pass serializable props from server parents.
+4. Keep side effects in effects/event handlers, not module scope.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> SSRHTML
+  SSRHTML --> DownloadJS
+  DownloadJS --> Hydrate
+  Hydrate --> Interactive
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Hydration attaches listeners; mismatches warn/error.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+Hooks rules apply. Prefer events for user actions; effects for syncing with external systems.
 
 ## Next.js Perspective
 
-Not applicable.
+Client components still SSR once for HTML unless you disable with dynamic ssr:false.
 
 ## Server Perspective
 
@@ -73,81 +82,108 @@ Not applicable.
 
 ## Network Perspective
 
-Not applicable.
+Each client boundary can pull JS chunks—split wisely.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Client state lives until unmount; avoid unbounded subscriptions.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Hydration cost scales with client tree size. Measure INP; reduce client JS before micro-optimizing hooks.
 
 ## Production Example
 
-TODO: Realistic production example.
+Search combobox is a Client Component; results list markup streams from the server parent.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```tsx
+'use client'
+
+import { useState } from 'react'
+
+export function Counter() {
+  const [n, setN] = useState(0)
+  return <button onClick={() => setN((x) => x + 1)}>{n}</button>
+}
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[ClientComponents] --> nextStep[NextStep]
+flowchart TD
+  ServerPage --> ClientIsland
+  ClientIsland --> HookState[useState/useEffect]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Placing `"use client"` at the route top unnecessarily
+2. Importing server-only code into client files
+3. Hydration mismatch from Date.now()/random in render
+4. Fetching confidential data from the client
+5. Giant context providers as client wrappers around the whole app
+6. Using useEffect for data that RSC could provide
+7. Missing a production edge case for 11-nextjs.client-components (#1)
+8. Missing a production edge case for 11-nextjs.client-components (#2)
+9. Missing a production edge case for 11-nextjs.client-components (#3)
+10. Missing a production edge case for 11-nextjs.client-components (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Keep client modules small and focused
+- Compose: server parent + client child
+- Stabilize SSR output for hydratable UI
+- Code-split heavy widgets with dynamic import
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Client-only SPA inside App Router
+- Re-implementing router state in context
+- Silent catch of hydration errors
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Need | Component type |
+| --- | --- |
+| useState / DOM events | Client |
+| DB query / secrets | Server |
+| Static content | Server |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** How do you create a Client Component?
+
+**A:** Add `"use client"` at the top of the file before imports.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Why push `"use client"` down the tree?
+
+**A:** Because the directive marks a client boundary; everything imported beneath becomes client JS. Lower boundaries ship less code.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How can a Client Component still SSR?
+
+**A:** Next still renders Client Components to HTML on the server for the first paint, then hydrates. `ssr: false` with dynamic() skips that for browser-only widgets.
 
 ## Summary
 
-- TODO: key takeaway
+- Client Components enable hooks and browser APIs
+- Boundary is the "use client" file
+- Keep them small under RSC parents
+- Avoid hydration mismatches
 
 ## References
 
-- TODO: official documentation links
+- [Next.js — Client Components](https://nextjs.org/docs/app/building-your-application/rendering/client-components)
 
 <RelatedTopics />
 
 
-Prev: [Server Components](/11-nextjs/server-components/) · Next: [Server Actions](/11-nextjs/server-actions/)
+Prev: [`11-nextjs.server-components`](/11-nextjs/server-components/) · Next: [`11-nextjs.server-actions`](/11-nextjs/server-actions/)

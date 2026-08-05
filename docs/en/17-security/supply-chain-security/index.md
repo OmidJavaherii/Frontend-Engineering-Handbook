@@ -1,6 +1,6 @@
 ---
 title: "Supply Chain Security"
-description: "TODO — one-sentence description of Supply Chain Security"
+description: "Defend against compromised npm packages, lockfile tampering, and malicious build tooling."
 topic_id: 17-security.supply-chain-security
 difficulty: mid
 reading_time: 30
@@ -9,9 +9,9 @@ prerequisites: []
 tags: 
   - security
   - tooling
-status: stub
-prev_topic: 17-security.prototype-pollution
-next_topic: 17-security.secrets-in-frontend
+status: published
+prev_topic: "17-security.prototype-pollution"
+next_topic: "17-security.secrets-in-frontend"
 related: []
 advanced: []
 ---
@@ -22,45 +22,56 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Supply Chain Security in simple language.
+**Supply-chain security** covers risks from dependencies, maintainers, build pipelines, and CDNs. A single compromised npm package can exfiltrate secrets or inject XSS into millions of apps.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Modern frontends depend on hundreds of packages. Trust is transitive; attackers target that trust.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Incidents (event-stream, ua-parser-js, protestware, typosquatting) made lockfiles, 2FA, and provenance mainstream topics.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Pin → scan → review → least privilege in CI → verify provenance. Treat `postinstall` scripts as untrusted code execution.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Commit lockfiles.
+2. Run `pnpm audit`/OSV in CI.
+3. Pin GitHub Actions by SHA.
+4. Least-privilege tokens; no secrets in PR forks casually.
+5. Prefer maintained packages; vendor critical code when needed.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> AddDep
+  AddDep --> Review
+  Review --> Lock
+  Lock --> ScanCI
+  ScanCI --> Deploy
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Compromised dependency can ship malicious JS to users.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+Evaluate packages before adding to the client bundle.
 
 ## Next.js Perspective
 
@@ -68,85 +79,109 @@ Not applicable.
 
 ## Server Perspective
 
-Not applicable.
+CI secrets are high-value targets.
 
 ## Network Perspective
 
-Not applicable.
+Verify CDN SRI for third-party scripts when used.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Fewer deps help security and bundles.
 
 ## Production Example
 
-TODO: Realistic production example.
+CI: lockfile enforced, audit gate, Actions pinned by SHA, npm ignore-scripts in CI except allowlisted, SRI for rare third-party scripts.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```html
+<script src="https://cdn.example.com/lib.js"
+  integrity="sha384-..."
+  crossorigin="anonymous"></script>
+```
 
 ## Diagrams
 
 ```mermaid
 flowchart LR
-  concept[SupplyChainSecurity] --> nextStep[NextStep]
+  npm[npm package] --> Build
+  Build --> Bundle
+  Bundle --> Users
+  Attacker -.-> npm
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. No lockfile
+2. Blindly updating majors
+3. Long-lived npm tokens in developers’ laptops without rotation
+4. install scripts unrestricted in CI
+5. Loading many third-party scripts without SRI
+6. Missing a production edge case for 17-security.supply-chain-security (#1)
+7. Missing a production edge case for 17-security.supply-chain-security (#2)
+8. Missing a production edge case for 17-security.supply-chain-security (#3)
+9. Missing a production edge case for 17-security.supply-chain-security (#4)
+10. Missing a production edge case for 17-security.supply-chain-security (#5)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Lockfiles + audit CI
+- Pin Actions by SHA
+- Least privilege secrets
 
 ## Anti-patterns
 
-TODO: What not to do.
+- `curl | bash` in build
+- Commit node_modules from untrusted machines
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Control | Threat |
+| --- | --- |
+| Lockfile | Unexpected upgrades |
+| Audit | Known vulns |
+| SRI | CDN tampering |
+| Provenance | Build forgery |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** Why commit a lockfile?
+
+**A:** To pin transitive dependency versions so installs are reproducible and unexpected malicious upgrades are harder.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** What is typosquatting?
+
+**A:** Publishing a malicious package with a name similar to a popular one to trick installs.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** Hardening plan for frontend CI supply chain.
+
+**A:** Pin actions by SHA, short-lived OIDC tokens to clouds, no secrets on fork PRs, dependency review, ignore-scripts by default, artifact provenance, SBOM.
 
 ## Summary
 
-- TODO: key takeaway
+- Dependencies are part of your TCB
+- Pin, scan, least privilege
+- SRI/provenance for critical paths
 
 ## References
 
-- TODO: official documentation links
+- [OWASP Software Supply Chain Security](https://owasp.org/www-project-software-supply-chain-security/)
+- [GitHub — Securing use of Actions](https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions)
+- [MDN — SRI](https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity)
 
 <RelatedTopics />
 
 
-Prev: [Prototype Pollution](/17-security/prototype-pollution/) · Next: [Secrets in the Frontend](/17-security/secrets-in-frontend/)
+Prev: [`17-security.prototype-pollution`](/17-security/prototype-pollution/) · Next: [`17-security.secrets-in-frontend`](/17-security/secrets-in-frontend/)

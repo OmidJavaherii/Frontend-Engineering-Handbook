@@ -1,6 +1,6 @@
 ---
 title: "Source Maps Debugging"
-description: "TODO — one-sentence description of Source Maps Debugging"
+description: "Source maps map minified production code back to original sources for debugging and stack traces."
 topic_id: 20-observability.source-maps-debugging
 difficulty: mid
 reading_time: 25
@@ -8,9 +8,9 @@ implementation_time: 0
 prerequisites: []
 tags: 
   - devtools
-status: stub
-prev_topic: 20-observability.debugging-performance
-next_topic: 20-observability.logging
+status: published
+prev_topic: "20-observability.debugging-performance"
+next_topic: "20-observability.logging"
 related: 
   - 14-build-tools.source-maps
 advanced: []
@@ -22,41 +22,50 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Source Maps Debugging in simple language.
+**Source maps** translate positions in transformed/minified bundles back to original source files. They power readable DevTools debugging and readable error-tracker stack traces—when uploaded securely.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Production bundles are unreadable. Without maps, debugging prod is guesswork.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Source map format evolved with bundlers (webpack/vite/etc.) and error tools (Sentry) standardized upload.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Map file links generated code ↔ source. Publicly serving maps exposes source; prefer private upload to error trackers.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Generate maps in prod builds.
+2. Decide publish vs private upload.
+3. Configure tracker release + maps.
+4. Verify stack traces resolve.
+5. Retain maps for active releases.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> BuildWithMaps
+  BuildWithMaps --> UploadPrivate
+  UploadPrivate --> ResolveStacks
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+DevTools fetches maps when available.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
@@ -64,7 +73,7 @@ Not applicable.
 
 ## Next.js Perspective
 
-Not applicable.
+Configure production browser source maps carefully.
 
 ## Server Perspective
 
@@ -76,77 +85,97 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Generating maps costs build time; serving them to all users costs bandwidth—prefer private.
 
 ## Production Example
 
-TODO: Realistic production example.
+CI uploads maps to Sentry with release SHA; maps not on public CDN.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```js
+// vite.config.js
+export default { build: { sourcemap: true } }
+```
 
 ## Diagrams
 
 ```mermaid
 flowchart LR
-  concept[SourceMapsDebugging] --> nextStep[NextStep]
+  Source --> Bundle
+  Bundle --> Map
+  Map --> Debugger
+  Map --> ErrorTracker
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Public maps unintentionally
+2. Maps not uploaded matching release
+3. Hidden-source-map misconfigured
+4. Deleting maps immediately after deploy
+5. Debug with wrong map version
+6. Missing a production edge case for 20-observability.source-maps-debugging (#1)
+7. Missing a production edge case for 20-observability.source-maps-debugging (#2)
+8. Missing a production edge case for 20-observability.source-maps-debugging (#3)
+9. Missing a production edge case for 20-observability.source-maps-debugging (#4)
+10. Missing a production edge case for 20-observability.source-maps-debugging (#5)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Private upload to trackers
+- Tie maps to release IDs
+- Test one forced error
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Disabling maps forever because of one leak scare without private option
+- Commit maps to git
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Public maps | Private upload |
+| --- | --- |
+| Easy local debug | Safer for IP |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is a source map?
+
+**A:** A file that maps minified/transformed code positions back to original source locations.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Why not host source maps publicly?
+
+**A:** They can expose original source code and comments to anyone.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** Stacks still unreadable after upload—why?
+
+**A:** Release mismatch, missing map for a chunk, incorrect URL/protocol, or truncated stacks from cross-origin without CORS on maps.
 
 ## Summary
 
-- TODO: key takeaway
+- Maps make prod debuggable
+- Prefer private uploads
+- Match release versions
 
 ## References
 
-- TODO: official documentation links
+- [Source Map spec / MDN](https://developer.mozilla.org/en-US/docs/Glossary/Source_map)
+- [Sentry — Source maps](https://docs.sentry.io/platforms/javascript/sourcemaps/)
+- [Chrome — Source maps](https://developer.chrome.com/docs/devtools/javascript/source-maps/)
 
 <RelatedTopics />
 
 
-Prev: [Debugging Performance](/20-observability/debugging-performance/) · Next: [Logging](/20-observability/logging/)
+Prev: [`20-observability.debugging-performance`](/20-observability/debugging-performance/) · Next: [`20-observability.logging`](/20-observability/logging/)

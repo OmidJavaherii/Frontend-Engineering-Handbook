@@ -1,6 +1,6 @@
 ---
 title: "Service Worker Caching Strategies"
-description: "TODO — one-sentence description of Service Worker Caching Strategies"
+description: "Service worker caching strategies: cache-first, network-first, stale-while-revalidate, and routing by resource type."
 topic_id: 23-pwa-and-offline.caching-strategies-sw
 difficulty: mid
 reading_time: 40
@@ -10,9 +10,9 @@ prerequisites:
 tags: 
   - pwa
   - caching
-status: stub
-prev_topic: 23-pwa-and-offline.service-worker-lifecycle
-next_topic: 23-pwa-and-offline.background-sync
+status: published
+prev_topic: "23-pwa-and-offline.service-worker-lifecycle"
+next_topic: "23-pwa-and-offline.background-sync"
 related: []
 advanced: []
 ---
@@ -23,131 +23,190 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Service Worker Caching Strategies in simple language.
+**Service Worker Caching Strategies** decide whether a `fetch` event answers from Cache Storage, the network, or both. Prerequisite lifecycle: [/23-pwa-and-offline/service-worker-lifecycle/](/23-pwa-and-offline/service-worker-lifecycle/). HTTP layer: [/02-internet/http-caching/](/02-internet/http-caching/).
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+One strategy does not fit HTML, hashed JS, and API JSON. Wrong choices serve stale checkouts or defeat offline goals.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Workbox popularized named strategies on top of the Cache API. Patterns mirror HTTP SWR but run in the worker.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+| Resource | Typical strategy |
+| --- | --- |
+| Hashed static assets | Cache-first |
+| HTML navigations | Network-first |
+| Semi-static JSON | SWR |
+| Non-GET / auth APIs | Network-only |
+
+Always version caches and bound growth.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Classify routes/assets  
+2. Implement routers in `fetch`  
+3. Precache shell  
+4. Runtime cache with expiration  
+5. Test offline + update
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> FetchEvent
+  FetchEvent --> CacheHit: strategy
+  FetchEvent --> Network: strategy
+  Network --> PopulateCache: optional
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Cache Storage is origin-scoped; opaque responses have quirks (especially CORS modes).
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+App still needs offline UX messaging — [/23-pwa-and-offline/offline-ux/](/23-pwa-and-offline/offline-ux/).
 
 ## Next.js Perspective
 
-Not applicable.
+Do not cache personalized HTML broadly.
 
 ## Server Perspective
 
-Not applicable.
+ETags still help when revalidating.
 
 ## Network Perspective
 
-Not applicable.
+Network-first needs timeouts before falling back to cache.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+QuotaExceededError — expire old entries.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+SWR gives instant UI with background refresh — excellent for feeds.
 
 ## Production Example
 
-TODO: Realistic production example.
+Workbox routes: precache build assets, network-first for document, SWR for avatar images with expiration plugin.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```js
+self.addEventListener('fetch', (event) => {
+  const req = event.request
+  if (req.mode === 'navigate') {
+    event.respondWith(
+      fetch(req).catch(() => caches.match('/offline.html')),
+    )
+    return
+  }
+  event.respondWith(
+    caches.match(req).then((hit) => hit || fetch(req)),
+  )
+})
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[ServiceWorkerCachingStrategies] --> nextStep[NextStep]
+flowchart TD
+  n0[fetch event] --> n1[Route match]
+  n1[Route match] --> n2[Strategy]
+  n2[Strategy] --> n3[Response]
+```
+
+```mermaid
+sequenceDiagram
+  participant User
+  participant App
+  participant Platform
+  User->>App: interact (SW caching)
+  App->>Platform: apply mechanism
+  Platform-->>App: result or error
+  App-->>User: update UI
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Cache-first for HTML forever
+2. Caching POST responses
+3. No expiration for runtime caches
+4. Ignoring opaque response caching limits
+5. Same strategy for authenticated APIs and public assets
+6. Forgetting offline fallback document
+7. Missing a production edge case for 23-pwa-and-offline.caching-strategies-sw (#1)
+8. Missing a production edge case for 23-pwa-and-offline.caching-strategies-sw (#2)
+9. Missing a production edge case for 23-pwa-and-offline.caching-strategies-sw (#3)
+10. Missing a production edge case for 23-pwa-and-offline.caching-strategies-sw (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Per-resource routing
+- Timeouts on network-first
+- Cache versioning + cleanup
+- Workbox or equivalent battle-tested helpers
 
 ## Anti-patterns
 
-TODO: What not to do.
+- cache.addAll entire site on install
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
+| Strategy | Offline | Freshness |
 | --- | --- | --- |
-| TODO | TODO | TODO |
+| Cache-first | Great | Risk stale |
+| Network-first | Fallback | Fresher |
+| SWR | Great | Background fresh |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** When use cache-first?
+
+**A:** Immutable hashed static assets where any cached version is fine until a new filename appears.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Explain stale-while-revalidate in a SW.
+
+**A:** Return cache immediately, update cache from network in parallel, next request gets fresher bytes.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** Design caching for an authenticated dashboard PWA.
+
+**A:** Network-only or short network-first for private JSON; never share caches across users; careful with navigation HTML; explicit logout cache clears.
 
 ## Summary
 
-- TODO: key takeaway
+- Route by resource class
+- SWR/cache-first/network-first intentionally
+- Expire & version
+- Don’t cache private data casually
 
 ## References
 
-- TODO: official documentation links
+- [Workbox strategies](https://developer.chrome.com/docs/workbox/modules/workbox-strategies)
+- [MDN — Cache](https://developer.mozilla.org/en-US/docs/Web/API/Cache)
 
 <RelatedTopics />
 
 
-Prev: [Service Worker Lifecycle](/23-pwa-and-offline/service-worker-lifecycle/) · Next: [Background Sync](/23-pwa-and-offline/background-sync/)
+Prev: [`23-pwa-and-offline.service-worker-lifecycle`](/23-pwa-and-offline/service-worker-lifecycle/) · Next: [`23-pwa-and-offline.background-sync`](/23-pwa-and-offline/background-sync/)

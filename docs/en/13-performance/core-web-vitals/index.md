@@ -1,6 +1,6 @@
 ---
 title: "Core Web Vitals"
-description: "TODO — one-sentence description of Core Web Vitals"
+description: "Google’s key UX metrics: LCP, INP, and CLS (with supporting diagnostics)."
 topic_id: 13-performance.core-web-vitals
 difficulty: mid
 reading_time: 35
@@ -9,9 +9,9 @@ prerequisites: []
 tags: 
   - performance
   - interview-frequent
-status: stub
-prev_topic: 13-performance.lighthouse
-next_topic: 13-performance.lcp
+status: published
+prev_topic: "13-performance.lighthouse"
+next_topic: "13-performance.lcp"
 related: []
 advanced: []
 ---
@@ -22,41 +22,50 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Core Web Vitals in simple language.
+**Core Web Vitals (CWV)** are LCP (loading), INP (interactivity), and CLS (stability). They are used in SEO tooling and as a shared performance language.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+A short metric set aligns product, eng, and SEO on user-centric outcomes.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Launched with LCP/FID/CLS; FID → INP. Thresholds defined at p75 of users.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Optimize p75 field experience per template. Lab diagnoses; field decides.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Collect CrUX/RUM by URL group.
+2. Find failing templates.
+3. Attribute with traces.
+4. Fix top regressions.
+5. Budget + alert.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Idle
+  Idle --> Active: use
+  Active --> Idle: settle
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Exposed via PerformanceObserver APIs.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
@@ -64,7 +73,7 @@ Not applicable.
 
 ## Next.js Perspective
 
-Not applicable.
+Framework choices heavily influence all three.
 
 ## Server Perspective
 
@@ -72,81 +81,102 @@ Not applicable.
 
 ## Network Perspective
 
-Not applicable.
+CDN/TTFB feed LCP.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Measure before/after with lab + field tools. Optimize the attributed bottleneck for Google’s key UX metrics, not folklore.
 
 ## Production Example
 
-TODO: Realistic production example.
+Teams adopt Google’s key UX metrics on critical routes, add monitoring, and guard regressions with budgets or reviews.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```ts
+import { onCLS, onINP, onLCP } from 'web-vitals'
+;[onCLS, onINP, onLCP].forEach((fn) => fn(console.log))
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[CoreWebVitals] --> nextStep[NextStep]
+flowchart TD
+  A[Understand] --> B[Apply Google’s key UX metrics]
+  B --> C[Measure]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Optimizing averages instead of p75
+2. Only homepage focus
+3. Lab-only celebration
+4. Ignoring mobile segment
+5. Treating CWV as only an SEO chore
+6. No ownership per template
+7. Optimizing only Lighthouse scores with tricks that hurt UX/a11y
+8. Ignoring INP after FID retirement
+9. Chasing lab metrics while field RUM regresses
+10. Blaming React for LCP when the LCP element is a late image/font
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Prefer platform/framework primitives
+- Measure impact on real user metrics
+- Keep the change reviewable and reversible
+- Document the invariant you are protecting
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Copy-paste without understanding failure modes
+- Premature abstraction around a single use
+- Optimizing without a baseline
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Approach | When |
+| --- | --- |
+| Use as designed | Default |
+| Simpler alternative | If constraints differ |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** Name the Core Web Vitals.
+
+**A:** LCP, INP, and CLS.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** What percentile matters?
+
+**A:** p75 of page views for each metric.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How structure an org program around CWV?
+
+**A:** Template-level RUM, owners, budgets in CI, weekly triage of regressions, and design system defaults that protect CLS/LCP.
 
 ## Summary
 
-- TODO: key takeaway
+- Google’s key UX metrics: LCP, INP, and CLS (with supporting diagnostics).
+- Know why it exists and when not to use it
+- Measure production impact
+- Link related handbook topics instead of duplicating
 
 ## References
 
-- TODO: official documentation links
+- [web.dev — Core Web Vitals](https://web.dev/explore/learn-core-web-vitals)
+- [web-vitals library](https://github.com/GoogleChrome/web-vitals)
 
 <RelatedTopics />
 
 
-Prev: [Lighthouse](/13-performance/lighthouse/) · Next: [LCP](/13-performance/lcp/)
+Prev: [`13-performance.lighthouse`](/13-performance/lighthouse/) · Next: [`13-performance.lcp`](/13-performance/lcp/)

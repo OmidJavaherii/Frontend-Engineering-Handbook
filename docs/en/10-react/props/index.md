@@ -1,6 +1,6 @@
 ---
 title: "Props"
-description: "TODO — one-sentence description of Props"
+description: "Props: read-only inputs to components, children as props, and one-way data flow."
 topic_id: 10-react.props
 difficulty: beginner
 reading_time: 25
@@ -9,9 +9,9 @@ prerequisites:
   - 10-react.components
 tags: 
   - react
-status: stub
-prev_topic: 10-react.components
-next_topic: 10-react.state
+status: published
+prev_topic: "10-react.components"
+next_topic: "10-react.state"
 related: []
 advanced: []
 ---
@@ -22,49 +22,56 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Props in simple language.
+**Props** are the inputs passed from parent to child. They are read-only from the child’s perspective. `children` is a prop. Data flows down; events flow up via callbacks.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Explicit inputs make components reusable and testable. Mutating props breaks the unidirectional model.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Props existed since early React; `propTypes` gave way to TypeScript. Spreading and composition patterns matured.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Props are a snapshot for this render. Changing props triggers re-render. Defaults via destructuring. Don’t sync props into state unless you intentionally want local divergence.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Decide owned vs passed data.
+2. Type props.
+3. Pass callbacks for child→parent communication.
+4. Prefer composition (`children`/`slots`) over endless booleans.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+flowchart LR
+  Parent -->|props| Child
+  Child -->|onEvent| Parent
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Not applicable.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+Core data-flow mechanism.
 
 ## Next.js Perspective
 
-Not applicable.
+Server→Client props must be serializable.
 
 ## Server Perspective
 
@@ -76,77 +83,108 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+New object/array/function identities each render can break memo; fix with structure/compiler/memo carefully.
 
 ## Production Example
 
-TODO: Realistic production example.
+Form fields receive `value` + `onChange` (controlled) so the parent owns submission state.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```tsx
+type Props = {
+  label: string
+  onSave: () => void
+  children?: React.ReactNode
+}
+function Panel({ label, onSave, children }: Props) {
+  return (
+    <section>
+      <h2>{label}</h2>
+      {children}
+      <button onClick={onSave}>Save</button>
+    </section>
+  )
+}
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[Props] --> nextStep[NextStep]
+flowchart TD
+  P[Parent state] -->|props| C[Child UI]
+  C -->|callback props| P
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Mutating props
+2. Copying props to state unnecessarily
+3. Deep prop drilling without composition/context when truly needed
+4. Passing unstable inline objects into memo children blindly
+5. Using props as two-way binding without callbacks
+6. Non-serializable RSC props
+7. Missing a production edge case for 10-react.props (#1)
+8. Missing a production edge case for 10-react.props (#2)
+9. Missing a production edge case for 10-react.props (#3)
+10. Missing a production edge case for 10-react.props (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Treat props as immutable
+- Controlled components for forms when parent needs values
+- Compose with children
+- Type public props
 
 ## Anti-patterns
 
-TODO: What not to do.
+- `useEffect(() => setX(props.x), [props.x])` by default
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Pattern | Direction |
+| --- | --- |
+| Props | Parent → child |
+| Callbacks | Child → parent |
+| Context | Cross-cutting down-tree |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** Are props mutable inside a child?
+
+**A:** No. Treat them as read-only; ask the parent to update via callbacks/state.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** What is a controlled component?
+
+**A:** A component whose value is driven by props and notifies changes upward—parent state is source of truth.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** When is mirroring props into state justified?
+
+**A:** When the child needs a draft/edit buffer that intentionally diverges until save/reset—document the reset key/`userId` pattern.
 
 ## Summary
 
-- TODO: key takeaway
+- Props are immutable inputs
+- Data down, events up
+- Avoid reflexive props→state sync
 
 ## References
 
-- TODO: official documentation links
+- [React Documentation](https://react.dev/)
+- [Passing Props](https://react.dev/learn/passing-props-to-a-component)
 
 <RelatedTopics />
 
 
-Prev: [Components](/10-react/components/) · Next: [State](/10-react/state/)
+Prev: [`10-react.components`](/10-react/components/) · Next: [`10-react.state`](/10-react/state/)

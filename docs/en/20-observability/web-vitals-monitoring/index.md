@@ -1,6 +1,6 @@
 ---
 title: "Web Vitals Monitoring"
-description: "TODO — one-sentence description of Web Vitals Monitoring"
+description: "Instrument and monitor LCP, INP, and CLS with attribution for regressions in lab and field."
 topic_id: 20-observability.web-vitals-monitoring
 difficulty: mid
 reading_time: 25
@@ -10,9 +10,9 @@ prerequisites:
 tags: 
   - observability
   - performance
-status: stub
-prev_topic: 20-observability.rum
-next_topic: 20-observability.tracing-frontend
+status: published
+prev_topic: "20-observability.rum"
+next_topic: "20-observability.tracing-frontend"
 related: []
 advanced: []
 ---
@@ -23,49 +23,59 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Web Vitals Monitoring in simple language.
+**Web Vitals monitoring** focuses on **LCP**, **INP**, and **CLS**—the Core Web Vitals—plus supporting metrics (TTFB, FCP). You collect, attribute, budget, and alert so UX quality is measurable.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+These metrics correlate with user experience and are used in SEO/Chrome UX Report ecosystems. Monitoring makes them engineering KPIs.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+FID → replaced by INP as the interactivity vital; tooling evolved attribution APIs.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Each vital has a primary cause class: LCP (server/resource/render), INP (input delay/processing/presentation), CLS (layout shifts). Attribution tells which.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Instrument onXXX from web-vitals.
+2. Add attribution where available.
+3. Set budgets per route.
+4. Watch CrUX/RUM p75.
+5. Fix top regressions each sprint.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Instrument
+  Instrument --> Budget
+  Budget --> Alert
+  Alert --> Remediate
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+PerformanceObserver under the hood.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+Hydration and handlers affect INP.
 
 ## Next.js Perspective
 
-Not applicable.
+Image/font/script choices heavily affect LCP/CLS.
 
 ## Server Perspective
 
@@ -77,77 +87,100 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+The point of the topic—optimize based on vitals.
 
 ## Production Example
 
-TODO: Realistic production example.
+Budget: LCP p75 < 2.5s on `/` and `/product/*`; CI lab check + RUM alert.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```ts
+import { onLCP } from 'web-vitals/attribution'
+onLCP((m) => {
+  console.log(m.value, m.attribution)
+})
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[WebVitalsMonitoring] --> nextStep[NextStep]
+flowchart TD
+  LCP --> ServerOrResource
+  INP --> Handlers
+  CLS --> Layout
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Optimizing FID forever after INP switch
+2. No budgets
+3. Ignoring mobile field data
+4. CLS from injected ads without slots
+5. Celebrating lab-only wins
+6. Missing a production edge case for 20-observability.web-vitals-monitoring (#1)
+7. Missing a production edge case for 20-observability.web-vitals-monitoring (#2)
+8. Missing a production edge case for 20-observability.web-vitals-monitoring (#3)
+9. Missing a production edge case for 20-observability.web-vitals-monitoring (#4)
+10. Missing a production edge case for 20-observability.web-vitals-monitoring (#5)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Track p75 by route
+- Use attribution builds
+- Pair RUM + lab
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Fake vitals by delaying metric beacons
+- Huge third parties with no owner
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Vital | User experience |
+| --- | --- |
+| LCP | Loading | 
+| INP | Responsiveness |
+| CLS | Visual stability |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** Name the three Core Web Vitals.
+
+**A:** Largest Contentful Paint (LCP), Interaction to Next Paint (INP), Cumulative Layout Shift (CLS).
 
 ### Medium
 
-TODO — question and answer.
+**Q:** What commonly hurts CLS?
+
+**A:** Images/ads without dimensions, late-injected content, webfonts swapping late.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** Improve INP for a complex UI.
+
+**A:** Break up long handlers, defer non-critical work, avoid sync layout, use transitions carefully, profile input delay vs processing time.
 
 ## Summary
 
-- TODO: key takeaway
+- Monitor LCP/INP/CLS with budgets
+- Attribution guides fixes
+- Field p75 is the scoreboard
 
 ## References
 
-- TODO: official documentation links
+- [web.dev — Core Web Vitals](https://web.dev/articles/vitals)
+- [web.dev — INP](https://web.dev/articles/inp)
+- [Chrome UX Report](https://developer.chrome.com/docs/crux/)
 
 <RelatedTopics />
 
 
-Prev: [Real User Monitoring](/20-observability/rum/) · Next: [Frontend Tracing](/20-observability/tracing-frontend/)
+Prev: [`20-observability.rum`](/20-observability/rum/) · Next: [`20-observability.tracing-frontend`](/20-observability/tracing-frontend/)

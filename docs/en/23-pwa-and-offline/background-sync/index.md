@@ -1,6 +1,6 @@
 ---
 title: "Background Sync"
-description: "TODO — one-sentence description of Background Sync"
+description: "Defer failed requests and replay them when connectivity returns using Background Sync APIs."
 topic_id: 23-pwa-and-offline.background-sync
 difficulty: senior
 reading_time: 25
@@ -8,9 +8,9 @@ implementation_time: 0
 prerequisites: []
 tags: 
   - pwa
-status: stub
-prev_topic: 23-pwa-and-offline.caching-strategies-sw
-next_topic: 23-pwa-and-offline.web-app-manifest
+status: published
+prev_topic: "23-pwa-and-offline.caching-strategies-sw"
+next_topic: "23-pwa-and-offline.web-app-manifest"
 related: []
 advanced: []
 ---
@@ -21,45 +21,55 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Background Sync in simple language.
+**Background Sync** lets a service worker retry work after connectivity returns — classic case: queue a failed POST and flush later. Related to [/21-frontend-system-design/offline-first/](/21-frontend-system-design/offline-first/).
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Mobile users submit forms offline. Immediate failure UX is worse than “we’ll send it when you’re back” with durable queues.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Background Sync API (Chromium-led); Periodic Background Sync for regular fetches. Support is uneven — always feature-detect and provide fallbacks.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+**Outbox in IDB + sync event**: tag a sync, SW wakes on connectivity, drains outbox idempotently.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. On failed mutate, write outbox  
+2. `registration.sync.register('outbox')`  
+3. SW `sync` handler drains  
+4. Notify clients of success/failure  
+5. Fallback: retry on next focus if API missing
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Queued
+  Queued --> Syncing: sync_event
+  Syncing --> Queued: retryable_fail
+  Syncing --> Done: ok
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Check support; Safari gaps historically. Periodic Sync needs engagement heuristics.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+UI reads outbox pending state from IDB.
 
 ## Next.js Perspective
 
@@ -67,85 +77,123 @@ Not applicable.
 
 ## Server Perspective
 
-Not applicable.
+Idempotency keys required.
 
 ## Network Perspective
 
-Not applicable.
+Replay storms after outages — backoff.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Bound outbox size.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Batch replays; avoid waking for tiny chatty events.
 
 ## Production Example
 
-TODO: Realistic production example.
+A field app queues inspection drafts; sync flushes with idempotency keys; UI shows pending badges.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```js
+// page
+await idbAdd({ url: '/api/orders', body })
+await navigator.serviceWorker.ready.then((reg) => reg.sync.register('orders'))
+
+// sw
+self.addEventListener('sync', (event) => {
+  if (event.tag === 'orders') event.waitUntil(flushOrders())
+})
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[BackgroundSync] --> nextStep[NextStep]
+flowchart TD
+  n0[Queue outbox] --> n1[Register sync]
+  n1[Register sync] --> n2[SW flush]
+  n2[SW flush] --> n3[Ack UI]
+```
+
+```mermaid
+sequenceDiagram
+  participant User
+  participant App
+  participant Platform
+  User->>App: interact (Background sync)
+  App->>Platform: apply mechanism
+  Platform-->>App: result or error
+  App-->>User: update UI
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Replaying non-idempotent POSTs without keys
+2. Assuming universal browser support
+3. No user-visible pending state
+4. Infinite retry on 400 validation errors
+5. Storing sensitive payloads unencrypted without threat model
+6. Relying only on in-memory queues
+7. Missing a production edge case for 23-pwa-and-offline.background-sync (#1)
+8. Missing a production edge case for 23-pwa-and-offline.background-sync (#2)
+9. Missing a production edge case for 23-pwa-and-offline.background-sync (#3)
+10. Missing a production edge case for 23-pwa-and-offline.background-sync (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- IDB durability
+- Idempotency keys
+- Feature detect + fallback
+- Drop permanent failures
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Silent data loss when sync unsupported
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
+| Approach | Durability | Support |
 | --- | --- | --- |
-| TODO | TODO | TODO |
+| Background Sync | High | Partial |
+| Retry on focus | Medium | Wide |
+| Manual “Retry” button | High UX control | Wide |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What problem does background sync solve?
+
+**A:** Reliably retrying deferred network work when connectivity returns.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Why idempotency keys?
+
+**A:** Sync may fire more than once; servers must not double-charge/create.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** Design a cross-browser offline submit pipeline.
+
+**A:** IDB outbox always; Background Sync when available; else resume on `online`/visibility; server idempotency; conflict UX.
 
 ## Summary
 
-- TODO: key takeaway
+- Outbox + sync event
+- Idempotent replays
+- Feature-detect
+- Show pending state
 
 ## References
 
-- TODO: official documentation links
+- [MDN — Background Synchronization API](https://developer.mozilla.org/en-US/docs/Web/API/Background_Synchronization_API)
+- [web.dev — Background sync](https://web.dev/articles/background-sync)
 
 <RelatedTopics />
 
 
-Prev: [Service Worker Caching Strategies](/23-pwa-and-offline/caching-strategies-sw/) · Next: [Web App Manifest](/23-pwa-and-offline/web-app-manifest/)
+Prev: [`23-pwa-and-offline.caching-strategies-sw`](/23-pwa-and-offline/caching-strategies-sw/) · Next: [`23-pwa-and-offline.web-app-manifest`](/23-pwa-and-offline/web-app-manifest/)

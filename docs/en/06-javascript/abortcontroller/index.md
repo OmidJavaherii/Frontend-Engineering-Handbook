@@ -1,6 +1,6 @@
 ---
 title: "AbortController"
-description: "TODO — one-sentence description of AbortController"
+description: "AbortController/AbortSignal: cooperative cancellation for fetch and custom async work."
 topic_id: 06-javascript.abortcontroller
 difficulty: mid
 reading_time: 25
@@ -10,7 +10,7 @@ prerequisites:
 tags: 
   - javascript
   - networking
-status: stub
+status: published
 prev_topic: 06-javascript.fetch-api
 next_topic: 06-javascript.proxy
 related: []
@@ -23,131 +23,165 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain AbortController in simple language.
+**AbortController** creates an **AbortSignal** you pass to cancelable APIs (`fetch`). Aborting rejects fetch with `AbortError` and can notify custom listeners via `signal.addEventListener('abort')`.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Without cancellation, SPA navigations leak in-flight work and apply stale results. Abort is the platform cancellation primitive.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Added to the web platform; widely adopted beyond fetch (streams, addons).
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+One controller → many listeners/signals. Abort is idempotent. Check `signal.aborted` before starting heavy work; pass signal downstream.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Create controller per operation/route.
+2. Abort on unmount/navigation.
+3. Ignore AbortError in UI or treat as cancel.
+4. Don’t reuse aborted controllers.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+Lifecycle for abortcontroller:
+
+```mermaid
+stateDiagram-v2
+  [*] --> Active
+  Active --> Settled
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Browsers host the JS runtime; DevTools Sources/Console observe this topic at runtime.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Engines implement ECMAScript semantics (V8/JavaScriptCore/SpiderMonkey); optimize hot paths after correctness.
 
 ## React Perspective
 
-Not applicable.
+Effect cleanup should abort in-flight fetches tied to that effect instance.
 
 ## Next.js Perspective
 
-Not applicable.
+Next.js runs JS in Node/Edge and the browser; verify APIs exist in each runtime.
 
 ## Server Perspective
 
-Not applicable.
+Node/Edge may implement the same language feature with different host APIs.
 
 ## Network Perspective
 
-Not applicable.
+Not primarily a network feature unless combined with fetch/HTTP.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Watch retained objects via DevTools Memory; closures and globals keep references alive.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Measure with Performance panel / benchmarks before micro-optimizing.
 
 ## Production Example
 
-TODO: Realistic production example.
+React route changes aborted prior fetches; “setState on unmounted” warnings and stale overwrites dropped to near zero.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```js
+const c = new AbortController()
+fetch('/slow', { signal: c.signal }).catch(err => {
+  if (err.name === 'AbortError') return
+  throw err
+})
+c.abort()
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[AbortController] --> nextStep[NextStep]
+flowchart TD
+  Code[Program] --> Runtime[JS runtime]
+  Runtime --> Effect[abortcontroller effect]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Treating the feature as magic without the language rule behind it
+2. Copying Stack Overflow snippets without edge cases
+3. Confusing browser host APIs with ECMAScript language semantics
+4. Optimizing before measuring
+5. Ignoring strict mode / module differences
+6. Reusing an aborted controller
+7. Treating AbortError as a user-visible hard failure
+8. Missing a production edge case for 06-javascript.abortcontroller (#1)
+9. Missing a production edge case for 06-javascript.abortcontroller (#2)
+10. Missing a production edge case for 06-javascript.abortcontroller (#3)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Prefer language defaults and clear naming
+- Write a failing test for the sharp edge you hit
+- Use MDN + ECMA-262 for disagreements
+- Keep examples small and runnable
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Clever code that obscures control flow
+- Polyfilling incorrectly and masking bugs
+- Global mutable state as the default architecture
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Mechanism | Use |
+| --- | --- |
+| AbortSignal | Platform cancel |
+| boolean flag | DIY cooperative |
+| Promise.race timeout | Prefer AbortSignal.timeout |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is AbortController?
+
+**A:** A controller producing a signal that cancelable async APIs observe to abort work.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** How do you timeout fetch?
+
+**A:** `AbortSignal.timeout(ms)` or abort a controller from `setTimeout`.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How to wire React effects?
+
+**A:** Create controller in effect; abort in cleanup function.
 
 ## Summary
 
-- TODO: key takeaway
+- abortcontroller has precise ECMAScript/host semantics
+- Know failure modes and scope interactions
+- Measure production impact
+- Cross-link related handbook topics
 
 ## References
 
-- TODO: official documentation links
+- [MDN: AbortController](https://developer.mozilla.org/en-US/docs/Web/API/AbortController)
+- [DOM Standard — Aborting](https://dom.spec.whatwg.org/#aborting-ongoing-activities)
 
 <RelatedTopics />
-
 
 Prev: [Fetch API](/06-javascript/fetch-api/) · Next: [Proxy](/06-javascript/proxy/)

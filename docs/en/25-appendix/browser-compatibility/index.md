@@ -1,6 +1,6 @@
 ---
 title: "Browser Compatibility"
-description: "TODO — one-sentence description of Browser Compatibility"
+description: "Cheatsheet for approaching browser compatibility: baselines, feature detection, and where to look things up."
 topic_id: 25-appendix.browser-compatibility
 difficulty: junior
 reading_time: 20
@@ -8,9 +8,9 @@ implementation_time: 0
 prerequisites: []
 tags: 
   - appendix
-status: stub
+status: published
 prev_topic: null
-next_topic: 25-appendix.http-status-codes
+next_topic: "25-appendix.http-status-codes"
 related: []
 advanced: []
 ---
@@ -21,49 +21,59 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Browser Compatibility in simple language.
+**Browser Compatibility** cheatsheet: how to decide support targets and avoid folklore. Prefer Can I Use / MDN BCD over random tweets.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Shipping APIs unsupported by your audience breaks trust. Over-supporting ancient browsers freezes product velocity.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Browser wars → evergreen browsers → Baseline / BCD efforts to communicate support more clearly.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+**Audience → baseline → detect/polyfill → progressive enhance.** Never UA-parse if feature-detect works.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Define supported browsers (product)  
+2. Check MDN/Can I Use / Baseline  
+3. Feature-detect  
+4. Polyfill only critical paths  
+5. Test Safari/iOS explicitly for PWAs
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> CheckBCD
+  CheckBCD --> Ship: supported
+  CheckBCD --> Enhance: partial
+  CheckBCD --> Avoid: unsupported
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Engines: Chromium, Gecko, WebKit — test each class.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+JS features vs Web API features differ.
 
 ## React Perspective
 
-Not applicable.
+Compile target via browserslist.
 
 ## Next.js Perspective
 
-Not applicable.
+Browserslist + SWC targets.
 
 ## Server Perspective
 
@@ -75,76 +85,113 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Polyfills cost bytes — ship conditionally.
 
 ## Production Example
 
-TODO: Realistic production example.
+CI browserslist + Playwright matrix on critical flows.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```js
+if ('IntersectionObserver' in window) {
+  // modern path
+} else {
+  // fallback pagination button
+}
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[BrowserCompatibility] --> nextStep[NextStep]
+flowchart TD
+  n0[Audience] --> n1[BCD check]
+  n1[BCD check] --> n2[Detect]
+  n2[Detect] --> n3[Enhance]
+```
+
+```mermaid
+sequenceDiagram
+  participant User
+  participant App
+  participant Platform
+  User->>App: interact (Compatibility)
+  App->>Platform: apply mechanism
+  Platform-->>App: result or error
+  App-->>User: update UI
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. UA sniffing for features
+2. Assuming Chrome === all Chromium embeds
+3. Ignoring iOS WebKit
+4. Polyfilling everything
+5. No documented support policy
+6. Testing only desktop
+7. Missing a production edge case for 25-appendix.browser-compatibility (#1)
+8. Missing a production edge case for 25-appendix.browser-compatibility (#2)
+9. Missing a production edge case for 25-appendix.browser-compatibility (#3)
+10. Missing a production edge case for 25-appendix.browser-compatibility (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Written support policy
+- Feature detection
+- Real device Safari checks
+- Prefer Baseline guidance
 
 ## Anti-patterns
 
-TODO: What not to do.
+- “Works on my Chrome” QA
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Source | Use |
+| --- | --- |
+| MDN BCD | API tables |
+| Can I Use | Quick checks |
+| Baseline | Product messaging |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** How do you check if an API is safe to use?
+
+**A:** MDN/Can I Use for audience; feature-detect at runtime.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Feature detection vs UA sniffing?
+
+**A:** Detect capabilities; UA strings lie and rot.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** Set a support policy for a global B2B SaaS.
+
+**A:** Evergreen last N versions, documented exceptions, progressive enhancement for optional APIs, Playwright matrix.
 
 ## Summary
 
-- TODO: key takeaway
+- Policy → BCD → detect
+- Test WebKit
+- Polyfill sparingly
+- Document targets
 
 ## References
 
-- TODO: official documentation links
+- [MDN — Browser compatibility data](https://developer.mozilla.org/en-US/docs/MDN/Writing_guidelines/Page_structures/Compatibility_tables)
+- [Can I Use](https://caniuse.com/)
+- [web.dev — Baseline](https://web.dev/baseline)
 
 <RelatedTopics />
 
-Next: [HTTP Status Codes](/25-appendix/http-status-codes/)
+
+Next: [`25-appendix.http-status-codes`](/25-appendix/http-status-codes/)

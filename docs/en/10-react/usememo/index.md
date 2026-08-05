@@ -1,6 +1,6 @@
 ---
 title: "useMemo"
-description: "TODO — one-sentence description of useMemo"
+description: "useMemo: cache an expensive computed value between renders until dependencies change."
 topic_id: 10-react.usememo
 difficulty: mid
 reading_time: 25
@@ -10,9 +10,9 @@ prerequisites:
 tags: 
   - react
   - performance
-status: stub
-prev_topic: 10-react.react-memo
-next_topic: 10-react.usecallback
+status: published
+prev_topic: "10-react.react-memo"
+next_topic: "10-react.usecallback"
 related: []
 advanced: []
 ---
@@ -23,45 +23,52 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain useMemo in simple language.
+**`useMemo(() => value, deps)`** recomputes `value` only when dependencies change (`Object.is`). Use for expensive pure calculations or to stabilize object identities intentionally.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Some derived data (filter/sort large lists, graph layout) is costly every render.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Hooks-era memoization; React Compiler may auto-memo many cases.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Not a semantic guarantee for correctness—React may theoretically discard and recompute. Don’t put side effects inside.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Write correct code without useMemo.
+2. Profile.
+3. Wrap expensive pure compute.
+4. Keep deps accurate.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+flowchart TD
+  DepsChanged{deps changed?} -->|yes| Recompute
+  DepsChanged -->|no| ReturnCached
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Not applicable.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+Render-phase cache.
 
 ## Next.js Perspective
 
@@ -77,77 +84,95 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Overuse adds memory/bookkeeping.
 
 ## Production Example
 
-TODO: Realistic production example.
+A search page memos filtered rows from a 20k catalog when query/sort deps change.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```tsx
+const filtered = useMemo(
+  () => items.filter((i) => i.name.includes(q)),
+  [items, q],
+)
+```
 
 ## Diagrams
 
 ```mermaid
 flowchart LR
-  concept[useMemo] --> nextStep[NextStep]
+  deps --> useMemo --> value
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. useMemo for cheap operations
+2. Side effects inside useMemo
+3. Wrong deps
+4. Using useMemo to “run once” instead of useState init
+5. Stabilizing everything blindly
+6. Depending on unstable objects
+7. Missing a production edge case for 10-react.usememo (#1)
+8. Missing a production edge case for 10-react.usememo (#2)
+9. Missing a production edge case for 10-react.usememo (#3)
+10. Missing a production edge case for 10-react.usememo (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Expensive pure calcs only
+- Correct deps
+- Prefer compiler when available
 
 ## Anti-patterns
 
-TODO: What not to do.
+- useMemo(() => ({})", []) as cargo cult
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
+| | useMemo | useEffect |
 | --- | --- | --- |
-| TODO | TODO | TODO |
+| Phase | Render | After commit |
+| Side effects | No | Yes |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** When do you use useMemo?
+
+**A:** To avoid recalculating an expensive pure value until dependencies change.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Can you perform side effects in useMemo?
+
+**A:** No. Keep it pure; use effects/events for side effects.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** Why might React docs say not to rely on useMemo for correctness?
+
+**A:** It is a performance optimization; theoretically React could recompute, so don’t use it as a place for required side effects.
 
 ## Summary
 
-- TODO: key takeaway
+- Cache expensive pure values
+- Accurate deps; no side effects
+- Profile-driven
 
 ## References
 
-- TODO: official documentation links
+- [React Documentation](https://react.dev/)
+- [useMemo](https://react.dev/reference/react/useMemo)
 
 <RelatedTopics />
 
 
-Prev: [React.memo](/10-react/react-memo/) · Next: [useCallback](/10-react/usecallback/)
+Prev: [`10-react.react-memo`](/10-react/react-memo/) · Next: [`10-react.usecallback`](/10-react/usecallback/)

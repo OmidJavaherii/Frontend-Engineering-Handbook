@@ -1,6 +1,6 @@
 ---
 title: "Hydration"
-description: "TODO — one-sentence description of Hydration"
+description: "Attaching client-side React to server-rendered HTML so the page becomes interactive."
 topic_id: 12-rendering.hydration
 difficulty: mid
 reading_time: 40
@@ -10,9 +10,9 @@ tags:
   - rendering
   - react
   - interview-frequent
-status: stub
-prev_topic: 12-rendering.streaming
-next_topic: 12-rendering.progressive-hydration
+status: published
+prev_topic: "12-rendering.streaming"
+next_topic: "12-rendering.progressive-hydration"
 related: []
 advanced: []
 ---
@@ -23,49 +23,59 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Hydration in simple language.
+**Hydration** is when client React reconciles with existing SSR/SSG HTML, attaches event handlers, and takes over updates. Until hydration finishes, the page may look ready but not be interactive.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+SSR HTML alone is inert for React event systems. Hydration reuses markup instead of throwing it away (vs full client re-render).
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Core to React SSR since early days; mismatches and cost drove progressive hydration / RSC / resumability discussions.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Server HTML + client bundle → hydrate root → interactive. Markup must match what client render expects (same component output).
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Server emits HTML.
+2. Browser paints.
+3. JS downloads.
+4. React hydrates; warns on mismatch.
+5. State/effects run; events work.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> PaintHTML
+  PaintHTML --> LoadJS
+  LoadJS --> Hydrate
+  Hydrate --> Interactive
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Hydration work is main-thread JS—impacts INP/TBT.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Parse/compile client components before hydrate.
 
 ## React Perspective
 
-Not applicable.
+hydrateRoot; Strict Mode double-invokes in dev.
 
 ## Next.js Perspective
 
-Not applicable.
+Only Client Components hydrate; RSC HTML doesn’t need component hydration.
 
 ## Server Perspective
 
@@ -77,77 +87,101 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Component trees + listeners allocate on hydrate.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Shrink client components to shrink hydration. Selective hydration helps under Suspense. Fix mismatches—they force expensive client render.
 
 ## Production Example
 
-TODO: Realistic production example.
+Product page HTML from RSC; only price widget and cart button hydrate as client islands.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```tsx
+import { hydrateRoot } from 'react-dom/client'
+import App from './App'
+
+hydrateRoot(document.getElementById('root')!, <App />)
+```
 
 ## Diagrams
 
 ```mermaid
 flowchart LR
-  concept[Hydration] --> nextStep[NextStep]
+  HTML[SSR HTML] --> Paint
+  JS[Client bundle] --> Hydrate
+  Paint --> Hydrate --> UI[Interactive]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Invalid HTML nesting causing mismatch
+2. Date.now()/Math.random() during render
+3. locale/timezone differences server vs client
+4. Browser-only APIs in render path
+5. Hydrating massive trees that could be RSC
+6. Ignoring hydration warnings in prod builds
+7. Rendering different HTML on server vs client (Date.now, random, locale)
+8. Injecting browser-only APIs during SSR render
+9. Suppressing hydration warnings instead of fixing mismatches
+10. Hydrating huge trees that should stay server-only static HTML
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Keep markup deterministic
+- Push client boundaries down
+- Use suppressHydrationWarning sparingly (time ago text)
+- Measure hydration cost in Performance panel
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Entire app `"use client"`
+- Silencing mismatches without root cause
+- Replacing SSR HTML immediately with client render
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
+| | Hydration | Resumability |
 | --- | --- | --- |
-| TODO | TODO | TODO |
+| Re-exec components | Yes (client) | Mostly no |
+| Examples | React SSR | Qwik-style |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is hydration?
+
+**A:** Connecting client React to server-rendered HTML so handlers/state work without discarding the markup.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** What causes hydration mismatches?
+
+**A:** Server and client render different HTML—often non-deterministic values, invalid HTML, or locale differences.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How do RSC reduce hydration cost?
+
+**A:** Server Components never hydrate; only Client Component islands do, so less JS runs on the main thread.
 
 ## Summary
 
-- TODO: key takeaway
+- Hydration makes SSR HTML interactive
+- Markup must match
+- Cost scales with client JS
+- RSC shrinks what must hydrate
 
 ## References
 
-- TODO: official documentation links
+- [React — hydrateRoot](https://react.dev/reference/react-dom/client/hydrateRoot)
+- [web.dev — Hydration](https://web.dev/articles/hydration)
 
 <RelatedTopics />
 
 
-Prev: [Streaming](/12-rendering/streaming/) · Next: [Progressive Hydration](/12-rendering/progressive-hydration/)
+Prev: [`12-rendering.streaming`](/12-rendering/streaming/) · Next: [`12-rendering.progressive-hydration`](/12-rendering/progressive-hydration/)

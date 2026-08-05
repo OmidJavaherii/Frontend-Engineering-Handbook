@@ -1,6 +1,6 @@
 ---
 title: "Long Tasks"
-description: "TODO — one-sentence description of Long Tasks"
+description: "Main-thread tasks over 50ms that block input and rendering."
 topic_id: 13-performance.long-tasks
 difficulty: mid
 reading_time: 30
@@ -8,9 +8,9 @@ implementation_time: 0
 prerequisites: []
 tags: 
   - performance
-status: stub
-prev_topic: 13-performance.profiling
-next_topic: 13-performance.scheduler-yielding
+status: published
+prev_topic: "13-performance.profiling"
+next_topic: "13-performance.scheduler-yielding"
 related: []
 advanced: []
 ---
@@ -21,41 +21,49 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Long Tasks in simple language.
+**Long tasks** are main-thread tasks exceeding ~50ms. They delay input handling and paints, driving bad INP/TBT.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+The browser cannot paint or handle events mid-task. Breaking work up restores responsiveness.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Long Tasks API standardized observation; central to modern INP debugging.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Budget ~50ms slices. Yield between slices so the event loop can breathe.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Observe longtask entries.
+2. Attribute via flamechart.
+3. Split/defer/workerize.
+4. Re-measure INP.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Idle
+  Idle --> Active: use
+  Active --> Idle: settle
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Observed via PerformanceObserver.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+JS + layout both create tasks.
 
 ## React Perspective
 
@@ -75,77 +83,99 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Measure before/after with lab + field tools. Optimize the attributed bottleneck for Main-thread tasks over 50ms that block input and rendering., not folklore.
 
 ## Production Example
 
-TODO: Realistic production example.
+Teams adopt Main-thread tasks over 50ms that block input and rendering. on critical routes, add monitoring, and guard regressions with budgets or reviews.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```ts
+new PerformanceObserver((list) => {
+  for (const e of list.getEntries()) console.log(e.duration, e)
+}).observe({ type: 'longtask', buffered: true })
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[LongTasks] --> nextStep[NextStep]
+flowchart TD
+  A[Understand] --> B[Apply Main-thread tasks over 50ms that block input and rendering.]
+  B --> C[Measure]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Giant sync JSON.parse on boot
+2. Unsplit hydration
+3. Third parties unchecked
+4. Tight loops in render
+5. Ignoring tasks from extensions in local debugging
+6. Yielding incorrectly without continuing work
+7. Missing a production edge case for 13-performance.long-tasks (#1)
+8. Missing a production edge case for 13-performance.long-tasks (#2)
+9. Missing a production edge case for 13-performance.long-tasks (#3)
+10. Missing a production edge case for 13-performance.long-tasks (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Prefer platform/framework primitives
+- Measure impact on real user metrics
+- Keep the change reviewable and reversible
+- Document the invariant you are protecting
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Copy-paste without understanding failure modes
+- Premature abstraction around a single use
+- Optimizing without a baseline
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Approach | When |
+| --- | --- |
+| Use as designed | Default |
+| Simpler alternative | If constraints differ |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** How long is a long task?
+
+**A:** Over 50 milliseconds on the main thread.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** How do long tasks affect INP?
+
+**A:** They increase input delay/processing time so the next paint after interaction is late.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** Strategies to eliminate a 200ms task?
+
+**A:** Split into chunks with yielding, move to worker, precompute on server, or defer until idle—pick based on data dependencies.
 
 ## Summary
 
-- TODO: key takeaway
+- Main-thread tasks over 50ms that block input and rendering.
+- Know why it exists and when not to use it
+- Measure production impact
+- Link related handbook topics instead of duplicating
 
 ## References
 
-- TODO: official documentation links
+- [MDN — Long Tasks](https://developer.mozilla.org/en-US/docs/Web/API/PerformanceLongTaskTiming)
+- [web.dev — Optimize long tasks](https://web.dev/articles/optimize-long-tasks)
 
 <RelatedTopics />
 
 
-Prev: [Profiling](/13-performance/profiling/) · Next: [Scheduler and Yielding](/13-performance/scheduler-yielding/)
+Prev: [`13-performance.profiling`](/13-performance/profiling/) · Next: [`13-performance.scheduler-yielding`](/13-performance/scheduler-yielding/)

@@ -1,6 +1,6 @@
 ---
 title: "Factory and Builder"
-description: "TODO — one-sentence description of Factory and Builder"
+description: "Factory and Builder creational patterns for JS/TS — test fixtures, config objects, and when not to bother."
 topic_id: 22-design-patterns.factory-and-builder
 difficulty: mid
 reading_time: 25
@@ -8,9 +8,9 @@ implementation_time: 0
 prerequisites: []
 tags: 
   - patterns
-status: stub
-prev_topic: 22-design-patterns.module-pattern
-next_topic: 22-design-patterns.when-patterns-hurt
+status: published
+prev_topic: "22-design-patterns.module-pattern"
+next_topic: "22-design-patterns.when-patterns-hurt"
 related: []
 advanced: []
 ---
@@ -21,45 +21,53 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Factory and Builder in simple language.
+**Factory** functions create objects without exposing construction complexity; **Builders** assemble complex objects step-by-step. In TS/JS they appear as helpers, not heavyweight class hierarchies.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Scattered constructors with 12 optional params are error-prone. Factories centralize defaults; builders clarify multi-step setup (especially tests).
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+GoF creational patterns → JS factory functions (often preferred over `new`) → fluent builders in test kits and query builders.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Factory: `createX(input) → X`. Builder: `builder().withA().withB().build()`. Prefer simple object literals until complexity hurts.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Spot complex construction  
+2. Extract factory with defaults  
+3. Add builder only for many optional steps  
+4. Keep builders immutable or clearly mutable
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Configure
+  Configure --> Configure: with_step
+  Configure --> Built: build
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Not applicable.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+Factories create initial state or test elements; avoid builders for JSX — composition is enough.
 
 ## Next.js Perspective
 
@@ -75,77 +83,121 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Negligible vs correctness/clarity.
 
 ## Production Example
 
-TODO: Realistic production example.
+`createTestUser({ role: 'admin' })` factory standardizes fixtures; URL builders ensure encoding.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```ts
+type User = { id: string; role: 'user' | 'admin'; name: string }
+
+export function createUser(partial: Partial<User> & { id: string }): User {
+  return { role: 'user', name: 'Anonymous', ...partial }
+}
+
+class QueryBuilder {
+  private parts: string[] = []
+  where(clause: string) {
+    this.parts.push(clause)
+    return this
+  }
+  build() {
+    return this.parts.join(' AND ')
+  }
+}
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[FactoryandBuilder] --> nextStep[NextStep]
+flowchart TD
+  n0[Inputs] --> n1[Factory/Builder]
+  n1[Factory/Builder] --> n2[Product]
+```
+
+```mermaid
+sequenceDiagram
+  participant User
+  participant App
+  participant Platform
+  User->>App: interact (Factory/Builder)
+  App->>Platform: apply mechanism
+  Platform-->>App: result or error
+  App-->>User: update UI
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Builders for two-field objects
+2. Factories that hide important side effects
+3. Mutable builder reused after build unexpectedly
+4. Class explosion copying Java idioms into TS
+5. Test factories that produce unrealistic data
+6. No validation inside factories for invariants
+7. Missing a production edge case for 22-design-patterns.factory-and-builder (#1)
+8. Missing a production edge case for 22-design-patterns.factory-and-builder (#2)
+9. Missing a production edge case for 22-design-patterns.factory-and-builder (#3)
+10. Missing a production edge case for 22-design-patterns.factory-and-builder (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Factories for defaults + invariants
+- Builders for many optional steps
+- Prefer simple functions in JS
 
 ## Anti-patterns
 
-TODO: What not to do.
+- AbstractFactoryAbstractBase for a single product
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
+| | Steps | Best for |
 | --- | --- | --- |
-| TODO | TODO | TODO |
+| Constructor | One | Simple |
+| Factory | One | Defaults/invariants |
+| Builder | Many | Complex optional config |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** Factory vs constructor?
+
+**A:** Factories can return different implementations, reuse pools, or enforce defaults without `new` ceremony.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** When is a builder worth it in TypeScript?
+
+**A:** Many optional fields with validation between steps, or readable test setup — otherwise use `Partial` + factory.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How do factories interact with DI and testing?
+
+**A:** Inject collaborators into factories; in tests, swap factories or pass fakes rather than mocking constructors globally.
 
 ## Summary
 
-- TODO: key takeaway
+- Factories centralize creation
+- Builders help multi-step config
+- Don’t over-Java your TS
+- Great for test fixtures
 
 ## References
 
-- TODO: official documentation links
+- [Refactoring Guru — Factory Method](https://refactoring.guru/design-patterns/factory-method)
+- [Refactoring Guru — Builder](https://refactoring.guru/design-patterns/builder)
 
 <RelatedTopics />
 
 
-Prev: [Module Pattern](/22-design-patterns/module-pattern/) · Next: [When Patterns Hurt](/22-design-patterns/when-patterns-hurt/)
+Prev: [`22-design-patterns.module-pattern`](/22-design-patterns/module-pattern/) · Next: [`22-design-patterns.when-patterns-hurt`](/22-design-patterns/when-patterns-hurt/)

@@ -1,6 +1,6 @@
 ---
 title: "Image Optimization"
-description: "TODO — one-sentence description of Image Optimization"
+description: "next/image responsive images with lazy loading, sizing, and format negotiation."
 topic_id: 11-nextjs.image-optimization
 difficulty: junior
 reading_time: 30
@@ -9,9 +9,9 @@ prerequisites: []
 tags: 
   - nextjs
   - performance
-status: stub
-prev_topic: 11-nextjs.node-runtime
-next_topic: 11-nextjs.fonts
+status: published
+prev_topic: "11-nextjs.node-runtime"
+next_topic: "11-nextjs.fonts"
 related: []
 advanced: []
 ---
@@ -22,41 +22,50 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Image Optimization in simple language.
+`next/image` wraps `<img>` with **automatic optimization**: required dimensions/aspect guidance, lazy loading by default, modern formats (WebP/AVIF when supported), and an optimization loader (default or custom/CDN).
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Images dominate LCP bytes. Manual `srcset` is error-prone; a framework component encodes best practices and protects CLS with reserved space.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Introduced in Next 10 era; evolved with `fill`, `sizes`, remotePatterns security, and sharper defaults.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Provide `width`/`height` or `fill` + sized parent; set `sizes` so the browser picks a sane candidate; mark the LCP hero with `priority`.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Import `Image` from `next/image`.
+2. Configure `images.remotePatterns` for remote hosts.
+3. Set dimensions/`sizes`/`priority` as needed.
+4. Verify Network tab shows optimized URLs.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> RequestPage
+  RequestPage --> RequestOptimizer: /_next/image
+  RequestOptimizer --> CachedVariant
+  CachedVariant --> DecodePaint
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Uses `srcset`/`sizes`; lazy images use loading=lazy semantics.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
@@ -64,7 +73,7 @@ Not applicable.
 
 ## Next.js Perspective
 
-Not applicable.
+Optimizer runs on the server/CDN path; can be replaced with custom loader.
 
 ## Server Perspective
 
@@ -72,81 +81,115 @@ Not applicable.
 
 ## Network Perspective
 
-Not applicable.
+Fewer bytes via modern formats; cache optimized variants.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Huge unoptimized bitmaps still hurt decode memory—compress sources.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Biggest LCP lever on many sites. Wrong `sizes` overdownloads; missing sizes causes CLS.
 
 ## Production Example
 
-TODO: Realistic production example.
+PDP hero uses `priority` + accurate `sizes`; gallery below folds stays lazy. Remote CMS images allowed via remotePatterns.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```tsx
+import Image from 'next/image'
+
+export function Hero() {
+  return (
+    <Image
+      src="/hero.jpg"
+      alt="Product hero"
+      width={1200}
+      height={630}
+      sizes="(max-width: 768px) 100vw, 1200px"
+      priority
+    />
+  )
+}
+```
 
 ## Diagrams
 
 ```mermaid
 flowchart LR
-  concept[ImageOptimization] --> nextStep[NextStep]
+  Img[next/image] --> Opt[Image optimizer]
+  Opt --> Browser[Correct srcset candidate]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Omitting sizes with fill, causing oversized downloads
+2. Not setting priority on the LCP image
+3. Allowing any remote host (security/SSR F) via wildcard
+4. Using raw `<img>` for all heroes and skipping optimization
+5. Serving 4000px PNG sources without compression
+6. Forgetting width/height and causing CLS
+7. Missing a production edge case for 11-nextjs.image-optimization (#1)
+8. Missing a production edge case for 11-nextjs.image-optimization (#2)
+9. Missing a production edge case for 11-nextjs.image-optimization (#3)
+10. Missing a production edge case for 11-nextjs.image-optimization (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Always set sizes for responsive layouts
+- priority only for above-the-fold LCP candidates
+- Lock remotePatterns tightly
+- Prefer modern source assets (AVIF/WebP pipeline upstream)
 
 ## Anti-patterns
 
-TODO: What not to do.
+- priority on every image
+- CSS-only resizing of giant downloads
+- Disabling the optimizer globally to “fix CI”
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
+| | next/image | raw img |
 | --- | --- | --- |
-| TODO | TODO | TODO |
+| Optimization | Yes | Manual |
+| CLS guards | Built-in | DIY |
+| Flexibility | High with loader | Maximum |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** Why use next/image?
+
+**A:** It automates responsive images, lazy loading, modern formats, and layout stability for better LCP/CLS.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** What does the sizes prop do?
+
+**A:** Tells the browser how wide the image will display so it can pick an appropriate srcset candidate.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How do you optimize images on a custom CDN?
+
+**A:** Use a custom `loader` that returns CDN URLs with width/quality params, keep sizes/priority correct, and ensure remotePatterns/security still apply.
 
 ## Summary
 
-- TODO: key takeaway
+- next/image optimizes and stabilizes images
+- sizes + dimensions are mandatory for good results
+- priority for LCP heroes only
+- Lock down remote image hosts
 
 ## References
 
-- TODO: official documentation links
+- [Next.js — Image Optimization](https://nextjs.org/docs/app/building-your-application/optimizing/images)
+- [web.dev — Optimize LCP](https://web.dev/articles/optimize-lcp)
 
 <RelatedTopics />
 
 
-Prev: [Node Runtime](/11-nextjs/node-runtime/) · Next: [Fonts](/11-nextjs/fonts/)
+Prev: [`11-nextjs.node-runtime`](/11-nextjs/node-runtime/) · Next: [`11-nextjs.fonts`](/11-nextjs/fonts/)

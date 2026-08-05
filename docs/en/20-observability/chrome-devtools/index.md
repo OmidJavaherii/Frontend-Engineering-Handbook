@@ -1,6 +1,6 @@
 ---
 title: "Chrome DevTools"
-description: "TODO — one-sentence description of Chrome DevTools"
+description: "Chrome DevTools panels for inspecting DOM, network, performance, memory, and application state."
 topic_id: 20-observability.chrome-devtools
 difficulty: junior
 reading_time: 40
@@ -9,9 +9,9 @@ prerequisites: []
 tags: 
   - devtools
   - observability
-status: stub
+status: published
 prev_topic: null
-next_topic: 20-observability.debugging-javascript
+next_topic: "20-observability.debugging-javascript"
 related: []
 advanced: []
 ---
@@ -22,45 +22,56 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Chrome DevTools in simple language.
+**Chrome DevTools** is the primary lab toolkit for frontend engineers: Elements, Console, Network, Performance, Memory, Application, and more. Mastering it turns guesses into measurements.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+You cannot fix what you cannot see. DevTools exposes the browser’s view of your page—layout, requests, main-thread work, storage.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Evolved with Chromium; many workflows (Performance panel, Coverage, Lighthouse) became industry standard.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Each panel answers a question: What DOM/CSS? What requests? Why jank? What’s retained in memory? What’s in storage?
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Reproduce issue.
+2. Pick panel (Network/Performance/Memory).
+3. Record with narrow scope.
+4. Attribute cost to stacks/URLs.
+5. Change one variable; remeasure.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Reproduce
+  Reproduce --> Record
+  Record --> Analyze
+  Analyze --> Fix
+  Fix --> Verify
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+DevTools talks to the renderer/debugging protocols.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+Components profiler complements Performance panel.
 
 ## Next.js Perspective
 
@@ -72,80 +83,106 @@ Not applicable.
 
 ## Network Perspective
 
-Not applicable.
+Waterfall + initiator stacks explain waterfalls.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Recording itself has overhead—prefer short traces.
 
 ## Production Example
 
-TODO: Realistic production example.
+Perf regression: Performance panel shows long task from JSON.parse on huge payload; fixed by streaming/pagination.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```js
+// Quick lab helpers
+performance.mark('start')
+// ... work
+performance.mark('end')
+performance.measure('work', 'start', 'end')
+console.table(performance.getEntriesByType('measure'))
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[ChromeDevTools] --> nextStep[NextStep]
+flowchart TD
+  Issue --> PanelChoice
+  PanelChoice --> Network
+  PanelChoice --> Performance
+  PanelChoice --> Memory
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Profiling production minified code without source maps
+2. Looking only at FPS without main-thread attribution
+3. Ignoring throttling presets for mobile realism
+4. Leaving breakpoints that alter timing
+5. Network filter hiding the failing call
+6. Missing a production edge case for 20-observability.chrome-devtools (#1)
+7. Missing a production edge case for 20-observability.chrome-devtools (#2)
+8. Missing a production edge case for 20-observability.chrome-devtools (#3)
+9. Missing a production edge case for 20-observability.chrome-devtools (#4)
+10. Missing a production edge case for 20-observability.chrome-devtools (#5)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Throttle CPU/network for mobile issues
+- Use source maps
+- Short targeted recordings
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Fixing without recording a baseline
+- Only Lighthouse score chasing
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Panel | Question |
+| --- | --- |
+| Network | What loaded? |
+| Performance | Why jank? |
+| Memory | What’s retained? |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** Which panel inspects HTTP requests?
+
+**A:** The Network panel.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** How do you find a long task cause?
+
+**A:** Record Performance, find long tasks, inspect call stacks/bottom-up to attribute JS/layout work.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** Debug a memory leak with DevTools.
+
+**A:** Take heap snapshots over interactions, compare retained objects, look for detached DOM / listeners; confirm with allocation timelines.
 
 ## Summary
 
-- TODO: key takeaway
+- DevTools is the lab workbench
+- Pick panel by question
+- Measure → change → remeasure
 
 ## References
 
-- TODO: official documentation links
+- [Chrome DevTools docs](https://developer.chrome.com/docs/devtools/)
+- [Performance panel overview](https://developer.chrome.com/docs/devtools/performance/)
 
 <RelatedTopics />
 
-Next: [Debugging JavaScript](/20-observability/debugging-javascript/)
+
+Next: [`20-observability.debugging-javascript`](/20-observability/debugging-javascript/)

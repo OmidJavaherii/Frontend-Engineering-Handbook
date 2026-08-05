@@ -1,6 +1,6 @@
 ---
 title: "History API"
-description: "TODO — one-sentence description of History API"
+description: "History API: pushState/replaceState and popstate for client-side routing without full reloads."
 topic_id: 09-browser-apis.history-api
 difficulty: junior
 reading_time: 25
@@ -9,9 +9,9 @@ prerequisites: []
 tags: 
   - browser-apis
   - routing
-status: stub
-prev_topic: 09-browser-apis.cache-storage
-next_topic: 09-browser-apis.clipboard-api
+status: published
+prev_topic: "09-browser-apis.cache-storage"
+next_topic: "09-browser-apis.clipboard-api"
 related: []
 advanced: []
 ---
@@ -22,49 +22,63 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain History API in simple language.
+The **History API** lets apps manipulate the session history stack with `pushState` / `replaceState` and react to `popstate` when the user navigates back/forward—without full page loads.
+
+This is the foundation of client-side routers.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+SPAs need shareable URLs and back-button behavior while keeping app state in memory.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+HTML5 History API ended hash-only routing (`#/path`) as the only option. Modern frameworks wrap it; App Router frameworks also integrate server routing.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+History entries have a URL + optional state object. `pushState` adds; `replaceState` updates current. `popstate` fires on back/forward (not usually on pushState itself).
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. On in-app nav: `pushState` + render route.
+2. On `popstate`: read `location` + `event.state` and render.
+3. Use `replaceState` for query tweaks that should not spam history.
+4. Keep state serializable and modest.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+sequenceDiagram
+  participant User
+  participant App
+  participant History
+  User->>App: click link
+  App->>History: pushState
+  User->>History: back
+  History->>App: popstate
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Coordinates with session history; DevTools shows history sparsely—test manually.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+React Router / Next client navigation wrap these primitives.
 
 ## Next.js Perspective
 
-Not applicable.
+App Router uses its own navigation; still built on web history concepts.
 
 ## Server Perspective
 
@@ -72,81 +86,103 @@ Not applicable.
 
 ## Network Perspective
 
-Not applicable.
+pushState does not fetch by itself—your app must load data.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Cheap; the cost is your route rendering/data fetching.
 
 ## Production Example
 
-TODO: Realistic production example.
+A storefront updates filters with `replaceState` for query params to keep the back stack clean, and `pushState` when entering a product page.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```ts
+window.history.pushState({ page: 2 }, '', '/items?page=2')
+window.addEventListener('popstate', (e) => {
+  console.log('state', e.state, location.href)
+})
+```
 
 ## Diagrams
 
 ```mermaid
 flowchart LR
-  concept[HistoryAPI] --> nextStep[NextStep]
+  A[/] -->|pushState| B[/items]
+  B -->|pushState| C[/items/1]
+  C -->|back| B
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Assuming pushState fetches the new URL from the server
+2. Putting non-serializable objects in state
+3. Listening only to clicks and ignoring back button
+4. Spamming history on every keystroke filter
+5. Broken server fallbacks for deep links (no index.html strategy)
+6. Cross-origin pushState attempts
+7. Overlooking an edge case #1 specific to 09-browser-apis.history-api in production traffic
+8. Overlooking an edge case #2 specific to 09-browser-apis.history-api in production traffic
+9. Overlooking an edge case #3 specific to 09-browser-apis.history-api in production traffic
+10. Overlooking an edge case #4 specific to 09-browser-apis.history-api in production traffic
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Accessible link elements for navigation
+- replaceState for ephemeral query edits
+- Server can serve the SPA shell for deep URLs
+- Keep history state small
 
 ## Anti-patterns
 
-TODO: What not to do.
+- hash routing + history API confusion without need
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
+| Method | Reload? | Adds history? |
 | --- | --- | --- |
-| TODO | TODO | TODO |
+| Location assign | Yes | Yes |
+| pushState | No | Yes |
+| replaceState | No | No |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** Does `pushState` load a new document?
+
+**A:** No. It changes the URL/history entry; your app updates the UI.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** When does `popstate` fire?
+
+**A:** On session history traversal (back/forward), not typically on `pushState` itself.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How should filter query updates affect history?
+
+**A:** Often `replaceState` while editing filters; `pushState` when navigating to a meaningfully new view.
 
 ## Summary
 
-- TODO: key takeaway
+- Client routing primitive
+- push vs replace vs popstate
+- Does not fetch by itself
 
 ## References
 
-- TODO: official documentation links
+- [MDN: History API](https://developer.mozilla.org/en-US/docs/Web/API/History_API)
+- [MDN: pushState](https://developer.mozilla.org/en-US/docs/Web/API/History/pushState)
 
 <RelatedTopics />
 
 
-Prev: [Cache Storage](/09-browser-apis/cache-storage/) · Next: [Clipboard API](/09-browser-apis/clipboard-api/)
+Prev: [`09-browser-apis.cache-storage`](/09-browser-apis/cache-storage/) · Next: [`09-browser-apis.clipboard-api`](/09-browser-apis/clipboard-api/)

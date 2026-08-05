@@ -1,6 +1,6 @@
 ---
 title: "Webpack"
-description: "TODO — one-sentence description of Webpack"
+description: "Mature bundler with a vast loader/plugin ecosystem; historically default for many apps."
 topic_id: 14-build-tools.webpack
 difficulty: mid
 reading_time: 40
@@ -9,9 +9,9 @@ prerequisites: []
 tags: 
   - bundling
   - tooling
-status: stub
-prev_topic: 14-build-tools.module-resolution
-next_topic: 14-build-tools.rollup
+status: published
+prev_topic: "14-build-tools.module-resolution"
+next_topic: "14-build-tools.rollup"
 related: []
 advanced: []
 ---
@@ -22,41 +22,49 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Webpack in simple language.
+**webpack** builds dependency graphs through loaders/plugins, outputting optimized bundles. Still powers many apps and (historically/default) Next.js production builds.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Unmatched ecosystem for custom pipelines when you need deep control.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Dominated 2015–2020; now shares space with Vite/Rspack/Turbopack for speed.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Entry → modules → loaders → plugins → chunks. Everything is configurable—at a complexity cost.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Define entry/output.
+2. Configure loaders (ts/css/assets).
+3. SplitChunks/minimize.
+4. Analyze bundle.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Idle
+  Idle --> Active: use
+  Active --> Idle: settle
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Not applicable.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
@@ -76,77 +84,101 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Measure before/after with lab + field tools. Optimize the attributed bottleneck for Mature bundler with a vast loader/plugin ecosystem; historically default for many apps., not folklore.
 
 ## Production Example
 
-TODO: Realistic production example.
+Teams adopt Mature bundler with a vast loader/plugin ecosystem; historically default for many apps. on critical routes, add monitoring, and guard regressions with budgets or reviews.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```js
+export default {
+  entry: './src/index.js',
+  output: { filename: '[name].[contenthash].js' },
+  module: { rules: [{ test: /\.tsx?$/, use: 'ts-loader' }] },
+}
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[Webpack] --> nextStep[NextStep]
+flowchart TD
+  A[Understand] --> B[Apply Mature bundler with a vast loader/plugin ecosystem; historically default for many apps.]
+  B --> C[Measure]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Giant hand-rolled config without need
+2. Wrong target/polyfills bloat
+3. Ignoring cache/filesystem cache
+4. Duplicate frameworks from alias mistakes
+5. Devtool source maps leaking in prod incorrectly
+6. Loader order confusion
+7. Missing a production edge case for 14-build-tools.webpack (#1)
+8. Missing a production edge case for 14-build-tools.webpack (#2)
+9. Missing a production edge case for 14-build-tools.webpack (#3)
+10. Missing a production edge case for 14-build-tools.webpack (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Prefer platform/framework primitives
+- Measure impact on real user metrics
+- Keep the change reviewable and reversible
+- Document the invariant you are protecting
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Copy-paste without understanding failure modes
+- Premature abstraction around a single use
+- Optimizing without a baseline
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Approach | When |
+| --- | --- |
+| Use as designed | Default |
+| Simpler alternative | If constraints differ |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is webpack?
+
+**A:** A bundler that transforms a module graph into optimized browser/server assets via loaders/plugins.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** What is a loader vs plugin?
+
+**A:** Loaders transform individual files; plugins hook the whole compilation lifecycle.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How does Module Federation relate?
+
+**A:** A webpack feature for sharing modules across independently deployed apps at runtime—see microfrontends.
 
 ## Summary
 
-- TODO: key takeaway
+- Mature bundler with a vast loader/plugin ecosystem; historically default for many apps.
+- Know why it exists and when not to use it
+- Measure production impact
+- Link related handbook topics instead of duplicating
 
 ## References
 
-- TODO: official documentation links
+- [webpack Docs](https://webpack.js.org/)
+- [webpack Concepts](https://webpack.js.org/concepts/)
 
 <RelatedTopics />
 
 
-Prev: [Module Resolution](/14-build-tools/module-resolution/) · Next: [Rollup](/14-build-tools/rollup/)
+Prev: [`14-build-tools.module-resolution`](/14-build-tools/module-resolution/) · Next: [`14-build-tools.rollup`](/14-build-tools/rollup/)

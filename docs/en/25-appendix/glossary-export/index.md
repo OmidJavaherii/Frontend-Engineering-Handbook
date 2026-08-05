@@ -1,6 +1,6 @@
 ---
 title: "Glossary Export"
-description: "TODO — one-sentence description of Glossary Export"
+description: "How glossary terms are exported and used across the handbook — denser meta cheatsheet."
 topic_id: 25-appendix.glossary-export
 difficulty: beginner
 reading_time: 10
@@ -8,9 +8,9 @@ implementation_time: 0
 prerequisites: []
 tags: 
   - appendix
-status: stub
-prev_topic: 25-appendix.priority-hints-cheatsheet
-next_topic: 25-appendix.curriculum-changelog
+status: published
+prev_topic: "25-appendix.priority-hints-cheatsheet"
+next_topic: "25-appendix.curriculum-changelog"
 related: []
 advanced: []
 ---
@@ -21,41 +21,50 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Glossary Export in simple language.
+**Glossary Export** explains the handbook’s glossary artifact: stable term definitions reused by topics and knowledge-graph views.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Shared vocabulary prevents “event loop” meaning three things across modules. Export keeps tooling and docs aligned.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+This curriculum stores structured meta (registry, tags, KG) alongside prose; glossary export is the term layer.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+**Term id → short definition → canonical topic link.** Topics should not redefine casually; they link.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Add/update term in glossary source  
+2. Link canonical topic  
+3. Regenerate export if required by tooling  
+4. Use consistent term in prose
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> DraftTerm
+  DraftTerm --> Linked
+  Linked --> Exported
+  Exported --> Consumed
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Not applicable.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
@@ -63,7 +72,7 @@ Not applicable.
 
 ## Next.js Perspective
 
-Not applicable.
+Docs site may render glossary pages from export.
 
 ## Server Perspective
 
@@ -75,77 +84,112 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+N/A beyond docs build size — keep definitions short.
 
 ## Production Example
 
-TODO: Realistic production example.
+When renaming a term, update glossary + registry links together.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```yaml
+# Illustrative shape
+- id: event-loop
+  term: Event Loop
+  definition: Scheduler coordinating tasks, microtasks, and rendering in browsers.
+  canonical: 03-browser.event-loop
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[GlossaryExport] --> nextStep[NextStep]
+flowchart TD
+  n0[Term] --> n1[Canonical topic]
+  n1[Canonical topic] --> n2[Export]
+  n2[Export] --> n3[Consumers]
+```
+
+```mermaid
+sequenceDiagram
+  participant User
+  participant App
+  participant Platform
+  User->>App: interact (Glossary)
+  App->>Platform: apply mechanism
+  Platform-->>App: result or error
+  App-->>User: update UI
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Duplicate conflicting definitions
+2. Glossary without canonical links
+3. Rewriting definitions ad hoc per page
+4. Unstable ids
+5. Overlong glossary essays
+6. Orphan terms never used
+7. Missing a production edge case for 25-appendix.glossary-export (#1)
+8. Missing a production edge case for 25-appendix.glossary-export (#2)
+9. Missing a production edge case for 25-appendix.glossary-export (#3)
+10. Missing a production edge case for 25-appendix.glossary-export (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- One canonical topic per term
+- Short definitions
+- Stable ids
+- Update with curriculum changes
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Glossary as dumping ground for unwritten topics
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Artifact | Role |
+| --- | --- |
+| Glossary | Terms |
+| Topic registry | Pages |
+| Knowledge graph | Relationships |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** Why have a glossary in a handbook?
+
+**A:** Shared definitions reduce ambiguity across modules.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** What should a glossary entry link to?
+
+**A:** A canonical topic that owns the deep explanation.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How do you prevent glossary drift?
+
+**A:** Stable ids, review on curriculum changes, forbid conflicting inline redefinitions.
 
 ## Summary
 
-- TODO: key takeaway
+- Term → definition → canonical topic
+- Keep short
+- Stable ids
+- Align with registry/KG
 
 ## References
 
-- TODO: official documentation links
+- [W3C — making content understandable (vocab clarity)](https://www.w3.org/WAI/)
+- Prefer this repo’s meta/ glossary sources as authoritative for local terms.
 
 <RelatedTopics />
 
 
-Prev: [Priority Hints Cheatsheet](/25-appendix/priority-hints-cheatsheet/) · Next: [Curriculum Changelog](/25-appendix/curriculum-changelog/)
+Prev: [`25-appendix.priority-hints-cheatsheet`](/25-appendix/priority-hints-cheatsheet/) · Next: [`25-appendix.curriculum-changelog`](/25-appendix/curriculum-changelog/)

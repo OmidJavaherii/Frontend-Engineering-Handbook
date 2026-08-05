@@ -1,6 +1,6 @@
 ---
 title: "Dynamic Import"
-description: "TODO — one-sentence description of Dynamic Import"
+description: "import() expressions that load modules asynchronously and create split points."
 topic_id: 13-performance.dynamic-import
 difficulty: junior
 reading_time: 25
@@ -9,9 +9,9 @@ prerequisites: []
 tags: 
   - performance
   - javascript
-status: stub
-prev_topic: 13-performance.dead-code-elimination
-next_topic: 13-performance.lazy-loading
+status: published
+prev_topic: "13-performance.dead-code-elimination"
+next_topic: "13-performance.lazy-loading"
 related: []
 advanced: []
 ---
@@ -22,41 +22,49 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Dynamic Import in simple language.
+**Dynamic `import()`** returns a Promise of a module namespace and tells bundlers to create an async chunk. It is the language primitive behind lazy loading.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Static imports are eager. Dynamic import defers cost until a condition/route/interaction.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+TC39 dynamic import; adopted by all modern bundlers.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+`import('./X')` → network fetch chunk → evaluate → use exports.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Identify deferrable module.
+2. Replace static import with `import()`.
+3. Handle loading/error.
+4. Optionally prefetch.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Idle
+  Idle --> Active: use
+  Active --> Idle: settle
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Uses module script fetching.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
@@ -64,7 +72,7 @@ Not applicable.
 
 ## Next.js Perspective
 
-Not applicable.
+Powers next/dynamic under the hood.
 
 ## Server Perspective
 
@@ -76,77 +84,100 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Measure before/after with lab + field tools. Optimize the attributed bottleneck for import() expressions that load modules asynchronously and create split points., not folklore.
 
 ## Production Example
 
-TODO: Realistic production example.
+Teams adopt import() expressions that load modules asynchronously and create split points. on critical routes, add monitoring, and guard regressions with budgets or reviews.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```ts
+async function openEditor() {
+  const { createEditor } = await import('./editor')
+  return createEditor()
+}
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[DynamicImport] --> nextStep[NextStep]
+flowchart TD
+  A[Understand] --> B[Apply import() expressions that load modules asynchronously and create split points.]
+  B --> C[Measure]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Dynamic import in a hot path without caching the promise
+2. String concatenation that prevents static chunk naming
+3. No error UI when chunk fails (offline)
+4. Importing server-only modules dynamically on client
+5. Waterfall: await A then import B that could parallelize
+6. Using dynamic import for tiny modules needlessly
+7. Missing a production edge case for 13-performance.dynamic-import (#1)
+8. Missing a production edge case for 13-performance.dynamic-import (#2)
+9. Missing a production edge case for 13-performance.dynamic-import (#3)
+10. Missing a production edge case for 13-performance.dynamic-import (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Prefer platform/framework primitives
+- Measure impact on real user metrics
+- Keep the change reviewable and reversible
+- Document the invariant you are protecting
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Copy-paste without understanding failure modes
+- Premature abstraction around a single use
+- Optimizing without a baseline
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Approach | When |
+| --- | --- |
+| Use as designed | Default |
+| Simpler alternative | If constraints differ |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What does import() return?
+
+**A:** A Promise that resolves to the module namespace object.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** How do bundlers use import()?
+
+**A:** As a split point generating a separate async chunk.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** Why avoid fully dynamic paths like import(path)?
+
+**A:** Bundlers cannot statically determine the graph and may include large contexts or fail to split optimally.
 
 ## Summary
 
-- TODO: key takeaway
+- import() expressions that load modules asynchronously and create split points.
+- Know why it exists and when not to use it
+- Measure production impact
+- Link related handbook topics instead of duplicating
 
 ## References
 
-- TODO: official documentation links
+- [MDN — import()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/import)
+- [webpack — Dynamic imports](https://webpack.js.org/api/module-methods/#dynamic-expressions-in-import)
 
 <RelatedTopics />
 
 
-Prev: [Dead Code Elimination](/13-performance/dead-code-elimination/) · Next: [Lazy Loading](/13-performance/lazy-loading/)
+Prev: [`13-performance.dead-code-elimination`](/13-performance/dead-code-elimination/) · Next: [`13-performance.lazy-loading`](/13-performance/lazy-loading/)

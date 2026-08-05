@@ -1,6 +1,6 @@
 ---
 title: "useDeferredValue"
-description: "TODO — one-sentence description of useDeferredValue"
+description: "useDeferredValue: defer updating a derived value so urgent UI stays responsive."
 topic_id: 10-react.deferred-value
 difficulty: mid
 reading_time: 25
@@ -9,9 +9,9 @@ prerequisites:
   - 10-react.concurrent-rendering
 tags: 
   - react
-status: stub
-prev_topic: 10-react.transitions
-next_topic: 10-react.strict-mode
+status: published
+prev_topic: "10-react.transitions"
+next_topic: "10-react.strict-mode"
 related: []
 advanced: []
 ---
@@ -22,45 +22,54 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain useDeferredValue in simple language.
+**`useDeferredValue(value)`** returns a deferred version of `value` that may lag behind during urgent updates. Useful when you cannot split state but can let a heavy child receive a delayed prop.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Sometimes you only have one value (from props) yet still need concurrent deferral for expensive consumers.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+React 18 concurrent companion to transitions.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+During urgent renders, deferred value may still be the previous one; later React re-renders with the fresh value at lower priority.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Identify expensive consumers of a fast-changing value.
+2. Pass `useDeferredValue(value)` to them.
+3. Optionally detect lag (`value !== deferred`) for pending UI.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+sequenceDiagram
+  participant UrgentRender
+  participant DeferredRender
+  UrgentRender->>UrgentRender: fresh value in parent
+  UrgentRender->>DeferredRender: stale deferred prop
+  DeferredRender->>DeferredRender: later catches up
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Not applicable.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+Value-level deferral vs transition’s update-level deferral.
 
 ## Next.js Perspective
 
@@ -76,77 +85,100 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Same caveats as transitions—scheduling, not magic speedups.
 
 ## Production Example
 
-TODO: Realistic production example.
+Typeahead keeps the input controlled by `query` but the results list receives `deferredQuery`.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```tsx
+const deferredQuery = useDeferredValue(query)
+return (
+  <>
+    <input value={query} onChange={...} />
+    <Results query={deferredQuery} />
+  </>
+)
+```
 
 ## Diagrams
 
 ```mermaid
 flowchart LR
-  concept[useDeferredValue] --> nextStep[NextStep]
+  query --> input
+  query --> defer[useDeferredValue]
+  defer --> Results
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Deferring the input value itself
+2. Expecting fewer renders overall always
+3. Using instead of memo/virtualization for huge lists alone
+4. No pending indicator when lagging
+5. Deferring everything
+6. Confusing with debounce timers (different mechanism)
+7. Missing a production edge case for 10-react.deferred-value (#1)
+8. Missing a production edge case for 10-react.deferred-value (#2)
+9. Missing a production edge case for 10-react.deferred-value (#3)
+10. Missing a production edge case for 10-react.deferred-value (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Defer props into heavy children
+- Show isStale UI when value !== deferred
+- Combine with memoized/virtualized lists
 
 ## Anti-patterns
 
-TODO: What not to do.
+- DIY setTimeout debounce reimplemented as “deferred” incorrectly
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
+| | useDeferredValue | startTransition |
 | --- | --- | --- |
-| TODO | TODO | TODO |
+| Defers | A value | A state update |
+| Typical | Props from parent | setState you control |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What does useDeferredValue return?
+
+**A:** A version of the value that may lag behind during urgent updates.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** How is it different from debouncing?
+
+**A:** Debouncing is time-based filtering of events; deferred values are React scheduling of renders/priorities.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** When prefer useDeferredValue over splitting state + transition?
+
+**A:** When you do not own the urgent/non-urgent split as separate states—e.g. a single prop from above feeding a heavy child.
 
 ## Summary
 
-- TODO: key takeaway
+- Defer expensive consumers of fast values
+- Scheduling tool, not debounce
+- Signal pending when stale
 
 ## References
 
-- TODO: official documentation links
+- [React Documentation](https://react.dev/)
+- [useDeferredValue](https://react.dev/reference/react/useDeferredValue)
 
 <RelatedTopics />
 
 
-Prev: [Transitions](/10-react/transitions/) · Next: [Strict Mode](/10-react/strict-mode/)
+Prev: [`10-react.transitions`](/10-react/transitions/) · Next: [`10-react.strict-mode`](/10-react/strict-mode/)

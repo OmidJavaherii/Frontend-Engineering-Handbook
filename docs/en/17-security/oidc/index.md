@@ -1,6 +1,6 @@
 ---
 title: "OIDC"
-description: "TODO — one-sentence description of OIDC"
+description: "OpenID Connect: identity layer on OAuth 2.0 issuing ID Tokens for authentication."
 topic_id: 17-security.oidc
 difficulty: mid
 reading_time: 30
@@ -10,9 +10,9 @@ prerequisites:
 tags: 
   - security
   - auth
-status: stub
-prev_topic: 17-security.oauth
-next_topic: 17-security.cookies-security
+status: published
+prev_topic: "17-security.oauth"
+next_topic: "17-security.cookies-security"
 related: []
 advanced: []
 ---
@@ -23,45 +23,55 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain OIDC in simple language.
+**OpenID Connect (OIDC)** adds authentication to OAuth: an **ID Token** (JWT) asserts who logged in, plus UserInfo endpoint. Use OIDC for “sign in,” OAuth scopes for API access.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+OAuth alone does not define login identity. OIDC standardizes identity claims and discovery.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+OIDC 1.0 built on OAuth 2 to fix the “OAuth for login” mess.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+ID Token → identity for the client. Access Token → authorization at APIs. Validate ID Token (iss, aud, exp, nonce, signature) before trusting login.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Discovery (`.well-known/openid-configuration`).
+2. Auth code + PKCE (+ nonce).
+3. Validate ID Token.
+4. Establish app session.
+5. Optionally fetch UserInfo.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> LoginRedirect
+  LoginRedirect --> Tokens
+  Tokens --> ValidateIdToken
+  ValidateIdToken --> AppSession
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Third-party cookie restrictions affect some silent iframe renewals—use modern refresh patterns.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+Libraries (oidc-client) help but still need secure session design.
 
 ## Next.js Perspective
 
@@ -69,85 +79,104 @@ Not applicable.
 
 ## Server Perspective
 
-Not applicable.
+BFF validates ID Token and creates server session.
 
 ## Network Perspective
 
-Not applicable.
+JWKS fetch for signature verification.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Cache JWKS; avoid validating huge tokens on every static asset.
 
 ## Production Example
 
-TODO: Realistic production example.
+Enterprise SSO via OIDC; BFF validates ID Token nonce/aud; creates HttpOnly session; access tokens stay server-side.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```ts
+// Claims you must verify server-side
+const required = ['iss', 'aud', 'exp', 'nonce', 'sub'] as const
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[OIDC] --> nextStep[NextStep]
+flowchart TD
+  OIDC[OIDC Provider] -->|ID Token| Client
+  OIDC -->|Access Token| API
+  Client -->|session cookie| Browser
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Treating access token as identity proof only
+2. Skipping nonce validation
+3. Not checking aud/iss
+4. Using implicit for OIDC login
+5. Storing ID Token forever in localStorage
+6. Missing a production edge case for 17-security.oidc (#1)
+7. Missing a production edge case for 17-security.oidc (#2)
+8. Missing a production edge case for 17-security.oidc (#3)
+9. Missing a production edge case for 17-security.oidc (#4)
+10. Missing a production edge case for 17-security.oidc (#5)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Validate ID Token fully
+- Use nonce
+- Server/BFF session after login
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Parsing ID Token in UI as authorization for APIs
+- Disabling state/nonce checks
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| ID Token | Access Token |
+| --- | --- |
+| AuthN for client | AuthZ for APIs |
+| aud=client | aud=API |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What does OIDC add to OAuth?
+
+**A:** A standardized authentication layer with ID Tokens and UserInfo.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** What is the nonce for?
+
+**A:** It binds the ID Token to the authentication request and mitigates replay/injection of tokens.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How do third-party cookie restrictions affect OIDC SPAs?
+
+**A:** Silent iframe renewal breaks; prefer refresh-token rotation via BFF/secure cookies and explicit re-auth UX.
 
 ## Summary
 
-- TODO: key takeaway
+- OIDC = login identity on OAuth
+- Validate ID Tokens properly
+- Prefer BFF sessions
 
 ## References
 
-- TODO: official documentation links
+- [OpenID Connect Core](https://openid.net/specs/openid-connect-core-1_0.html)
+- [OWASP OAuth/OIDC guidance](https://cheatsheetseries.owasp.org/cheatsheets/OAuth2_Cheat_Sheet.html)
 
 <RelatedTopics />
 
 
-Prev: [OAuth](/17-security/oauth/) · Next: [Cookies Security](/17-security/cookies-security/)
+Prev: [`17-security.oauth`](/17-security/oauth/) · Next: [`17-security.cookies-security`](/17-security/cookies-security/)

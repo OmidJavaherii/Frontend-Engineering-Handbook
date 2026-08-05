@@ -1,6 +1,6 @@
 ---
 title: "DNS"
-description: "TODO — one-sentence description of DNS"
+description: "DNS: the distributed system that resolves human hostnames to IP addresses and other records."
 topic_id: 02-internet.dns
 difficulty: junior
 reading_time: 40
@@ -9,9 +9,9 @@ prerequisites: []
 tags: 
   - networking
   - interview-frequent
-status: stub
-prev_topic: 02-internet.switch
-next_topic: 02-internet.domain
+status: published
+prev_topic: "02-internet.switch"
+next_topic: "02-internet.domain"
 related: []
 advanced: []
 ---
@@ -22,41 +22,51 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain DNS in simple language.
+**DNS (Domain Name System)** maps names like `www.example.com` to records: **A/AAAA** (IPv4/IPv6), **CNAME**, **MX**, **TXT**, **NS**, etc. Browsers resolve names before connecting. DNS is a hierarchical, cached, UDP/TCP/DoH/DoT-served database — and a common outage/perf culprit.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Wrong DNS ⇒ users hit old IPs after cutovers. Slow DNS ⇒ slow TTFB. DNS also carries authenticity-adjacent records (CAA, TLSA) and email security (SPF/DKIM via TXT).
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Hosts files → DNS (1983) → anycast resolvers → DNSSEC → DoH/DoT privacy.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Stub resolver → recursive resolver (often ISP/Cloudflare/Google) → iterative queries from root → TLD → authoritative nameservers. TTLs control cache freshness.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Browser asks OS resolver for hostname.
+2. Recursive resolver walks hierarchy (or uses cache).
+3. Authoritative answer returns A/AAAA (etc).
+4. Client connects to IP; may re-resolve on failure/Happy Eyeballs.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Query
+  Query --> Cached: TTL hit
+  Query --> Recursive
+  Recursive --> Answer
+  Cached --> Answer
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+DNS cache + connection pool. `dns-prefetch` / `preconnect` resource hints.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
@@ -68,85 +78,115 @@ Not applicable.
 
 ## Server Perspective
 
-Not applicable.
+Change DNS carefully; lower TTL before migrations.
 
 ## Network Perspective
 
-Not applicable.
+DNS latency is often 1+ RTT before TCP. Prefetch/preconnect hide it.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Use low TTLs only when needed; prefer stable anycast; measure resolve time in RUM; avoid long CNAME chains.
 
 ## Production Example
 
-TODO: Realistic production example.
+Blue/green cutover left TTL at 24h — half users stayed on old IP. Pre-lowered TTL + dual-run fixed next deploy.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```bash
+dig example.com +short
+dig www.example.com CNAME
+# DoH example (Cloudflare)
+curl -H 'accept: application/dns-json' 'https://cloudflare-dns.com/dns-query?name=example.com&type=A'
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[DNS] --> nextStep[NextStep]
+sequenceDiagram
+  participant B as Browser
+  participant R as Recursive resolver
+  participant Auth as Authoritative NS
+  B->>R: A www.example.com
+  R->>Auth: query if needed
+  Auth-->>R: 93.184.216.34 TTL 300
+  R-->>B: answer
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Leaving high TTL during migrations
+2. Long CNAME chains to the critical origin
+3. Assuming DNS updates are instant globally
+4. Single DNS provider without secondary
+5. Putting underscores/invalid labels casually
+6. Forgetting AAAA (IPv6) behavior with Happy Eyeballs
+7. Using DNS as a poor man’s health check exclusively
+8. Hard-coding IPs in clients and skipping DNS entirely
+9. Ignoring negative caching / NXDOMAIN TTLs when debugging “flaky” DNS
+10. Forgetting split-horizon DNS differences between corp VPN and public resolvers
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Lower TTL before cutovers
+- Redundant nameservers
+- preconnect to critical origins
+- Monitor resolution errors
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Tiny TTLs forever (extra latency + cost)
+- Manual hosts-file “fixes” in production lore
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Record | Purpose |
+| --- | --- |
+| A | IPv4 |
+| AAAA | IPv6 |
+| CNAME | Alias |
+| NS | Nameserver delegation |
+| TXT | Arbitrary text (SPF, verification) |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What does DNS do?
+
+**A:** Resolves domain names to records like IP addresses.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Walk through resolving www.example.com.
+
+**A:** Stub → recursive resolver → (cache miss) root/TLD/authoritative → A/AAAA answer with TTL → client caches.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How can DNS hurt web performance?
+
+**A:** Cold resolve adds RTT; CNAME chains multiply lookups; high TTL slows failover; lack of prefetch on new origins delays first connection.
 
 ## Summary
 
-- TODO: key takeaway
+- DNS maps names to records via hierarchy + cache
+- TTL governs propagation trade-offs
+- Critical for migrations and latency
+- Browsers can prefetch DNS
 
 ## References
 
-- TODO: official documentation links
+- [RFC 1034 / 1035 — DNS](https://www.rfc-editor.org/rfc/rfc1034)
+- [MDN — DNS](https://developer.mozilla.org/en-US/docs/Glossary/DNS)
 
 <RelatedTopics />
 
 
-Prev: [Switch](/02-internet/switch/) · Next: [Domain](/02-internet/domain/)
+Prev: [`02-internet.switch`](/02-internet/switch/) · Next: [`02-internet.domain`](/02-internet/domain/)

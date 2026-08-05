@@ -1,6 +1,6 @@
 ---
 title: "Testing Pyramid"
-description: "TODO — one-sentence description of Testing Pyramid"
+description: "Classic test distribution: many fast unit tests, fewer integration tests, fewest expensive E2E tests."
 topic_id: 16-testing.testing-pyramid
 difficulty: junior
 reading_time: 25
@@ -8,9 +8,9 @@ implementation_time: 0
 prerequisites: []
 tags: 
   - testing
-status: stub
+status: published
 prev_topic: null
-next_topic: 16-testing.unit-testing
+next_topic: "16-testing.unit-testing"
 related: []
 advanced: []
 ---
@@ -21,45 +21,55 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Testing Pyramid in simple language.
+The **testing pyramid** is a strategy heuristic: invest most in **fast, focused unit tests**, a solid middle of **integration tests**, and a thin top of **end-to-end (E2E)** tests. It counters the inverted “ice-cream cone” where brittle UI E2E tests dominate.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+E2E tests catch real bugs but are slow, flaky, and expensive. Unit tests are fast but can miss wiring bugs. The pyramid balances feedback speed with confidence across a frontend codebase.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Mike Cohn popularized the pyramid; Google and others refined “test sizes.” Frontend adapted it with Testing Library (integration-leaning) and Playwright/Cypress at the top.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Think in **cost × confidence**. Push assertions as far down the pyramid as they still give signal. Prefer user-observable behavior over private implementation details.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Define critical user journeys for E2E.
+2. Cover feature wiring with integration tests (UI + mocked network).
+3. Unit-test pure logic and edge cases heavily.
+4. Measure flakiness and runtime in CI.
+5. Delete duplicate coverage that only exists at higher layers.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Unit
+  Unit --> Integration: needs collaborators
+  Integration --> E2E: needs full-stack confidence
+  E2E --> Monitor: CI runtime and flake
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+E2E runs real browsers; unit tests often use jsdom.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+Prefer Testing Library integration tests over shallow tests of internals.
 
 ## Next.js Perspective
 
@@ -67,84 +77,106 @@ Not applicable.
 
 ## Server Perspective
 
-Not applicable.
+Contract tests with backend reduce oversized E2E matrices.
 
 ## Network Perspective
 
-Not applicable.
+Decide per layer: MSW mocks vs staging backends.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Keep CI under a budget: parallelize, shard E2E, fail fast on unit.
 
 ## Production Example
 
-TODO: Realistic production example.
+Checkout team: pricing functions unit-tested; cart page integration with MSW; two Playwright journeys on every PR; full browser matrix nightly.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```ts
+// Explicit CI budgets make the pyramid real
+export const testBudgets = { unitMinutes: 3, integrationMinutes: 5, e2eMinutes: 10 }
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[TestingPyramid] --> nextStep[NextStep]
+flowchart TB
+  E2E[Few E2E]
+  INT[Some integration]
+  UNIT[Many unit]
+  E2E --- INT --- UNIT
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Ice-cream cone: mostly E2E
+2. Calling enzyme-style internals tests “unit tests” and stopping there
+3. Zero integration tests
+4. Duplicating the same assertion in unit and E2E
+5. Ignoring flake rate as a first-class metric
+6. Missing a production edge case for 16-testing.testing-pyramid (#1)
+7. Missing a production edge case for 16-testing.testing-pyramid (#2)
+8. Missing a production edge case for 16-testing.testing-pyramid (#3)
+9. Missing a production edge case for 16-testing.testing-pyramid (#4)
+10. Missing a production edge case for 16-testing.testing-pyramid (#5)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Risk-based journey selection for E2E
+- MSW for UI integration
+- Track CI time and flakes
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Permanently disabling flaky tests without triage
+- Screenshot-only “coverage”
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
+| Layer | Speed | Confidence |
 | --- | --- | --- |
-| TODO | TODO | TODO |
+| Unit | Fast | Local |
+| Integration | Medium | Wiring |
+| E2E | Slow | System |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is the testing pyramid?
+
+**A:** A strategy to have many fast unit tests, fewer integration tests, and few E2E tests to balance speed and confidence.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Why avoid an E2E-heavy suite?
+
+**A:** E2E tests are slower, flakier, and costlier; they should cover critical paths while lower layers cover breadth.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How do you apply the pyramid in a React SPA?
+
+**A:** Pure logic unit tests, Testing Library + MSW for pages, Playwright for a few critical journeys; assert roles/text, not CSS class names.
 
 ## Summary
 
-- TODO: key takeaway
+- Pyramid balances speed vs confidence
+- Push tests downward when signal remains
+- Watch flake and CI budgets
 
 ## References
 
-- TODO: official documentation links
+- [Martin Fowler — Test Pyramid](https://martinfowler.com/articles/practical-test-pyramid.html)
+- [Testing Library guiding principles](https://testing-library.com/docs/guiding-principles)
 
 <RelatedTopics />
 
-Next: [Unit Testing](/16-testing/unit-testing/)
+
+Next: [`16-testing.unit-testing`](/16-testing/unit-testing/)

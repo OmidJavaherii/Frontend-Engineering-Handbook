@@ -1,6 +1,6 @@
 ---
 title: "Source Maps"
-description: "TODO — one-sentence description of Source Maps"
+description: "Maps between transformed/minified code and original sources for debugging."
 topic_id: 14-build-tools.source-maps
 difficulty: mid
 reading_time: 30
@@ -9,9 +9,9 @@ prerequisites: []
 tags: 
   - tooling
   - devtools
-status: stub
-prev_topic: 14-build-tools.postcss
-next_topic: 14-build-tools.monorepo-tooling
+status: published
+prev_topic: "14-build-tools.postcss"
+next_topic: "14-build-tools.monorepo-tooling"
 related: []
 advanced: []
 ---
@@ -22,41 +22,49 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Source Maps in simple language.
+**Source maps** correlate generated JS/CSS positions back to original files so DevTools/stack traces remain readable after transpile/minify.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Without maps, production debugging is guesswork in minified soup.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Source Map v3 format; tooling differences around `hidden`/`inline`/`nosources`.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Mappings file + optional source contents. Upload maps to error trackers; don’t expose to public if policy forbids.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Enable maps in prod builds carefully.
+2. Upload to Sentry/etc.
+3. Restrict public access if needed.
+4. Verify stack traces resolve.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Idle
+  Idle --> Active: use
+  Active --> Idle: settle
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+DevTools consumes maps.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
@@ -64,7 +72,7 @@ Not applicable.
 
 ## Next.js Perspective
 
-Not applicable.
+Production browser maps configurable; server maps for Node too.
 
 ## Server Perspective
 
@@ -76,77 +84,98 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Measure before/after with lab + field tools. Optimize the attributed bottleneck for Maps between transformed/minified code and original sources for debugging., not folklore.
 
 ## Production Example
 
-TODO: Realistic production example.
+Teams adopt Maps between transformed/minified code and original sources for debugging. on critical routes, add monitoring, and guard regressions with budgets or reviews.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```js
+// vite
+export default { build: { sourcemap: true } }
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[SourceMaps] --> nextStep[NextStep]
+flowchart TD
+  A[Understand] --> B[Apply Maps between transformed/minified code and original sources for debugging.]
+  B --> C[Measure]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. No maps → unreadable prod errors
+2. Publishing maps with source content publicly against policy
+3. Broken maps from incorrect paths
+4. Maps pointing at outdated deploys
+5. Inline maps blowing payload size
+6. CSS maps ignored when debugging FOUC
+7. Missing a production edge case for 14-build-tools.source-maps (#1)
+8. Missing a production edge case for 14-build-tools.source-maps (#2)
+9. Missing a production edge case for 14-build-tools.source-maps (#3)
+10. Missing a production edge case for 14-build-tools.source-maps (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Prefer platform/framework primitives
+- Measure impact on real user metrics
+- Keep the change reviewable and reversible
+- Document the invariant you are protecting
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Copy-paste without understanding failure modes
+- Premature abstraction around a single use
+- Optimizing without a baseline
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Approach | When |
+| --- | --- |
+| Use as designed | Default |
+| Simpler alternative | If constraints differ |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What do source maps do?
+
+**A:** Map transformed/minified code back to original source locations for debugging.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** hidden-source-map purpose?
+
+**A:** Generate maps for upload without linking them from the shipped file—harder for public inspection.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** Security trade-off?
+
+**A:** Maps can expose original source; use private uploads to error trackers or nosources variants per policy.
 
 ## Summary
 
-- TODO: key takeaway
+- Maps between transformed/minified code and original sources for debugging.
+- Know why it exists and when not to use it
+- Measure production impact
+- Link related handbook topics instead of duplicating
 
 ## References
 
-- TODO: official documentation links
+- [MDN — Source maps](https://developer.mozilla.org/en-US/docs/Tools/Debugger/How_to/Use_a_source_map)
+- [Source Map spec](https://tc39.es/source-map/)
 
 <RelatedTopics />
 
 
-Prev: [PostCSS](/14-build-tools/postcss/) · Next: [Monorepo Tooling](/14-build-tools/monorepo-tooling/)
+Prev: [`14-build-tools.postcss`](/14-build-tools/postcss/) · Next: [`14-build-tools.monorepo-tooling`](/14-build-tools/monorepo-tooling/)

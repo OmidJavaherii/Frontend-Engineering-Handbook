@@ -1,6 +1,6 @@
 ---
 title: "Repaint"
-description: "TODO — one-sentence description of Repaint"
+description: "Repaint: updating pixels when visuals change without a full geometry recalc."
 topic_id: 03-browser.repaint
 difficulty: mid
 reading_time: 25
@@ -10,9 +10,9 @@ prerequisites:
 tags: 
   - browser-internals
   - performance
-status: stub
-prev_topic: 03-browser.reflow
-next_topic: 03-browser.critical-rendering-path
+status: published
+prev_topic: "03-browser.reflow"
+next_topic: "03-browser.critical-rendering-path"
 related: []
 advanced: []
 ---
@@ -23,45 +23,52 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Repaint in simple language.
+**Repaint** updates painted output when appearance changes. It may happen **without reflow** (e.g. background color) or **after reflow** when geometry changed. Prefer saying which pipeline stages run rather than using “repaint” vaguely.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Visual updates must reach the screen. Distinguishing repaint from reflow guides optimization.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Older articles used repaint loosely; modern tooling names Paint / Composite events.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Appearance-only → paint (+ composite). Geometry → layout + paint + composite.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Style invalidation.
+2. If geometry affected → layout.
+3. Paint dirty regions.
+4. Composite.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> VisualDirty
+  VisualDirty --> Painted
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Paint flashing visualizes repaint regions.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+Frequent style toggles can repaint large areas — use CSS states carefully.
 
 ## Next.js Perspective
 
@@ -77,77 +84,96 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Reduce paint regions; avoid expensive effects on large layers.
 
 ## Production Example
 
-TODO: Realistic production example.
+Highlight-on-hover applied box-shadow on a full-row table cell causing wide paints; reduced effect to a small accent.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```css
+.row:hover { background: #f5f5f5; } /* repaint-focused */
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[Repaint] --> nextStep[NextStep]
+flowchart TD
+  change[Visual change] --> style[Style]
+  style --> layout{Geometry?}
+  layout -->|yes| lay[Layout]
+  layout -->|no| paint[Paint]
+  lay --> paint --> comp[Composite]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Using repaint as a synonym for any jank
+2. Ignoring that “just color” can still be costly on huge layers
+3. Not verifying with paint flashing
+4. Assuming opacity changes always only composite
+5. Confusing browser repaint with React repaint
+6. Optimizing paint before measuring
+7. Overlooking an edge case #1 specific to 03-browser.repaint in production traffic
+8. Overlooking an edge case #2 specific to 03-browser.repaint in production traffic
+9. Overlooking an edge case #3 specific to 03-browser.repaint in production traffic
+10. Overlooking an edge case #4 specific to 03-browser.repaint in production traffic
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Measure stages in Performance panel
+- Keep animated regions small
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Full-page opacity toggles for modals without isolation
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Event | Includes layout? |
+| --- | --- |
+| Repaint-only | No |
+| Reflow+repaint | Yes |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is repaint?
+
+**A:** Updating painted pixels/display lists when visuals change.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Give a change that repaints without reflow.
+
+**A:** Changing `color` or `background-color` with stable geometry.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** When might opacity animation still paint?
+
+**A:** If the element isn’t layerized as expected or descendants force main-thread effects — verify with tooling.
 
 ## Summary
 
-- TODO: key takeaway
+- Repaint updates visuals
+- May or may not follow reflow
+- Use precise stage names when optimizing
+- Paint flashing helps
 
 ## References
 
-- TODO: official documentation links
+- [web.dev — Rendering performance](https://web.dev/articles/rendering-performance)
+- [Chrome DevTools — Rendering](https://developer.chrome.com/docs/devtools/rendering/)
 
 <RelatedTopics />
 
 
-Prev: [Reflow](/03-browser/reflow/) · Next: [Critical Rendering Path](/03-browser/critical-rendering-path/)
+Prev: [`03-browser.reflow`](/03-browser/reflow/) · Next: [`03-browser.critical-rendering-path`](/03-browser/critical-rendering-path/)

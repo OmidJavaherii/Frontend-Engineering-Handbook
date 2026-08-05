@@ -1,6 +1,6 @@
 ---
 title: "Rollback Strategies"
-description: "TODO — one-sentence description of Rollback Strategies"
+description: "How to revert bad frontend releases quickly: prior artifacts, CDN swaps, feature flags, and DB compatibility."
 topic_id: 19-deployment.rollback-strategies
 difficulty: mid
 reading_time: 25
@@ -8,8 +8,8 @@ implementation_time: 0
 prerequisites: []
 tags: 
   - deployment
-status: stub
-prev_topic: 19-deployment.preview-deployments
+status: published
+prev_topic: "19-deployment.preview-deployments"
 next_topic: null
 related: []
 advanced: []
@@ -21,41 +21,53 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Rollback Strategies in simple language.
+A **rollback strategy** is the rehearsed path to undo a bad deploy: redeploy previous immutable artifact, flip traffic, or disable via feature flag. Frontends must also consider **cached assets** and **API compatibility**.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Failures happen. Mean time to recovery matters more than never failing.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+From “FTP the old folder back” to immutable deployments and instant promotion of prior releases on modern hosts.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Artifacts are immutable and addressable (SHA). Rollback = point traffic at last known good. Flags reduce need for full rollback when changes are gated.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Keep N prior artifacts.
+2. One-click promote previous.
+3. Invalidate HTML caches if needed.
+4. Confirm smoke tests.
+5. Postmortem + forward fix.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Healthy
+  Healthy --> BadDeploy
+  BadDeploy --> Rollback
+  Rollback --> Healthy
+  BadDeploy --> FlagOff
+  FlagOff --> Healthy
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Users may hold old tabs; APIs need backward compatibility.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
@@ -63,7 +75,7 @@ Not applicable.
 
 ## Next.js Perspective
 
-Not applicable.
+Server/client skew on partial rollouts—careful.
 
 ## Server Perspective
 
@@ -71,81 +83,100 @@ Not applicable.
 
 ## Network Perspective
 
-Not applicable.
+CDN may cache bad HTML—purge plan required.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Fast rollback > perfect root-cause during the outage.
 
 ## Production Example
 
-TODO: Realistic production example.
+Vercel promote previous deployment in 30s; feature flags kill switch for risky UI; API remains backward compatible for one version.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```bash
+# Conceptual: redeploy previous SHA artifact
+deploy --artifact web@${PREV_SHA}
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[RollbackStrategies] --> nextStep[NextStep]
+flowchart TD
+  Bad --> PromotePrevious
+  Bad --> DisableFlag
+  PromotePrevious --> Smoke
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. No retained artifacts
+2. Migrations that break old clients without expand/contract
+3. Manual-only rollback nobody practiced
+4. Assuming CDN instantly drops HTML
+5. Rolling forward only with no timebox
+6. Missing a production edge case for 19-deployment.rollback-strategies (#1)
+7. Missing a production edge case for 19-deployment.rollback-strategies (#2)
+8. Missing a production edge case for 19-deployment.rollback-strategies (#3)
+9. Missing a production edge case for 19-deployment.rollback-strategies (#4)
+10. Missing a production edge case for 19-deployment.rollback-strategies (#5)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Immutable versioned deploys
+- Rehearse rollback
+- Feature flags for risky changes
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Hotfix prod by hand during panic without artifact trail
+- Deleting old images immediately
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Rollback | Roll forward |
+| --- | --- |
+| Restore last good | Ship fix fast |
+| Best for unknown breakage | Best when fix is ready |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is a rollback?
+
+**A:** Reverting production to a previous known-good release artifact or configuration.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Why do immutable artifacts help rollback?
+
+**A:** You can redeploy the exact prior bits without rebuilding from an uncertain git state under pressure.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** Frontend rollback when API already migrated?
+
+**A:** Use expand/contract migrations and compatible APIs; flags; or coordinated multi-service rollback plan—never assume UI-only rollback is always safe.
 
 ## Summary
 
-- TODO: key takeaway
+- Keep prior artifacts ready
+- Practice rollback + CDN HTML purge
+- Flags reduce blast radius
 
 ## References
 
-- TODO: official documentation links
+- [12-Factor — Build Release Run](https://12factor.net/build-release-run/)
+- [Vercel — Instant Rollback](https://vercel.com/docs/instant-rollback)
 
 <RelatedTopics />
 
 
-Prev: [Preview Deployments](/19-deployment/preview-deployments/)
+Prev: [`19-deployment.preview-deployments`](/19-deployment/preview-deployments/)

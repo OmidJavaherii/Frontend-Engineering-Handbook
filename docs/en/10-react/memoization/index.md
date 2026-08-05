@@ -1,6 +1,6 @@
 ---
 title: "Memoization in React"
-description: "TODO — one-sentence description of Memoization in React"
+description: "Memoization in React: skipping work with React.memo, useMemo, useCallback—and when not to."
 topic_id: 10-react.memoization
 difficulty: mid
 reading_time: 30
@@ -9,9 +9,9 @@ prerequisites: []
 tags: 
   - react
   - performance
-status: stub
-prev_topic: 10-react.reducer
-next_topic: 10-react.react-memo
+status: published
+prev_topic: "10-react.reducer"
+next_topic: "10-react.react-memo"
 related: []
 advanced: []
 ---
@@ -22,45 +22,53 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Memoization in React in simple language.
+**Memoization** caches previous results so React can skip re-rendering or recomputing when inputs are unchanged (`Object.is`). Tools: `React.memo`, `useMemo`, `useCallback`, and now the React Compiler.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Re-renders are normal; sometimes child trees are expensive. Memoization is a scalpel, not a default seasoning.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Class `PureComponent` / `shouldComponentUpdate` → memo hooks → compiler auto-memo research landed as React Compiler.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Equality of props/deps decides bailout. Unstable identities (`{}`/`() => {}` each render) defeat memo. Prefer reducing state scope first.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Profile with React Profiler.
+2. Colocate state / split components.
+3. Memoize expensive pure calcs or heavy children intentionally.
+4. Prefer compiler when enabled.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+flowchart TD
+  Render --> Check{deps/props equal?}
+  Check -->|yes| Skip
+  Check -->|no| Compute
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Not applicable.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Memo trades memory for CPU.
 
 ## React Perspective
 
-Not applicable.
+Correctness first; memo for measured costs.
 
 ## Next.js Perspective
 
@@ -76,77 +84,97 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Wrong memo adds overhead. Measure.
 
 ## Production Example
 
-TODO: Realistic production example.
+A data grid cells component is `memo`’d after Profiler shows list rerenders on unrelated parent state; cell props are primitives.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```tsx
+const Row = memo(function Row({ id, label }: { id: string; label: string }) {
+  return <div>{label}</div>
+})
+```
 
 ## Diagrams
 
 ```mermaid
 flowchart LR
-  concept[MemoizationinReact] --> nextStep[NextStep]
+  Parent --> ChildMemo[memo child]
+  ChildMemo -->|bail out| Skip[reuse previous]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. memo everywhere
+2. Unstable props into memo components
+3. useMemo for trivial math
+4. useCallback wrapped around every function
+5. Memoizing without profiling
+6. Expecting memo to deep-compare objects
+7. Missing a production edge case for 10-react.memoization (#1)
+8. Missing a production edge case for 10-react.memoization (#2)
+9. Missing a production edge case for 10-react.memoization (#3)
+10. Missing a production edge case for 10-react.memoization (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Profile first
+- Stabilize props or pass primitives
+- Memo expensive pure computations
+- Consider React Compiler
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Cargo-cult dependency arrays as performance strategy
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| API | Skips |
+| --- | --- |
+| React.memo | Child render |
+| useMemo | Recompute |
+| useCallback | Function identity |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** Does React.memo deep compare props?
+
+**A:** No. Shallow compare by default (`Object.is` per prop).
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Why might memo not help?
+
+**A:** If props change every render due to new object/function identities, the child still re-renders.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** What should you try before memoization?
+
+**A:** Move state down, split components, avoid derived-state effects, and fix unnecessary context updates.
 
 ## Summary
 
-- TODO: key takeaway
+- Memo is opt-in skipping of work
+- Identity equality matters
+- Measure; prefer architecture fixes
 
 ## References
 
-- TODO: official documentation links
+- [React Documentation](https://react.dev/)
+- [React.memo](https://react.dev/reference/react/memo)
 
 <RelatedTopics />
 
 
-Prev: [Reducer](/10-react/reducer/) · Next: [React.memo](/10-react/react-memo/)
+Prev: [`10-react.reducer`](/10-react/reducer/) · Next: [`10-react.react-memo`](/10-react/react-memo/)

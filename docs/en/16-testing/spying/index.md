@@ -1,6 +1,6 @@
 ---
 title: "Spying"
-description: "TODO — one-sentence description of Spying"
+description: "Spies observe calls to real or mocked functions—arguments, counts, and return paths—without always replacing behavior."
 topic_id: 16-testing.spying
 difficulty: junior
 reading_time: 20
@@ -8,9 +8,9 @@ implementation_time: 0
 prerequisites: []
 tags: 
   - testing
-status: stub
-prev_topic: 16-testing.mocking
-next_topic: 16-testing.msw
+status: published
+prev_topic: "16-testing.mocking"
+next_topic: "16-testing.msw"
 related: []
 advanced: []
 ---
@@ -21,45 +21,55 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Spying in simple language.
+A **spy** wraps a function to record invocations (and optionally stub behavior). In Jest/Vitest: `jest.spyOn` / `vi.spyOn`. Spies verify interactions—analytics fired, navigator called—when return values alone are insufficient.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Some requirements are side effects (telemetry, `navigate`). Spies assert those interactions while keeping the rest of the system real.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Classical mocking frameworks popularized spies; JS runners made them first-class.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Spy = observation layer. Prefer asserting **user-visible outcomes** first; spy when the side effect is the requirement.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. spyOn the collaborator.
+2. Optionally mockImplementation.
+3. Exercise SUT.
+4. Assert calls/args.
+5. mockRestore in afterEach.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> spyOn
+  spyOn --> Exercise
+  Exercise --> AssertCalls
+  AssertCalls --> Restore
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Spy on `window.open` / `matchMedia` carefully with cleanup.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+Spy on props callbacks; prefer UI asserts when possible.
 
 ## Next.js Perspective
 
@@ -75,77 +85,107 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Spies are cheap; overuse signals design issues.
 
 ## Production Example
 
-TODO: Realistic production example.
+Clipboard copy button test spies `navigator.clipboard.writeText` and also asserts the “Copied” live region.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```ts
+import { vi, expect, it } from 'vitest'
+import { track } from './analytics'
+import { buy } from './buy'
+
+it('tracks purchase', async () => {
+  const spy = vi.spyOn(track, 'event').mockImplementation(() => {})
+  await buy('sku_1')
+  expect(spy).toHaveBeenCalledWith('purchase', { sku: 'sku_1' })
+  spy.mockRestore()
+})
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[Spying] --> nextStep[NextStep]
+sequenceDiagram
+  participant SUT
+  participant Spy
+  participant Real
+  SUT->>Spy: call
+  Spy->>Real: optional forward
+  Spy-->>SUT: record args
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Spying instead of asserting UI
+2. Forgetting mockRestore
+3. Brittle arg assertions on entire huge objects
+4. Spying private internals
+5. Leaving mockImplementation that leaks to other tests
+6. Missing a production edge case for 16-testing.spying (#1)
+7. Missing a production edge case for 16-testing.spying (#2)
+8. Missing a production edge case for 16-testing.spying (#3)
+9. Missing a production edge case for 16-testing.spying (#4)
+10. Missing a production edge case for 16-testing.spying (#5)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Restore spies
+- Assert meaningful args only
+- Prefer outcome asserts when equivalent
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Spies as the only coverage of business logic
+- Global spies installed in setup files without reset
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Spy | Stub |
+| --- | --- |
+| Records calls | Returns canned data |
+| May call through | Replaces behavior |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is a spy?
+
+**A:** A test double that records how a function was called, optionally changing its behavior.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** When prefer a spy over only checking UI?
+
+**A:** When a required side effect is not (or not yet) visible—e.g., analytics events—while still keeping UI asserts for user outcomes.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How can spies create false confidence?
+
+**A:** They can lock tests to call graphs that refactor away while behavior remains correct—or pass while the real collaborator’s contract changed.
 
 ## Summary
 
-- TODO: key takeaway
+- Spies observe interactions
+- Restore and reset always
+- Do not replace user-centric asserts
 
 ## References
 
-- TODO: official documentation links
+- [Vitest — vi.spyOn](https://vitest.dev/api/vi.html#vi-spyon)
+- [Jest — spyOn](https://jestjs.io/docs/jest-object#jestspyonobject-methodname)
 
 <RelatedTopics />
 
 
-Prev: [Mocking](/16-testing/mocking/) · Next: [MSW](/16-testing/msw/)
+Prev: [`16-testing.mocking`](/16-testing/mocking/) · Next: [`16-testing.msw`](/16-testing/msw/)

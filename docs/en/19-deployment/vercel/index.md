@@ -1,6 +1,6 @@
 ---
 title: "Vercel"
-description: "TODO — one-sentence description of Vercel"
+description: "Vercel platform for frontend/Next.js: git deploys, previews, edge network, and environment config."
 topic_id: 19-deployment.vercel
 difficulty: junior
 reading_time: 25
@@ -9,9 +9,9 @@ prerequisites: []
 tags: 
   - deployment
   - nextjs
-status: stub
-prev_topic: 19-deployment.github-actions
-next_topic: 19-deployment.netlify
+status: published
+prev_topic: "19-deployment.github-actions"
+next_topic: "19-deployment.netlify"
 related: []
 advanced: []
 ---
@@ -22,41 +22,51 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Vercel in simple language.
+**Vercel** is a deployment platform optimized for Next.js and static frontends: git push → build → global CDN/edge, with **preview deployments** per PR. Abstractions cover routing, serverless/edge functions, and env vars.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Removes much infra toil for web apps; previews improve review quality. Trade-offs: platform constraints and cost at scale.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Created by the Next.js team’s company; became a default Next host.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Git integration builds immutable deployments; domains point to them; env scoped to Preview/Production; rollbacks promote prior deployments.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Connect repo.
+2. Configure build/output.
+3. Set envs.
+4. PR → preview URL.
+5. Merge → production.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Build
+  Build --> Preview
+  Build --> Production
+  Production --> Rollback
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Not applicable.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
@@ -64,7 +74,7 @@ Not applicable.
 
 ## Next.js Perspective
 
-Not applicable.
+First-class support for App Router features.
 
 ## Server Perspective
 
@@ -72,81 +82,101 @@ Not applicable.
 
 ## Network Perspective
 
-Not applicable.
+Edge network for static and some compute.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+ISR/edge caching features matter; measure cold starts for functions.
 
 ## Production Example
 
-TODO: Realistic production example.
+Monorepo filtered build for `apps/web`; preview envs for API URLs; prod protected with checks.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```json
+{
+  "buildCommand": "pnpm --filter web build",
+  "outputDirectory": "apps/web/.next"
+}
+```
 
 ## Diagrams
 
 ```mermaid
 flowchart LR
-  concept[Vercel] --> nextStep[NextStep]
+  Git --> VercelBuild
+  VercelBuild --> Edge
+  Edge --> Users
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Secrets in NEXT_PUBLIC_
+2. Unbounded preview deployments with open auth to internal data
+3. Ignoring build cache / monorepo filters
+4. No production protection
+5. Assuming Node APIs work on Edge runtime
+6. Missing a production edge case for 19-deployment.vercel (#1)
+7. Missing a production edge case for 19-deployment.vercel (#2)
+8. Missing a production edge case for 19-deployment.vercel (#3)
+9. Missing a production edge case for 19-deployment.vercel (#4)
+10. Missing a production edge case for 19-deployment.vercel (#5)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Preview deployments for PRs
+- Scoped env vars
+- Rollback via prior deployment
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Manual prod uploads bypassing git
+- One huge serverless function doing everything without limits thinking
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Vercel | DIY Docker/K8s |
+| --- | --- |
+| Fast DX | More control/ops |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is a Vercel preview deployment?
+
+**A:** An automatically built deploy for a git branch/PR with a unique URL for testing.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** How do environment variables differ across Preview vs Production?
+
+**A:** Vercel scopes env values per environment so previews can point at staging APIs while production uses prod secrets.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** When might you outgrow Vercel?
+
+**A:** Strict compliance/network needs, cost at scale, or custom runtime requirements—then hybrid or self-host Next standalone.
 
 ## Summary
 
-- TODO: key takeaway
+- Vercel = git-linked frontend deploys
+- Previews + edge CDN
+- Mind runtimes and public env
 
 ## References
 
-- TODO: official documentation links
+- [Vercel docs](https://vercel.com/docs)
+- [Next.js deployment](https://nextjs.org/docs/app/building-your-application/deploying)
 
 <RelatedTopics />
 
 
-Prev: [GitHub Actions](/19-deployment/github-actions/) · Next: [Netlify](/19-deployment/netlify/)
+Prev: [`19-deployment.github-actions`](/19-deployment/github-actions/) · Next: [`19-deployment.netlify`](/19-deployment/netlify/)

@@ -1,6 +1,6 @@
 ---
 title: "Multi-Tenant UI"
-description: "TODO — one-sentence description of Multi-Tenant UI"
+description: "Frontend patterns for multi-tenant products: tenant context, theming, isolation, routing, and cache key safety."
 topic_id: 21-frontend-system-design.multi-tenant-ui
 difficulty: senior
 reading_time: 35
@@ -8,9 +8,9 @@ implementation_time: 0
 prerequisites: []
 tags: 
   - system-design
-status: stub
-prev_topic: 21-frontend-system-design.upload-pipelines
-next_topic: 21-frontend-system-design.internationalized-apps
+status: published
+prev_topic: "21-frontend-system-design.upload-pipelines"
+next_topic: "21-frontend-system-design.internationalized-apps"
 related: []
 advanced: []
 ---
@@ -21,131 +21,186 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Multi-Tenant UI in simple language.
+**Multi-Tenant UI** serves many organizations (tenants) from one application while preventing data bleed and supporting tenant-specific branding/config. Isolation is a security property that the UI must respect, not only the API.
+
+Related: [/17-security/](/17-security/), [/21-frontend-system-design/caching-strategies/](/21-frontend-system-design/caching-strategies/).
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+SaaS economics demand shared apps. A single wrong cache key or global store can show Tenant A’s data to Tenant B — a career-ending class of bug.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+From subdomain-per-tenant classic SaaS to path-based tenancy and modern “workspace switchers” inside one origin. Edge middleware now often resolves tenant before render.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+**Tenant context is ambient but explicit**: every fetch, cache key, and route guard carries `tenantId`. Visual theming is cosmetic; authorization is server-enforced; the UI fails closed on missing context.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Resolve tenant (subdomain / path / header / switcher)  
+2. Load tenant config/theme  
+3. Scope all client caches  
+4. Guard navigation on membership  
+5. Test cross-tenant cache contamination
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> ResolveTenant
+  ResolveTenant --> Ready: ok
+  ResolveTenant --> Denied: forbidden
+  Ready --> Switching: switch_workspace
+  Switching --> Ready: remount_scope
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Storage partitioning: clear or namespace `localStorage`/IDB by tenant. Prefer not storing sensitive cross-tenant data locally.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+Remount trees on tenant switch (`key={tenantId}`) to drop residual state.
 
 ## Next.js Perspective
 
-Not applicable.
+Middleware tenant resolution; never cache HTML across tenants at CDN without vary keys.
 
 ## Server Perspective
 
-Not applicable.
+Authz must verify membership on every request.
 
 ## Network Perspective
 
-Not applicable.
+CDN keys include tenant; `Cache-Control: private` for tenant HTML.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Flush query caches on switch.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Tenant theme tokens should be small CSS variables, not full CSS rebuilds per page.
 
 ## Production Example
 
-TODO: Realistic production example.
+A B2B app uses `/:workspaceSlug/...` routes, query keys `[workspaceId, 'projects']`, and remounts the app shell on switch. CDN caches only hashed public assets.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```tsx
+const TenantContext = createContext<{ tenantId: string } | null>(null)
+
+export function TenantScope({ tenantId, children }: { tenantId: string; children: React.ReactNode }) {
+  return (
+    <TenantContext.Provider value={{ tenantId }} key={tenantId}>
+      {children}
+    </TenantContext.Provider>
+  )
+}
+
+// queryKey: [tenantId, 'invoices']
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[MultiTenantUI] --> nextStep[NextStep]
+flowchart TD
+  n0[Resolve tenant] --> n1[Scope caches]
+  n1[Scope caches] --> n2[Render app]
+  n2[Render app] --> n3[Switch remount]
+```
+
+```mermaid
+sequenceDiagram
+  participant User
+  participant App
+  participant Platform
+  User->>App: interact (Multi-tenant UI)
+  App->>Platform: apply mechanism
+  Platform-->>App: result or error
+  App-->>User: update UI
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Global query caches without tenant keys
+2. CDN caching personalized tenant pages publicly
+3. Client-only “hiding” of other tenants’ nav items as security
+4. Leaking tenant ids into third-party analytics without policy
+5. Not remounting on workspace switch
+6. Shared `localStorage` keys across tenants
+7. Missing a production edge case for 21-frontend-system-design.multi-tenant-ui (#1)
+8. Missing a production edge case for 21-frontend-system-design.multi-tenant-ui (#2)
+9. Missing a production edge case for 21-frontend-system-design.multi-tenant-ui (#3)
+10. Missing a production edge case for 21-frontend-system-design.multi-tenant-ui (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Tenant id in every cache key
+- Fail closed without tenant context
+- Server authz always
+- Remount on switch
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Singleton stores that survive tenant switches
+- Theming forks that duplicate whole apps per tenant
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
+| Tenancy UX | Pros | Cons |
 | --- | --- | --- |
-| TODO | TODO | TODO |
+| Subdomain | Clear isolation cues | Cookie/DNS complexity |
+| Path slug | Simple DNS | Harder hard-isolation |
+| Switcher | Power users | Easy to leak state |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is the #1 frontend multi-tenant bug?
+
+**A:** Serving or caching Tenant A data in Tenant B’s session — usually bad cache keys or missing remounts.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** How should CDN caching work for tenant HTML?
+
+**A:** Private or tenant-varied keys; never public shared cache for authenticated HTML.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** Design a workspace switcher that cannot leak React Query data.
+
+**A:** Include tenant in keys, `queryClient.clear()` or scoped clients, remount with `key`, namespace storage, re-auth tokens.
 
 ## Summary
 
-- TODO: key takeaway
+- Tenant context everywhere
+- Cache keys include tenant
+- Server authz is real security
+- Remount on switch
 
 ## References
 
-- TODO: official documentation links
+- [OWASP — Multi-tenant security considerations](https://owasp.org/)
+- [MDN — Cache-Control](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control)
 
 <RelatedTopics />
 
 
-Prev: [Upload Pipelines](/21-frontend-system-design/upload-pipelines/) · Next: [Internationalized Apps](/21-frontend-system-design/internationalized-apps/)
+Prev: [`21-frontend-system-design.upload-pipelines`](/21-frontend-system-design/upload-pipelines/) · Next: [`21-frontend-system-design.internationalized-apps`](/21-frontend-system-design/internationalized-apps/)

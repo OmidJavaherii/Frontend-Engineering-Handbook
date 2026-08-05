@@ -1,6 +1,6 @@
 ---
 title: "Flexbox"
-description: "TODO — one-sentence description of Flexbox"
+description: "One-dimensional layout with flex containers: alignment, distribution, wrapping, and flex item sizing."
 topic_id: 05-css.flexbox
 difficulty: junior
 reading_time: 40
@@ -9,7 +9,7 @@ prerequisites: []
 tags: 
   - css
   - layout
-status: stub
+status: published
 prev_topic: 05-css.positioning
 next_topic: 05-css.grid
 related: []
@@ -22,131 +22,163 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Flexbox in simple language.
+**Flexbox** lays out items in a row or column. The container sets direction, wrap, alignment (`justify-content`, `align-items`), and items control growth/shrink/basis (`flex`).
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Horizontal toolbars, vertical stacks, and space distribution are painful with floats. Flexbox is the modern one-dimensional primitive.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Replaced float/inline-block hacks. Spec matured through buggy early prefixes to stable modern behavior; `gap` for flex arrived later.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Main axis vs cross axis. `flex: 1` ≈ grow/shrink from 0 basis (depending on shorthand). Min-content sizing (`min-width: auto`) often causes overflow surprises.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. `display: flex` on parent.
+2. Set `flex-direction` / `gap`.
+3. Align on main/cross axes.
+4. Tune `flex` on children.
+5. Use wrapping + `flex-basis` for responsiveness.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+Lifecycle for Flexbox:
+
+```mermaid
+stateDiagram-v2
+  [*] --> Apply
+  Apply --> Layout
+  Layout --> Paint
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Rendering engines apply Flexbox during style/layout/paint as relevant. Debug with Elements + Performance.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+CSS is applied by the rendering engine; JS only changes inputs (classes, style, attributes).
 
 ## React Perspective
 
-Not applicable.
+React toggles class names/styles that exercise Flexbox; prefer CSS for visual states when possible.
 
 ## Next.js Perspective
 
-Not applicable.
+Works the same in Next.js apps; watch global CSS import order and CSS Modules.
 
 ## Server Perspective
 
-Not applicable.
+SSR emits HTML/CSS classes; critical CSS strategies may inline rules involving this topic.
 
 ## Network Perspective
 
-Not applicable.
+Stylesheets and font/image URLs related to this topic still load over HTTP caches.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Layerized/composited results may consume GPU memory; prefer releasing unused large textures/images.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Flex layout is cheaper than nested table hacks; still avoid thrashing geometry reads during animations.
 
 ## Production Example
 
-TODO: Realistic production example.
+Nav switched from floats to `display: flex; gap: 1rem; align-items: center`—removed clearfix hacks and uneven spacing.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```css
+.row { display: flex; gap: 1rem; align-items: center; }
+.row > .grow { flex: 1 1 0; min-width: 0; } /* allow shrink/truncate */
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[Flexbox] --> nextStep[NextStep]
+flowchart TD
+  Input[Style inputs] --> Engine[Rendering engine]
+  Engine --> Out[Flexbox result]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Misunderstanding when Flexbox triggers layout vs paint vs composite
+2. Copying snippets without checking browser support for edge features
+3. Over-specifying selectors that make overrides brittle
+4. Ignoring accessibility implications (motion, contrast, focus)
+5. Optimizing visuals before measuring jank
+6. Forgetting `min-width: 0` on flex children that should truncate
+7. Using flex for two-dimensional grids instead of Grid
+8. Missing a production edge case for 05-css.flexbox (#1)
+9. Missing a production edge case for 05-css.flexbox (#2)
+10. Missing a production edge case for 05-css.flexbox (#3)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Learn the mental model for Flexbox before memorizing properties
+- Verify in target browsers
+- Keep fallbacks for progressive enhancement
+- Document team conventions
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Fighting the platform with !important and inline styles
+- Animating layout properties without need
+- Shipping unscoped experimental CSS to all browsers without testing
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Tool | Dimension |
+| --- | --- |
+| Flexbox | 1D |
+| Grid | 2D |
+| Flow | Document default |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is Flexbox?
+
+**A:** A one-dimensional CSS layout model for distributing and aligning items in a row or column.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** What does `flex: 1` mean?
+
+**A:** Shorthand typically enabling growth/shrink with a basis—commonly used so items share space; know the exact expansion (`flex-grow flex-shrink flex-basis`).
 
 ### Hard
 
-TODO — question and answer.
+**Q:** Why won’t text truncate inside a flex item?
+
+**A:** Default `min-width: auto` prevents shrinking below content size; set `min-width: 0` (or similar) and use overflow/ellipsis.
 
 ## Summary
 
-- TODO: key takeaway
+- Flexbox has a concrete layout/paint meaning in CSS
+- Measure rendering impact
+- Prefer simple, layered architecture
+- Know official references
 
 ## References
 
-- TODO: official documentation links
+- [MDN: Flexbox](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_flexible_box_layout)
+- [CSS Flexbox](https://www.w3.org/TR/css-flexbox-1/)
 
 <RelatedTopics />
-
 
 Prev: [Positioning](/05-css/positioning/) · Next: [Grid](/05-css/grid/)

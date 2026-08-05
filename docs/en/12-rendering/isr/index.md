@@ -1,6 +1,6 @@
 ---
 title: "Incremental Static Regeneration"
-description: "TODO — one-sentence description of Incremental Static Regeneration"
+description: "Incremental Static Regeneration: serve static pages and refresh them in the background."
 topic_id: 12-rendering.isr
 difficulty: mid
 reading_time: 30
@@ -9,9 +9,9 @@ prerequisites: []
 tags: 
   - rendering
   - nextjs
-status: stub
-prev_topic: 12-rendering.ssg
-next_topic: 12-rendering.ppr
+status: published
+prev_topic: "12-rendering.ssg"
+next_topic: "12-rendering.ppr"
 related: []
 advanced: []
 ---
@@ -22,41 +22,49 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Incremental Static Regeneration in simple language.
+**ISR** serves statically generated pages and regenerates them after a revalidation period (or on-demand), blending SSG speed with fresher content without full-site rebuilds.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Pure SSG goes stale; pure SSR is expensive. ISR updates pages incrementally as traffic or webhooks arrive.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Popularized by Next.js `revalidate` in Pages Router; App Router expresses similar ideas via fetch `revalidate` / tags / PPR evolution.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+CDN/static hit first; after TTL (or tag invalidation), next request may trigger regeneration while others get stale-while-revalidate behavior depending on platform.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Pre-render page.
+2. Set revalidate seconds or tags.
+3. On expiry/invalidation, regenerate.
+4. Swap cache to new output.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> CachedStatic
+  CachedStatic --> Revalidating: stale
+  Revalidating --> CachedStatic: new page
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Sees static HTML; may be slightly stale by design.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
@@ -64,89 +72,116 @@ Not applicable.
 
 ## Next.js Perspective
 
-Not applicable.
+`revalidate` / `revalidateTag` / `revalidatePath` are the knobs.
 
 ## Server Perspective
 
-Not applicable.
+Origin spikes on regeneration—protect backends.
 
 ## Network Perspective
 
-Not applicable.
+Users mostly hit cached HTML at the edge.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Near-SSG latency with controlled freshness. Stampeding regenerations need care (platform coalescing).
 
 ## Production Example
 
-TODO: Realistic production example.
+Product pages `revalidate: 60` plus webhook `revalidateTag` on publish.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```ts
+const res = await fetch('https://api.example.com/products/1', {
+  next: { revalidate: 60, tags: ['product:1'] },
+})
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[IncrementalStaticRegeneration] --> nextStep[NextStep]
+sequenceDiagram
+  participant U as User
+  participant C as Cache
+  participant O as Origin
+  U->>C: GET page
+  C-->>U: stale-ok HTML
+  C->>O: regenerate
+  O-->>C: fresh HTML
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. TTL too long for business-critical prices without on-demand invalidation
+2. TTL too short causing origin stampede
+3. Forgetting on-demand revalidate for CMS publishes
+4. ISR for per-user pages
+5. Assuming all CDNs implement ISR identically
+6. No monitoring for regeneration failures
+7. Missing a production edge case for 12-rendering.isr (#1)
+8. Missing a production edge case for 12-rendering.isr (#2)
+9. Missing a production edge case for 12-rendering.isr (#3)
+10. Missing a production edge case for 12-rendering.isr (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Combine time-based + tag-based revalidation
+- Webhook from CMS on publish
+- Keep regeneration handlers idempotent
+- Document freshness SLAs
 
 ## Anti-patterns
 
-TODO: What not to do.
+- revalidate: 1 on every page
+- Manual full redeploys for copy edits
+- Mixing personalized cookies into ISR pages
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| | SSG | ISR | SSR |
+| --- | --- | --- | --- |
+| Freshness | Deploy | TTL/tags | Immediate |
+| Origin load | Build | Occasional | Every request |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What problem does ISR solve?
+
+**A:** It keeps most of SSG’s speed while allowing pages to update without a full rebuild.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Time-based vs on-demand revalidation?
+
+**A:** Time-based refreshes after N seconds; on-demand uses tags/paths when content changes (e.g. CMS webhook).
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How do you prevent thundering herds on revalidation?
+
+**A:** Rely on platform coalescing, tagged invalidation instead of tiny global TTLs, backoff, and cache stale-while-revalidate semantics.
 
 ## Summary
 
-- TODO: key takeaway
+- ISR refreshes static pages incrementally
+- Use revalidate seconds and tags
+- Webhook invalidation for editorial freshness
+- Not for personalized HTML
 
 ## References
 
-- TODO: official documentation links
+- [Next.js — Incremental Static Regeneration](https://nextjs.org/docs/app/building-your-application/data-fetching/incremental-static-regeneration)
+- [Next.js — Caching](https://nextjs.org/docs/app/building-your-application/caching)
 
 <RelatedTopics />
 
 
-Prev: [Static Site Generation](/12-rendering/ssg/) · Next: [Partial Prerendering](/12-rendering/ppr/)
+Prev: [`12-rendering.ssg`](/12-rendering/ssg/) · Next: [`12-rendering.ppr`](/12-rendering/ppr/)

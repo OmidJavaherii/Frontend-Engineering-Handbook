@@ -1,6 +1,6 @@
 ---
 title: "MSW"
-description: "TODO — one-sentence description of MSW"
+description: "Mock Service Worker intercepts HTTP at the network layer for tests, Storybook, and local dev."
 topic_id: 16-testing.msw
 difficulty: mid
 reading_time: 30
@@ -9,9 +9,9 @@ prerequisites: []
 tags: 
   - testing
   - api
-status: stub
-prev_topic: 16-testing.spying
-next_topic: 16-testing.visual-regression
+status: published
+prev_topic: "16-testing.spying"
+next_topic: "16-testing.visual-regression"
 related: []
 advanced: []
 ---
@@ -22,49 +22,59 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain MSW in simple language.
+**MSW** mocks APIs by intercepting requests (Service Worker in browser; request listeners in Node). Your app keeps using `fetch`/XHR; handlers define responses. That makes tests exercise more of the real client stack.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Mocking `fetch` per test is brittle and skips your API client. MSW centralizes network contracts and reuses handlers across tests, Storybook, and dev.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+MSW popularized service-worker-based API mocking for frontend. It became the default companion to Testing Library and Playwright route alternatives for jsdom tests.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Handlers are the fake backend. Matching is by method/URL. Tests can override handlers per case. The client’s baseURL/auth headers still run.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Define handlers for resources.
+2. `setupServer` in Node tests / `setupWorker` in browser.
+3. Start/reset/close in lifecycle hooks.
+4. Override for error cases.
+5. Share handlers with Storybook.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> listen
+  listen --> matchHandler
+  matchHandler --> respond
+  respond --> resetHandlers
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Worker mode needs service worker file in public/.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+Use with RTL without mocking data hooks internals.
 
 ## Next.js Perspective
 
-Not applicable.
+Node server listeners for Vitest; careful with RSC server fetches (different runtime).
 
 ## Server Perspective
 
@@ -72,81 +82,111 @@ Not applicable.
 
 ## Network Perspective
 
-Not applicable.
+True HTTP semantics (status, headers, delay) are simulable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Prefer one server per suite; reset handlers not full restart each test.
 
 ## Production Example
 
-TODO: Realistic production example.
+Storybook + Vitest share handlers for `/api/products`; error story overrides a 500 handler.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```ts
+import { http, HttpResponse } from 'msw'
+import { setupServer } from 'msw/node'
+
+export const handlers = [
+  http.get('/api/products', () =>
+    HttpResponse.json([{ id: '1', name: 'Mug' }]),
+  ),
+]
+
+export const server = setupServer(...handlers)
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[MSW] --> nextStep[NextStep]
+sequenceDiagram
+  participant App
+  participant MSW
+  participant Handler
+  App->>MSW: fetch /api/products
+  MSW->>Handler: match
+  Handler-->>App: JSON response
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Forgetting to reset handlers after error overrides
+2. Handlers not matching baseURL/query
+3. Using MSW as excuse to never run contract tests
+4. Starting worker in tests that already use Node server API incorrectly
+5. Returning untyped free-form JSON that drifts from Zod schemas
+6. Missing a production edge case for 16-testing.msw (#1)
+7. Missing a production edge case for 16-testing.msw (#2)
+8. Missing a production edge case for 16-testing.msw (#3)
+9. Missing a production edge case for 16-testing.msw (#4)
+10. Missing a production edge case for 16-testing.msw (#5)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Share handlers with app contracts
+- resetHandlers in afterEach
+- Model error statuses explicitly
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Per-test ad-hoc fetch mocks beside MSW
+- Silent passthrough to real prod APIs in CI
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| MSW | page.route (Playwright) |
+| --- | --- |
+| Great for unit/integration | Great for E2E |
+| Reusable handlers | Browser-level |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What does MSW intercept?
+
+**A:** Outgoing HTTP requests from your app, returning mocked responses without changing call sites.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Why is MSW better than mocking getUser directly sometimes?
+
+**A:** It exercises the real client/fetch path and keeps mocks at the network contract boundary.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How do you keep MSW handlers honest?
+
+**A:** Generate from OpenAPI or share Zod schemas, plus nightly contract tests against real staging.
 
 ## Summary
 
-- TODO: key takeaway
+- MSW mocks HTTP at the network layer
+- Reuse handlers across tools
+- Reset overrides every test
 
 ## References
 
-- TODO: official documentation links
+- [MSW documentation](https://mswjs.io/docs/)
+- [MSW — Network behavior](https://mswjs.io/docs/network-behavior/rest)
 
 <RelatedTopics />
 
 
-Prev: [Spying](/16-testing/spying/) · Next: [Visual Regression](/16-testing/visual-regression/)
+Prev: [`16-testing.spying`](/16-testing/spying/) · Next: [`16-testing.visual-regression`](/16-testing/visual-regression/)

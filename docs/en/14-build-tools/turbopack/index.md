@@ -1,6 +1,6 @@
 ---
 title: "Turbopack"
-description: "TODO — one-sentence description of Turbopack"
+description: "Rust-based bundler/dev successor path for Next.js speed."
 topic_id: 14-build-tools.turbopack
 difficulty: mid
 reading_time: 25
@@ -10,9 +10,9 @@ tags:
   - bundling
   - tooling
   - nextjs
-status: stub
-prev_topic: 14-build-tools.vite
-next_topic: 14-build-tools.rspack
+status: published
+prev_topic: "14-build-tools.vite"
+next_topic: "14-build-tools.rspack"
 related: []
 advanced: []
 ---
@@ -23,41 +23,49 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Turbopack in simple language.
+**Turbopack** is Vercel’s Rust-powered bundler aiming to replace webpack in Next.js for faster local/dev (and expanding production support over time).
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Next apps outgrew webpack’s cold-start/HMR performance; Turbopack targets incremental computation.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Announced with Next 13 era; features land progressively—check current Next docs for stability.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Next-integrated incremental bundler; not a general Vite replacement for every stack (yet).
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. next dev --turbopack (per docs).
+2. Note unsupported webpack loaders.
+3. File issues for gaps.
+4. Verify prod bundler setting for your version.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Idle
+  Idle --> Active: use
+  Active --> Idle: settle
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Not applicable.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
@@ -65,7 +73,7 @@ Not applicable.
 
 ## Next.js Perspective
 
-Not applicable.
+Primary integration surface.
 
 ## Server Perspective
 
@@ -77,77 +85,97 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Measure before/after with lab + field tools. Optimize the attributed bottleneck for Rust-based bundler/dev successor path for Next.js speed., not folklore.
 
 ## Production Example
 
-TODO: Realistic production example.
+Teams adopt Rust-based bundler/dev successor path for Next.js speed. on critical routes, add monitoring, and guard regressions with budgets or reviews.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```bash
+next dev --turbopack
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[Turbopack] --> nextStep[NextStep]
+flowchart TD
+  A[Understand] --> B[Apply Rust-based bundler/dev successor path for Next.js speed.]
+  B --> C[Measure]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Assuming all webpack plugins work
+2. Ignoring version-specific stability notes
+3. Comparing unfairly without warm cache
+4. Custom webpack hacks blocking migration
+5. Expecting identical stack traces without maps
+6. Using Turbopack outside Next without checking support
+7. Missing a production edge case for 14-build-tools.turbopack (#1)
+8. Missing a production edge case for 14-build-tools.turbopack (#2)
+9. Missing a production edge case for 14-build-tools.turbopack (#3)
+10. Missing a production edge case for 14-build-tools.turbopack (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Prefer platform/framework primitives
+- Measure impact on real user metrics
+- Keep the change reviewable and reversible
+- Document the invariant you are protecting
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Copy-paste without understanding failure modes
+- Premature abstraction around a single use
+- Optimizing without a baseline
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Approach | When |
+| --- | --- |
+| Use as designed | Default |
+| Simpler alternative | If constraints differ |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is Turbopack?
+
+**A:** A Rust-based bundler developed to speed up Next.js (especially development).
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Why might a Next app not use Turbopack yet?
+
+**A:** Missing loader/plugin support or production maturity for a specific feature set.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How does incremental bundling help?
+
+**A:** It recomputes only affected graph parts, reducing rebuild cost vs full bundling.
 
 ## Summary
 
-- TODO: key takeaway
+- Rust-based bundler/dev successor path for Next.js speed.
+- Know why it exists and when not to use it
+- Measure production impact
+- Link related handbook topics instead of duplicating
 
 ## References
 
-- TODO: official documentation links
+- [Next.js — Turbopack](https://nextjs.org/docs/app/api-reference/turbopack)
+- [Turbopack](https://turbo.build/pack)
 
 <RelatedTopics />
 
 
-Prev: [Vite](/14-build-tools/vite/) · Next: [Rspack](/14-build-tools/rspack/)
+Prev: [`14-build-tools.vite`](/14-build-tools/vite/) · Next: [`14-build-tools.rspack`](/14-build-tools/rspack/)

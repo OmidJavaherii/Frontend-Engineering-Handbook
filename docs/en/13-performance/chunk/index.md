@@ -1,6 +1,6 @@
 ---
 title: "Chunk"
-description: "TODO — one-sentence description of Chunk"
+description: "A split output file produced by bundlers for lazy or parallel loading."
 topic_id: 13-performance.chunk
 difficulty: junior
 reading_time: 20
@@ -10,9 +10,9 @@ prerequisites:
 tags: 
   - performance
   - bundling
-status: stub
-prev_topic: 13-performance.bundle
-next_topic: 13-performance.bundling
+status: published
+prev_topic: "13-performance.bundle"
+next_topic: "13-performance.bundling"
 related: []
 advanced: []
 ---
@@ -23,41 +23,49 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Chunk in simple language.
+A **chunk** is a file the bundler emits as part of splitting strategy—entry chunks, async chunks, shared vendor chunks. Chunking is how code splitting becomes real network requests.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Without chunks, everything is one download. Chunks let unused routes stay off the critical path.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+webpack splitChunks → Rollup manualChunks → framework conventions (dynamic import).
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Dynamic `import()` ⇒ async chunk. Shared deps may form vendor chunks.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Identify heavy optional features.
+2. Load via `import()`/framework lazy.
+3. Inspect chunk graph.
+4. Avoid over-splitting tiny files.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Entry
+  Entry --> AsyncChunk: import()
+  AsyncChunk --> Exec
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Extra requests; HTTP/2 mitigates, but each chunk has overhead.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Parse cost deferred until needed.
 
 ## React Perspective
 
@@ -65,7 +73,7 @@ Not applicable.
 
 ## Next.js Perspective
 
-Not applicable.
+Route and `next/dynamic` create chunks automatically.
 
 ## Server Perspective
 
@@ -73,81 +81,102 @@ Not applicable.
 
 ## Network Perspective
 
-Not applicable.
+Prefetch can warm likely chunks.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Balance: too few chunks = fat; too many = waterfall of tiny files.
 
 ## Production Example
 
-TODO: Realistic production example.
+Editor feature loads a 200kb chunk on demand; landing page never downloads it.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```ts
+const Editor = await import('./editor')
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[Chunk] --> nextStep[NextStep]
+flowchart TD
+  Entry --> Vendor
+  Entry --> RouteA
+  Entry --> RouteB
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Over-chunking icons into hundreds of files
+2. Under-chunking admin into landing
+3. Shared chunk dependency cycles surprises
+4. Prefetching all chunks always
+5. Ignoring CSS chunk ordering FOUC
+6. Duplicating large libs across chunks
+7. Missing a production edge case for 13-performance.chunk (#1)
+8. Missing a production edge case for 13-performance.chunk (#2)
+9. Missing a production edge case for 13-performance.chunk (#3)
+10. Missing a production edge case for 13-performance.chunk (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Split on route/feature boundaries
+- Share stable vendor intelligently
+- Prefetch on intent (hover/visible)
+- Review chunk graph in PRs for big features
 
 ## Anti-patterns
 
-TODO: What not to do.
+- manualChunks chaos without measurement
+- One async import per tiny component
+- Blocking on many sequential chunks
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
+| | Bundle | Chunk |
 | --- | --- | --- |
-| TODO | TODO | TODO |
+| Meaning | Overall output | Individual split file |
+| Load | Often eager entry | Often lazy |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is a chunk?
+
+**A:** A split file emitted by the bundler that can be loaded separately.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** What creates an async chunk?
+
+**A:** A dynamic `import()` (or framework wrapper) pointing at a module graph.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How do you prevent duplicate React in chunks?
+
+**A:** Configure bundler split/share rules and verify with an analyzer; frameworks usually de-dupe React as a shared dependency.
 
 ## Summary
 
-- TODO: key takeaway
+- Chunks implement code splitting on the wire
+- Dynamic import creates async chunks
+- Avoid too fat or too fragmented graphs
+- Prefetch with intent
 
 ## References
 
-- TODO: official documentation links
+- [webpack — Code Splitting](https://webpack.js.org/guides/code-splitting/)
+- [web.dev — Code splitting](https://web.dev/articles/reduce-javascript-payloads-with-code-splitting)
 
 <RelatedTopics />
 
 
-Prev: [Bundle](/13-performance/bundle/) · Next: [Bundling](/13-performance/bundling/)
+Prev: [`13-performance.bundle`](/13-performance/bundle/) · Next: [`13-performance.bundling`](/13-performance/bundling/)

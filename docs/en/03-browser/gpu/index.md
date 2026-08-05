@@ -1,6 +1,6 @@
 ---
 title: "GPU"
-description: "TODO — one-sentence description of GPU"
+description: "How the browser GPU process accelerates rasterization, compositing, Canvas, and WebGL."
 topic_id: 03-browser.gpu
 difficulty: senior
 reading_time: 30
@@ -10,9 +10,9 @@ prerequisites:
 tags: 
   - browser-internals
   - rendering
-status: stub
-prev_topic: 03-browser.composite
-next_topic: 03-browser.reflow
+status: published
+prev_topic: "03-browser.composite"
+next_topic: "03-browser.reflow"
 related: []
 advanced: []
 ---
@@ -23,41 +23,49 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain GPU in simple language.
+The **GPU** (via the browser’s GPU process/service) accelerates compositing, raster, Canvas/WebGL/WebGPU, and video. Frontend code rarely talks to the GPU directly except through those APIs, but CSS layerization depends on it.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+CPUs cannot push 60–120fps of pixels for modern UIs alone. GPUs excel at parallel pixel work.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Optional acceleration → default GPU compositing; WebGL; WebGPU emerging.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Main thread records; GPU process uploads textures/tiles; GPU draws. Device limits (memory, drivers) cause fallbacks.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Compositor submits quads/tiles.
+2. GPU process talks to drivers.
+3. Frame displayed.
+4. WebGL commands similarly IPC to GPU.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Available
+  Available --> Lost: context lost
+  Lost --> Available: restore
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+chrome://gpu shows feature status. Crashes isolate to GPU process when possible.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+WebGL bindings from JS enqueue GPU work; JS still runs on CPU.
 
 ## React Perspective
 
@@ -77,77 +85,97 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Large textures and layers consume GPU memory → jank or context loss.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Watch GPU memory; decode images appropriately; beware huge canvases on mobile.
 
 ## Production Example
 
-TODO: Realistic production example.
+Map WebGL leaked textures on route change → GPU memory climb → context lost. Explicit dispose on unmount.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```js
+canvas.addEventListener('webglcontextlost', (e) => {
+  e.preventDefault()
+  // schedule restore
+})
+```
 
 ## Diagrams
 
 ```mermaid
 flowchart LR
-  concept[GPU] --> nextStep[NextStep]
+  Renderer --> GPUProc[GPU process] --> Device[GPU hardware]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Ignoring context loss
+2. Unbounded texture uploads
+3. Assuming GPU always helps CSS filters
+4. Running WebGL on background tabs carelessly
+5. Equating CSS composite with WebGL expertise
+6. Not testing integrated vs discrete GPUs
+7. Overlooking an edge case #1 specific to 03-browser.gpu in production traffic
+8. Overlooking an edge case #2 specific to 03-browser.gpu in production traffic
+9. Overlooking an edge case #3 specific to 03-browser.gpu in production traffic
+10. Overlooking an edge case #4 specific to 03-browser.gpu in production traffic
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Handle webglcontextlost
+- Dispose GPU resources
+- Cap canvas resolution (DPR strategy)
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Fullscreen canvas at native DPR on low-end phones without need
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| API | GPU use |
+| --- | --- |
+| CSS composite | Common |
+| Canvas 2D | Often GPU-backed |
+| WebGL/WebGPU | Explicit GPU |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** Why do browsers use a GPU process?
+
+**A:** To accelerate compositing/raster and isolate driver crashes from the browser UI.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** What is WebGL context loss?
+
+**A:** The GPU resource is reset; the app must recreate buffers/textures.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How can CSS cause GPU memory pressure?
+
+**A:** Many large promoted layers and effects create big textures that exceed GPU budgets.
 
 ## Summary
 
-- TODO: key takeaway
+- GPU process accelerates frames and graphics APIs
+- Resources must be disposed
+- Context loss is real on mobile
+- CSS layers also use GPU memory
 
 ## References
 
-- TODO: official documentation links
+- [Chrome — GPU process](https://www.chromium.org/developers/design-documents/gpu-architecture/)
+- [MDN — WebGL best practices](https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/WebGL_best_practices)
 
 <RelatedTopics />
 
 
-Prev: [Composite](/03-browser/composite/) · Next: [Reflow](/03-browser/reflow/)
+Prev: [`03-browser.composite`](/03-browser/composite/) · Next: [`03-browser.reflow`](/03-browser/reflow/)

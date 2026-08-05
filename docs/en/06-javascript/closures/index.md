@@ -1,6 +1,6 @@
 ---
 title: "Closures"
-description: "TODO — one-sentence description of Closures"
+description: "Closures: functions that retain access to their lexical environment after the outer call returns."
 topic_id: 06-javascript.closures
 difficulty: junior
 reading_time: 40
@@ -10,7 +10,7 @@ prerequisites:
 tags: 
   - javascript
   - interview-frequent
-status: stub
+status: published
 prev_topic: 06-javascript.scope
 next_topic: 06-javascript.hoisting
 related: []
@@ -23,131 +23,168 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Closures in simple language.
+A **closure** is a function bundled with references to its surrounding lexical environment. Inner functions can read/write outer variables even after the outer function has returned.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Closures enable data privacy, factories, React state updaters’ mental models, and callbacks that remember context—without global variables.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Classic Scheme/JS concept; ubiquitous once nested functions + GC became normal.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+The inner function keeps the outer environment alive. Multiple closures from one outer call share that environment unless you create fresh bindings per iteration (`let` in loops).
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Identify captured variables.
+2. Ensure loop bindings are per-iteration when needed.
+3. Avoid capturing huge objects unintentionally.
+4. Return small APIs over closed state (module/revealing pattern).
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+Lifecycle for closures:
+
+```mermaid
+stateDiagram-v2
+  [*] --> Active
+  Active --> Settled
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Browsers host the JS runtime; DevTools Sources/Console observe this topic at runtime.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Engines implement ECMAScript semantics (V8/JavaScriptCore/SpiderMonkey); optimize hot paths after correctness.
 
 ## React Perspective
 
-Not applicable.
+Stale closures in effects/event handlers happen when callbacks capture old props/state—fix with correct deps or functional updates.
 
 ## Next.js Perspective
 
-Not applicable.
+Next.js runs JS in Node/Edge and the browser; verify APIs exist in each runtime.
 
 ## Server Perspective
 
-Not applicable.
+Node/Edge may implement the same language feature with different host APIs.
 
 ## Network Perspective
 
-Not applicable.
+Not primarily a network feature unless combined with fetch/HTTP.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Captured bindings keep heap objects alive for the closure’s lifetime.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Measure with Performance panel / benchmarks before micro-optimizing.
 
 ## Production Example
 
-TODO: Realistic production example.
+A `makeCounter()` factory replaced ad-hoc globals; tests could create isolated counters per case.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```js
+function makeCounter() {
+  let n = 0
+  return () => ++n
+}
+const c = makeCounter()
+c(); c() // 2
+
+// classic bug with var:
+for (var i = 0; i < 3; i++) setTimeout(() => console.log(i), 0) // 3,3,3
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[Closures] --> nextStep[NextStep]
+flowchart TD
+  Code[Program] --> Runtime[JS runtime]
+  Runtime --> Effect[closures effect]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Treating the feature as magic without the language rule behind it
+2. Copying Stack Overflow snippets without edge cases
+3. Confusing browser host APIs with ECMAScript language semantics
+4. Optimizing before measuring
+5. Ignoring strict mode / module differences
+6. Loop + var + async callback sharing one binding
+7. Closures retaining DOM nodes → memory leaks
+8. Creating closures in hot loops that capture large objects unintentionally
+9. Using closures as a substitute for proper module boundaries forever
+10. Mutating closed-over objects and wondering why “copies” share state
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Prefer language defaults and clear naming
+- Write a failing test for the sharp edge you hit
+- Use MDN + ECMA-262 for disagreements
+- Keep examples small and runnable
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Clever code that obscures control flow
+- Polyfilling incorrectly and masking bugs
+- Global mutable state as the default architecture
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Pattern | Uses closures |
+| --- | --- |
+| Partial application | Yes |
+| Module privacy | Yes |
+| React hooks internals | Yes (environment) |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is a closure?
+
+**A:** A function that retains access to variables from its lexical scope even after that scope’s call completed.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Why does var in a for-loop break async callbacks?
+
+**A:** One function-scoped `i` shared by all callbacks; with `let`, each iteration has a fresh binding.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How can closures leak memory?
+
+**A:** They keep outer variables reachable; capturing large DOM trees or unused caches prevents GC until the function is dropped.
 
 ## Summary
 
-- TODO: key takeaway
+- closures has precise ECMAScript/host semantics
+- Know failure modes and scope interactions
+- Measure production impact
+- Cross-link related handbook topics
 
 ## References
 
-- TODO: official documentation links
+- [MDN: Closures](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Closures)
+- [ECMA-262](https://tc39.es/ecma262/)
 
 <RelatedTopics />
-
 
 Prev: [Scope](/06-javascript/scope/) · Next: [Hoisting](/06-javascript/hoisting/)

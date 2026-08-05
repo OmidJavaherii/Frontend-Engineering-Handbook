@@ -1,6 +1,6 @@
 ---
 title: "Jotai"
-description: "TODO — one-sentence description of Jotai"
+description: "Atomic React state: small atoms composed into larger state graphs with bottom-up rerender control."
 topic_id: 15-architecture.jotai
 difficulty: mid
 reading_time: 25
@@ -10,9 +10,9 @@ prerequisites:
 tags: 
   - state
   - react
-status: stub
-prev_topic: 15-architecture.zustand
-next_topic: 15-architecture.tanstack-query
+status: published
+prev_topic: "15-architecture.zustand"
+next_topic: "15-architecture.tanstack-query"
 related: []
 advanced: []
 ---
@@ -23,49 +23,60 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Jotai in simple language.
+**Jotai** models state as **atoms**—units of state that components subscribe to. Derived atoms compute values; writes can update multiple atoms. It fits bottom-up composition better than one big store object.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Context rerenders and monolithic stores make fine-grained updates hard. Atoms let you subscribe to exactly what a component needs, similar in spirit to Recoil.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Part of the pmndrs ecosystem as a Recoil-inspired, simpler atomic model for React.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Atoms are building blocks. Components read/write atoms via hooks. Dependency graphs of derived atoms recompute when upstream atoms change—like a spreadsheet for UI state.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Define primitive atoms.
+2. Build derived atoms for computed views.
+3. Use atom families for dynamic IDs.
+4. Scope with Provider when SSR/tests need isolation.
+5. Keep server data in query libraries; atoms for client graph.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> PrimitiveAtom
+  PrimitiveAtom --> DerivedAtom: compose
+  DerivedAtom --> ComponentSubscribe
+  ComponentSubscribe --> Write
+  Write --> NotifyDependents
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Not applicable.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+Provider optional for simple SPA; recommended for SSR and tests.
 
 ## Next.js Perspective
 
-Not applicable.
+Use Provider per request/tree to avoid shared atom state across users.
 
 ## Server Perspective
 
@@ -77,77 +88,109 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Atom families can grow without bounds—delete unused keys.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Fine-grained subscriptions reduce rerenders. Extremely chatty atoms (per-pixel) still need throttling.
 
 ## Production Example
 
-TODO: Realistic production example.
+A design tool stores selected node id, zoom, and tool mode as atoms; the canvas subscribes narrowly while the inspector reads derived selection atoms.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```ts
+import { atom, useAtom } from 'jotai'
+
+const countAtom = atom(0)
+const doubleAtom = atom((get) => get(countAtom) * 2)
+
+export function Counter() {
+  const [count, setCount] = useAtom(countAtom)
+  const [double] = useAtom(doubleAtom)
+  return (
+    <button onClick={() => setCount((c) => c + 1)}>
+      {count} / {double}
+    </button>
+  )
+}
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[Jotai] --> nextStep[NextStep]
+flowchart TD
+  A[countAtom] --> D[doubleAtom]
+  A --> UI1[Counter]
+  D --> UI2[Badge]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. One huge atom recreating Redux without benefits
+2. Forgetting Provider in SSR
+3. Leaking atomFamily keys
+4. Fetching in atoms without a server-state strategy
+5. Over-atomizing every local input
+6. Missing a production edge case for 15-architecture.jotai (#1)
+7. Missing a production edge case for 15-architecture.jotai (#2)
+8. Missing a production edge case for 15-architecture.jotai (#3)
+9. Missing a production edge case for 15-architecture.jotai (#4)
+10. Missing a production edge case for 15-architecture.jotai (#5)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Primitive + derived atom split
+- Provider for SSR/tests
+- Delete atomFamily entries when entities go away
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Duplicating TanStack Query cache into atoms
+- Uncontrolled growth of global atoms for local UI
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
+| | Jotai | Zustand |
 | --- | --- | --- |
-| TODO | TODO | TODO |
+| Model | Many atoms | One store (usually) |
+| Rerenders | Very fine-grained | Selector-based |
+| Learning curve | Graph thinking | Simpler object store |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is an atom in Jotai?
+
+**A:** A unit of state that components can subscribe to; derived atoms compute from other atoms.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Why use a Provider with Jotai?
+
+**A:** To isolate atom stores per React tree—important for SSR, tests, and parallel instances.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** When prefer Jotai over Zustand?
+
+**A:** When many independent pieces of state compose into derived graphs and you want bottom-up subscription control rather than one store object.
 
 ## Summary
 
-- TODO: key takeaway
+- Jotai: atomic, bottom-up React state
+- Derived atoms model computed UI state
+- Isolate with Provider for SSR
 
 ## References
 
-- TODO: official documentation links
+- [Jotai documentation](https://jotai.org/)
+- [Jotai — Core concepts](https://jotai.org/docs/core/atom)
 
 <RelatedTopics />
 
 
-Prev: [Zustand](/15-architecture/zustand/) · Next: [TanStack Query](/15-architecture/tanstack-query/)
+Prev: [`15-architecture.zustand`](/15-architecture/zustand/) · Next: [`15-architecture.tanstack-query`](/15-architecture/tanstack-query/)

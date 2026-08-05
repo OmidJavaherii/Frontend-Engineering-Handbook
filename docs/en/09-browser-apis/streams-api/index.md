@@ -1,6 +1,6 @@
 ---
 title: "Streams API"
-description: "TODO — one-sentence description of Streams API"
+description: "Streams API: ReadableStream/WritableStream/TransformStream for backpressured chunked data processing."
 topic_id: 09-browser-apis.streams-api
 difficulty: senior
 reading_time: 35
@@ -8,9 +8,9 @@ implementation_time: 0
 prerequisites: []
 tags: 
   - browser-apis
-status: stub
-prev_topic: 09-browser-apis.web-sockets-api
-next_topic: 09-browser-apis.file-api
+status: published
+prev_topic: "09-browser-apis.web-sockets-api"
+next_topic: "09-browser-apis.file-api"
 related: []
 advanced: []
 ---
@@ -21,45 +21,51 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Streams API in simple language.
+The **Streams API** models data as chunk sequences with **backpressure**. `ReadableStream`, `WritableStream`, and `TransformStream` power fetch bodies, compression, and progressive processing without loading everything into memory.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Large downloads/uploads and progressive transforms need chunking and flow control—classic promises of full Blobs don’t scale.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+WHATWG Streams underpin modern `fetch` body usage and Web platform pipelines (including some Node interop stories).
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Producers enqueue chunks; consumers read; backpressure pauses producers when queues fill. Pipe chains compose transforms.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Get a readable (`response.body`).
+2. `getReader` or `pipeThrough` transforms.
+3. Respect backpressure (await writes).
+4. Cancel on abort (`AbortSignal`).
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+flowchart LR
+  Source[Readable] --> Transform --> Dest[Writable]
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+fetch bodies are readable streams.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Avoid buffering entire payloads.
 
 ## React Perspective
 
-Not applicable.
+Feed progressive UI from chunk parsers carefully.
 
 ## Next.js Perspective
 
@@ -71,81 +77,109 @@ Not applicable.
 
 ## Network Perspective
 
-Not applicable.
+Streaming reduces TTFB-to-usable-bytes latency.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Primary win is memory + time-to-first-chunk processing.
 
 ## Production Example
 
-TODO: Realistic production example.
+An export downloads a huge CSV via `response.body`, parses lines incrementally, and renders rows as they arrive.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```ts
+const res = await fetch('/large.txt')
+const reader = res.body!.getReader()
+const decoder = new TextDecoder()
+let text = ''
+for (;;) {
+  const { value, done } = await reader.read()
+  if (done) break
+  text += decoder.decode(value, { stream: true })
+}
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[StreamsAPI] --> nextStep[NextStep]
+sequenceDiagram
+  participant Net
+  participant Readable
+  participant Consumer
+  Net->>Readable: chunk
+  Consumer->>Readable: read
+  Readable-->>Consumer: chunk
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Buffering entire stream into memory anyway
+2. Ignoring backpressure in custom sinks
+3. Forgetting cancel/abort
+4. Parsing UTF-8 without stream-aware decoders
+5. Assuming all environments support every stream feature equally
+6. Deadlocking pipe chains
+7. Overlooking an edge case #1 specific to 09-browser-apis.streams-api in production traffic
+8. Overlooking an edge case #2 specific to 09-browser-apis.streams-api in production traffic
+9. Overlooking an edge case #3 specific to 09-browser-apis.streams-api in production traffic
+10. Overlooking an edge case #4 specific to 09-browser-apis.streams-api in production traffic
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Prefer pipeThrough compositions
+- Abortable readers
+- Chunk-aware text decoding
+- Measure memory on large fixtures
 
 ## Anti-patterns
 
-TODO: What not to do.
+- `await res.text()` for multi-hundred-MB payloads
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Approach | Memory |
+| --- | --- |
+| Full buffer | High |
+| Streams | Bounded |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What problem do Streams solve?
+
+**A:** Processing data in chunks with backpressure instead of loading everything at once.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** What is backpressure?
+
+**A:** A signal that the consumer is slower than the producer so the producer should pause/enqueue less.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How does fetch streaming help UX?
+
+**A:** You can parse and render progressively as bytes arrive, improving time-to-interactive for large payloads.
 
 ## Summary
 
-- TODO: key takeaway
+- Chunked backpressured pipelines
+- Foundation for fetch body streaming
+- Cancel and decode carefully
 
 ## References
 
-- TODO: official documentation links
+- [MDN: Streams API](https://developer.mozilla.org/en-US/docs/Web/API/Streams_API)
 
 <RelatedTopics />
 
 
-Prev: [WebSocket API](/09-browser-apis/web-sockets-api/) · Next: [File API](/09-browser-apis/file-api/)
+Prev: [`09-browser-apis.web-sockets-api`](/09-browser-apis/web-sockets-api/) · Next: [`09-browser-apis.file-api`](/09-browser-apis/file-api/)

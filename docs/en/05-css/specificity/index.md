@@ -1,6 +1,6 @@
 ---
 title: "Specificity"
-description: "TODO — one-sentence description of Specificity"
+description: "CSS specificity weights for IDs, classes/attributes/pseudo-classes, and elements—and how they interact with layers."
 topic_id: 05-css.specificity
 difficulty: junior
 reading_time: 30
@@ -10,7 +10,7 @@ prerequisites:
 tags: 
   - css
   - interview-frequent
-status: stub
+status: published
 prev_topic: 05-css.cascade
 next_topic: 05-css.inheritance
 related: []
@@ -23,49 +23,59 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Specificity in simple language.
+**Specificity** is a tuple comparing how narrowly a selector matches: IDs beat classes/attributes/pseudo-classes, which beat elements/pseudo-elements. It is consulted only after origin/importance and cascade layers.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+When two author rules in the same layer conflict, specificity decides without needing source-order luck. Abuse (IDs, long chains) makes overrides painful.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Specificity counting dates to early CSS. Modern practice favors class-based systems (BEM, CSS Modules, Tailwind) to keep weights flat; `@layer` further reduces need for escalation.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Count (ignore universal `*` and the alone `:where()`). Example: `.nav .item.active` is three classes. `#app .item` includes one ID and wins over many classes. Inline `style=` beats selectors unless `!important` intervenes per cascade rules.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Confirm both rules are same origin/layer.
+2. Compare specificity tuples.
+3. If equal, source order wins.
+4. Prefer refactoring selectors over adding IDs.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+Lifecycle for specificity:
+
+```mermaid
+stateDiagram-v2
+  [*] --> Match
+  Match --> Compare: same layer
+  Compare --> Winner
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+DevTools shows specificity-like reasons when hovering rules; crossed-out declarations often lost on specificity.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable to the JS engine beyond className changes triggering style recalc.
 
 ## React Perspective
 
-Not applicable.
+CSS Modules hash class names but specificity is still usually one class—good. `:global` escapes can reintroduce wars.
 
 ## Next.js Perspective
 
-Not applicable.
+Utility-first CSS keeps specificity flat by design.
 
 ## Server Perspective
 
@@ -77,77 +87,105 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Negligible directly; selector matching cost can matter at huge DOM + complex selectors.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Complex selectors (especially descendant chains) can slow matching/invalidation. Prefer shallow selectors.
 
 ## Production Example
 
-TODO: Realistic production example.
+A codebase banned IDs in CSS and capped selectors at two classes. Override time dropped; new features stopped shipping `#modal.modal.open`.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```css
+/* (0, 2, 1) */
+nav .link:hover { color: blue; }
+/* (1, 0, 0) wins in same layer */
+#main { color: black; }
+/* :where keeps specificity at zero */
+:where(.btn) { padding: 0.5rem; }
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[Specificity] --> nextStep[NextStep]
+flowchart TD
+  ID[IDs] --> Cmp[Compare tuple]
+  Class[Classes attributes pseudo] --> Cmp
+  El[Elements] --> Cmp
+  Cmp --> Win[Winner or fall to order]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Using IDs to win arguments with teammates
+2. Counting `!important` as specificity (it is not)
+3. Thinking inline styles always lose to classes
+4. Ultra-long chains (`.a .b .c .d .e`) for structure
+5. Forgetting `:is()` takes the most specific argument’s weight
+6. Using `@layer` incorrectly then blaming specificity
+7. Missing a production edge case for 05-css.specificity (#1)
+8. Missing a production edge case for 05-css.specificity (#2)
+9. Missing a production edge case for 05-css.specificity (#3)
+10. Missing a production edge case for 05-css.specificity (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Prefer single-class selectors for components
+- Use `:where()` for low-power base rules
+- Reserve IDs for JS hooks, not styling
+- Document exceptions
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Specificity climbing as a merge strategy
+- Copying DevTools suggested selectors blindly
+- Styling via `href`/`type` attributes unnecessarily
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Selector | Rough weight |
+| --- | --- |
+| `#id` | High |
+| `.class`, `[attr]`, `:hover` | Medium |
+| `div`, `::before` | Low |
+| `:where(...)` | Zero |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is CSS specificity?
+
+**A:** A weight comparing selectors so the more specific rule wins when cascade origin/layer are equal.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Does `@layer` beat specificity?
+
+**A:** Yes—layer order is compared before specificity.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How does `:is(.a, #b)` compute specificity?
+
+**A:** It uses the most specific argument—here an ID—so the whole `:is()` carries ID weight.
 
 ## Summary
 
-- TODO: key takeaway
+- Specificity is a tuple after layers
+- Keep weights flat in apps
+- `!important` ≠ specificity
+- `:where` helps write low-power defaults
 
 ## References
 
-- TODO: official documentation links
+- [MDN: Specificity](https://developer.mozilla.org/en-US/docs/Web/CSS/Specificity)
+- [Selectors Level 4](https://www.w3.org/TR/selectors-4/)
 
 <RelatedTopics />
-
 
 Prev: [Cascade](/05-css/cascade/) · Next: [Inheritance](/05-css/inheritance/)

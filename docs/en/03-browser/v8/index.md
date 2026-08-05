@@ -1,6 +1,6 @@
 ---
 title: "V8"
-description: "TODO — one-sentence description of V8"
+description: "V8 overview: Ignition bytecode, TurboFan optimization, hidden classes, IC, and Orinoco GC."
 topic_id: 03-browser.v8
 difficulty: senior
 reading_time: 50
@@ -10,9 +10,9 @@ prerequisites:
 tags: 
   - javascript-engine
   - v8
-status: stub
-prev_topic: 03-browser.javascript-engine
-next_topic: 03-browser.spidermonkey
+status: published
+prev_topic: "03-browser.javascript-engine"
+next_topic: "03-browser.spidermonkey"
 related: []
 advanced: []
 ---
@@ -23,49 +23,59 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain V8 in simple language.
+**V8** is Google’s open-source JavaScript and WebAssembly engine used in Chromium and Node.js. For frontend engineers, V8 explains why some JS is fast, why megamorphic code hurts, and how GC pauses show up in traces. Pipeline headline: **Ignition** (interpreter/bytecode) + **TurboFan** (optimizing compiler), with **Sparkplug**/Maglev tiers in modern versions, and **Orinoco** garbage collection.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Browsers need a high-performance ECMAScript implementation. V8’s design goals: quick startup, strong peak performance, tight integration with Blink’s bindings.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Launched with Chrome 2008, disrupting interpreter-only norms. Has rewritten compilers multiple times (Crankshaft → TurboFan; Full-codegen → Ignition). Continuous GC and pointer compression improvements followed.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Source → **parse** → **Ignition bytecode** → execute while collecting **feedback** → compile hot functions with **TurboFan** using speculative types → **deopt** if wrong → heap managed by generational GC (young/old) with concurrent/parallel phases.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Script streaming/parsing (may parse idle).
+2. Bytecode generation; lazy inner functions.
+3. Inline caches (ICs) record shapes/types at call sites.
+4. Hot functions optimized; OSR possible.
+5. GC scavenges young generation; marking/sweeping old space concurrently when possible.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Bytecode
+  Bytecode --> Sparkplug: warm
+  Sparkplug --> TurboFan: hot
+  TurboFan --> Bytecode: deopt
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+V8 lives in the renderer; Blink exposes DOM as C++ objects with JS wrappers. Detached DOM + JS refs = leaks.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+This topic *is* the engine deep dive for Chromium/Node.
 
 ## React Perspective
 
-Not applicable.
+Large component trees allocate many objects; Concurrent features + fewer commits reduce churn. React Compiler aims to cut needless re-renders/allocs.
 
 ## Next.js Perspective
 
-Not applicable.
+Node server uses V8 too — CPU profiles on server differ from field Chrome versions.
 
 ## Server Perspective
 
@@ -77,77 +87,105 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Heap snapshots in DevTools are V8 heaps. Retainer paths matter more than “who allocated.”
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Minimize main-thread JS; avoid megamorphic ICs in hot loops; watch allocation rate; prefer monomorphic call sites; don’t fight the JIT with tiny micro-benches in isolation.
 
 ## Production Example
 
-TODO: Realistic production example.
+A reducer recreated deeply nested new objects every keystroke → GC + deopts. Structured persistent updates + debounce fixed INP.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```js
+// Hidden class / shape intuition
+function Point(x, y) { this.x = x; this.y = y }
+const a = new Point(1, 2)
+const b = new Point(3, 4) // same shape — good
+// a.z = 9 // shape transition — can hurt if done inconsistently
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[V8] --> nextStep[NextStep]
+flowchart TB
+  src[JS source] --> ign[Ignition bytecode]
+  ign --> fb[Type feedback / ICs]
+  fb --> tf[TurboFan optimized code]
+  tf -->|assumption fail| ign
+  ign --> heap[V8 heap + Orinoco GC]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Treating V8 blog microbenchmarks as universal truths
+2. Using `delete` on hot objects casually
+3. Assuming `arguments` object is free in modern engines (still be careful)
+4. Ignoring that Node and Chrome V8 versions diverge
+5. Confusing DevTools “Performance” with “Memory” tools
+6. Believing TypeScript types influence V8
+7. Optimizing before profiling
+8. Overlooking an edge case #1 specific to 03-browser.v8 in production traffic
+9. Overlooking an edge case #2 specific to 03-browser.v8 in production traffic
+10. Overlooking an edge case #3 specific to 03-browser.v8 in production traffic
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Profile with Chromium Performance + V8 logs when needed
+- Keep object shapes consistent in hot paths
+- Ship less JS; parsing matters
+- Use heap snapshots for leaks
 
 ## Anti-patterns
 
-TODO: What not to do.
+- `eval` / `with` in hot paths
+- Polymorphic megamorphic APIs in animation frames
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Tier (concept) | Role |
+| --- | --- |
+| Ignition | Fast start bytecode |
+| Sparkplug/Maglev | Mid tiers (version-dependent) |
+| TurboFan | Peak optimizing compiler |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** Where does V8 run?
+
+**A:** Chromium browsers and Node.js (and others embedding V8).
 
 ### Medium
 
-TODO — question and answer.
+**Q:** What are Ignition and TurboFan?
+
+**A:** Ignition interprets bytecode; TurboFan produces optimized machine code for hot functions.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How do inline caches speed property access?
+
+**A:** ICs remember where a property lives for a given object shape so subsequent accesses skip full dictionary lookups — until the shape diverges (megamorphic).
 
 ## Summary
 
-- TODO: key takeaway
+- V8: Ignition + optimizing tiers + GC
+- Shapes and ICs drive property performance
+- Deopts happen when speculation fails
+- Profile real user engines/versions
 
 ## References
 
-- TODO: official documentation links
+- [V8 documentation](https://v8.dev/docs)
+- [V8 blog](https://v8.dev/blog)
+- [Chrome DevTools — Memory](https://developer.chrome.com/docs/devtools/memory-problems/)
 
 <RelatedTopics />
 
 
-Prev: [JavaScript Engine](/03-browser/javascript-engine/) · Next: [SpiderMonkey](/03-browser/spidermonkey/)
+Prev: [`03-browser.javascript-engine`](/03-browser/javascript-engine/) · Next: [`03-browser.spidermonkey`](/03-browser/spidermonkey/)

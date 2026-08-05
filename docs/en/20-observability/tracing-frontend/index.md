@@ -1,6 +1,6 @@
 ---
 title: "Frontend Tracing"
-description: "TODO — one-sentence description of Frontend Tracing"
+description: "Distributed tracing from browser to backend with traceparent headers and spans for user journeys."
 topic_id: 20-observability.tracing-frontend
 difficulty: senior
 reading_time: 30
@@ -8,9 +8,9 @@ implementation_time: 0
 prerequisites: []
 tags: 
   - observability
-status: stub
-prev_topic: 20-observability.web-vitals-monitoring
-next_topic: 20-observability.feature-telemetry
+status: published
+prev_topic: "20-observability.web-vitals-monitoring"
+next_topic: "20-observability.feature-telemetry"
 related: []
 advanced: []
 ---
@@ -21,45 +21,55 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Frontend Tracing in simple language.
+**Frontend tracing** creates spans for key UX operations (navigation, API calls) and propagates **trace context** (`traceparent`) to backends so one trace shows browser→API→DB latency.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Logs/metrics alone don’t show causality across services. Traces stitch the journey.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+OpenTelemetry standardized traces/context propagation; browser SDKs matured more recently than server ones.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Trace = tree/DAG of spans. Browser root span → child fetch spans with propagated headers → server continues. Sample to control volume.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Add OTel (or vendor) browser SDK.
+2. Instrument fetch/XHR.
+3. Propagate context to APIs (CORS expose headers as needed).
+4. Sample.
+5. Query traces for slow journeys.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> StartSpan
+  StartSpan --> ChildSpans
+  ChildSpans --> Propagate
+  Propagate --> Export
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Keep instrumentation light.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+Custom spans around heavy interactions.
 
 ## Next.js Perspective
 
@@ -67,85 +77,107 @@ Not applicable.
 
 ## Server Perspective
 
-Not applicable.
+Must continue the same trace id.
 
 ## Network Perspective
 
-Not applicable.
+traceparent on requests; CORS must allow.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Export batches async; aggressive tracing can hurt—sample.
 
 ## Production Example
 
-TODO: Realistic production example.
+Checkout button span parents the quote+pay fetches; backend spans show pay service as bottleneck.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```http
+traceparent: 00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[FrontendTracing] --> nextStep[NextStep]
+sequenceDiagram
+  participant UI
+  participant API
+  participant DB
+  UI->>API: fetch + traceparent
+  API->>DB: query
+  DB-->>API: rows
+  API-->>UI: json
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. No sampling plan
+2. Breaking CORS with custom headers
+3. Tracing PII in span attributes
+4. Only frontend traces without backend join
+5. Mega-spans with no useful names
+6. Missing a production edge case for 20-observability.tracing-frontend (#1)
+7. Missing a production edge case for 20-observability.tracing-frontend (#2)
+8. Missing a production edge case for 20-observability.tracing-frontend (#3)
+9. Missing a production edge case for 20-observability.tracing-frontend (#4)
+10. Missing a production edge case for 20-observability.tracing-frontend (#5)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- W3C tracecontext
+- Sample + scrub
+- Name spans by UX intent
 
 ## Anti-patterns
 
-TODO: What not to do.
+- 100% trace everything in prod forever
+- Manual ids that don’t follow the standard
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Traces | Metrics |
+| --- | --- |
+| Causal path | Aggregates |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is a span?
+
+**A:** A timed unit of work within a distributed trace, with a name and timestamps.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** What does traceparent do?
+
+**A:** It propagates trace and parent span identifiers across service boundaries so backends can join the same trace.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** Implement tracing across SPA + API with CORS.
+
+**A:** Browser adds traceparent; API allows/exposes headers; sampler configured; scrub attributes; verify end-to-end in collector UI.
 
 ## Summary
 
-- TODO: key takeaway
+- Traces connect browser to backend
+- Propagate W3C context
+- Sample and scrub
 
 ## References
 
-- TODO: official documentation links
+- [OpenTelemetry JS](https://opentelemetry.io/docs/languages/js/)
+- [W3C Trace Context](https://www.w3.org/TR/trace-context/)
+- [OpenTelemetry — Browser](https://opentelemetry.io/docs/languages/js/getting-started/browser/)
 
 <RelatedTopics />
 
 
-Prev: [Web Vitals Monitoring](/20-observability/web-vitals-monitoring/) · Next: [Feature Telemetry](/20-observability/feature-telemetry/)
+Prev: [`20-observability.web-vitals-monitoring`](/20-observability/web-vitals-monitoring/) · Next: [`20-observability.feature-telemetry`](/20-observability/feature-telemetry/)

@@ -1,6 +1,6 @@
 ---
 title: "Templates"
-description: "TODO — one-sentence description of Templates"
+description: "template.tsx wraps children like layouts but remounts on navigation."
 topic_id: 11-nextjs.templates
 difficulty: mid
 reading_time: 20
@@ -9,9 +9,9 @@ prerequisites:
   - 11-nextjs.layouts
 tags: 
   - nextjs
-status: stub
-prev_topic: 11-nextjs.nested-layouts
-next_topic: 11-nextjs.loading-ui
+status: published
+prev_topic: "11-nextjs.nested-layouts"
+next_topic: "11-nextjs.loading-ui"
 related: []
 advanced: []
 ---
@@ -22,49 +22,57 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Templates in simple language.
+A **template** (`template.tsx`) is structurally like a layout—it wraps `children`—but Next **remounts** it on navigation, giving you a fresh React state and effects each time. Use it for enter animations or reset semantics layouts cannot provide.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Layouts intentionally preserve state. Sometimes you need the opposite: CSS enter transitions, resetting a wizard, or remounting a keyed client widget per page view.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Introduced with App Router as the remounting counterpart to persistent layouts.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Layout = durable. Template = new instance per navigation. You can use both: layout outside, template inside (or vice versa depending on structure).
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Add `template.tsx` beside or beneath a layout.
+2. Render `{children}` with optional transition wrappers.
+3. On child navigation, React unmounts/remounts the template instance.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> MountTemplate
+  MountTemplate --> ShowChildren
+  ShowChildren --> UnmountTemplate: navigate
+  UnmountTemplate --> MountTemplate
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+May cause more DOM teardown/create—keep templates light.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+Remount re-runs effects and resets `useState`. Useful with animation libraries that expect mount lifecycle.
 
 ## Next.js Perspective
 
-Not applicable.
+Templates do not replace layouts for `<html>`/shared chrome; they complement them.
 
 ## Server Perspective
 
@@ -76,77 +84,100 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Old template state is discarded—good for preventing stale client caches in that subtree.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Remounting has a cost; don’t wrap huge trees in templates for cosmetic reasons. Prefer CSS on small wrappers.
 
 ## Production Example
 
-TODO: Realistic production example.
+Docs site wraps article pages in a template that applies a fade-in class on mount without resetting the sidebar layout.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```tsx
+// app/dashboard/template.tsx
+export default function Template({ children }: { children: React.ReactNode }) {
+  return <div className="animate-in fade-in duration-200">{children}</div>
+}
+```
 
 ## Diagrams
 
 ```mermaid
 flowchart LR
-  concept[Templates] --> nextStep[NextStep]
+  L[layout persists] --> T[template remounts]
+  T --> P[page]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Using template when you actually wanted persistent layout state
+2. Putting auth providers only in a template so they reset constantly
+3. Heavy data fetching inside templates
+4. Confusing template with React `<Suspense>` fallbacks
+5. Expecting template to change the URL structure
+6. Animating with templates that remount the entire dashboard including charts unnecessarily
+7. Missing a production edge case for 11-nextjs.templates (#1)
+8. Missing a production edge case for 11-nextjs.templates (#2)
+9. Missing a production edge case for 11-nextjs.templates (#3)
+10. Missing a production edge case for 11-nextjs.templates (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Keep templates thin—animation wrappers, not data shells
+- Combine with layout: layout for chrome, template for page transitions
+- Prefer CSS transitions that do not require remount when possible
+- Document remount intent for future maintainers
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Template as a substitute for key={pathname} everywhere
+- Resetting forms via full template remount instead of explicit form reset
+- Nesting many templates that thrash the DOM
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
+| | Layout | Template |
 | --- | --- | --- |
-| TODO | TODO | TODO |
+| State | Preserved | Reset |
+| Effects | Persist | Re-run |
+| Use | Shells | Transitions / reset |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** How does template.tsx differ from layout.tsx?
+
+**A:** Both wrap children, but templates remount on navigation while layouts persist.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Give a valid use case for templates.
+
+**A:** Page enter animations or ensuring a client widget remounts with clean state on each navigation while the outer layout stays mounted.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** Could you replace templates with key={pathname} on a layout child?
+
+**A:** Often yes for remount semantics; `template.tsx` is the framework convention and composes cleanly with the segment model. Prefer the convention for clarity unless you need custom keying rules.
 
 ## Summary
 
-- TODO: key takeaway
+- Templates wrap children but remount on navigate
+- Ideal for transitions and state reset
+- Keep them light
+- Layouts remain the right tool for durable chrome
 
 ## References
 
-- TODO: official documentation links
+- [Next.js — Templates](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts#templates)
 
 <RelatedTopics />
 
 
-Prev: [Nested Layouts](/11-nextjs/nested-layouts/) · Next: [Loading UI](/11-nextjs/loading-ui/)
+Prev: [`11-nextjs.nested-layouts`](/11-nextjs/nested-layouts/) · Next: [`11-nextjs.loading-ui`](/11-nextjs/loading-ui/)

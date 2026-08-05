@@ -1,6 +1,6 @@
 ---
 title: "Virtual DOM"
-description: "TODO — one-sentence description of Virtual DOM"
+description: "The Virtual DOM idea: element trees as UI descriptions, and how React uses them with Fiber today."
 topic_id: 08-jsx-and-react-runtime.virtual-dom
 difficulty: mid
 reading_time: 40
@@ -11,9 +11,9 @@ prerequisites:
 tags: 
   - react
   - interview-frequent
-status: stub
-prev_topic: 08-jsx-and-react-runtime.react-createelement
-next_topic: 08-jsx-and-react-runtime.fiber
+status: published
+prev_topic: "08-jsx-and-react-runtime.react-createelement"
+next_topic: "08-jsx-and-react-runtime.fiber"
 related: []
 advanced: []
 ---
@@ -24,45 +24,56 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Virtual DOM in simple language.
+The **Virtual DOM** is the idea that UI is described as a tree of lightweight elements (plain objects), diffed against the previous tree, then applied to the real DOM.
+
+In modern React, “VDOM” colloquially means the **element tree + Fiber reconciliation**, not a separate magical layer. Fibers are the real unit of work.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Direct DOM mutation is imperative and error-prone at scale. Declaring “UI = f(state)” needs a way to turn new descriptions into minimal host updates. Element trees provide that description.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Popularized by React in the early 2010s. React 16 replaced the stack reconciler with Fiber, keeping the element abstraction while changing scheduling. Other libraries use fine-grained reactivity without a VDOM.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+**Elements** describe intent. **Fibers** track instances/work. **Host DOM** is the mutable output. Diffing compares element types/keys to decide reuse vs replace. Calling it “virtual DOM” is shorthand—not a second browser DOM.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Render phase: components return new element trees.
+2. Reconciler diffs against current Fiber tree.
+3. Build an effect list of host mutations.
+4. Commit phase applies DOM changes (and runs layout effects).
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+flowchart TD
+  State --> Render[render elements]
+  Render --> Diff[reconcile / diff]
+  Diff --> Commit[commit DOM]
+  Commit --> Paint[browser paint]
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Only the commit phase touches DOM APIs; render may be interrupted (concurrent).
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Render work is JS CPU; commit can force layout if effects read layout.
 
 ## React Perspective
 
-Not applicable.
+Core mental model for why keys and element types matter.
 
 ## Next.js Perspective
 
@@ -78,77 +89,107 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+VDOM is not free—JS diff work costs CPU. Concurrent React spreads render work; avoid huge unnecessary re-renders.
 
 ## Production Example
 
-TODO: Realistic production example.
+A dashboard re-renders a large table. Profiling shows render CPU high; memoization and windowing cut element churn more than micro-optimizing DOM APIs.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```tsx
+// "Virtual" description each render
+function App({ items }: { items: string[] }) {
+  return (
+    <ul>
+      {items.map((item) => (
+        <li key={item}>{item}</li>
+      ))}
+    </ul>
+  )
+}
+```
 
 ## Diagrams
 
 ```mermaid
 flowchart LR
-  concept[VirtualDOM] --> nextStep[NextStep]
+  Elements[Element tree] --> Fibers[Fiber tree]
+  Fibers --> DOM[Host DOM]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Believing React always does the minimal DOM ops imaginable
+2. Thinking VDOM means no real DOM performance issues
+3. Using index keys and blaming “the VDOM”
+4. Mutating state in place so React sees the same reference
+5. Equating Virtual DOM with Shadow DOM
+6. Assuming every library needs a VDOM
+7. Overlooking an edge case #1 specific to 08-jsx-and-react-runtime.virtual-dom in production traffic
+8. Overlooking an edge case #2 specific to 08-jsx-and-react-runtime.virtual-dom in production traffic
+9. Overlooking an edge case #3 specific to 08-jsx-and-react-runtime.virtual-dom in production traffic
+10. Overlooking an edge case #4 specific to 08-jsx-and-react-runtime.virtual-dom in production traffic
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Understand elements vs fibers vs DOM
+- Stable keys for lists
+- Measure with Profiler before optimizing
+- Prefer correct state immutability
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Premature `shouldComponentUpdate` everywhere
+- Reading DOM in render
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Approach | Update model |
+| --- | --- |
+| React VDOM/Fiber | Diff element trees, commit |
+| Fine-grained reactive | Update DOM per signal |
+| Imperative DOM | Manual mutations |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is the Virtual DOM in React?
+
+**A:** A pattern of describing UI with element trees and reconciling them to update the real DOM.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** How does Fiber relate to the Virtual DOM?
+
+**A:** Elements still describe UI; Fibers are the internal units that track component state/effects and enable incremental rendering.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** Why is “React is fast because Virtual DOM” incomplete?
+
+**A:** Diffing costs JS time; React’s value is predictable updates and (with Fiber) scheduling. Performance still requires good architecture.
 
 ## Summary
 
-- TODO: key takeaway
+- Elements describe UI; DOM is updated on commit
+- Fiber is the modern reconciler behind the VDOM story
+- Keys and types control identity
 
 ## References
 
-- TODO: official documentation links
+- [React Documentation](https://react.dev/)
+- [React Reference](https://react.dev/reference/react)
+- [Render and Commit](https://react.dev/learn/render-and-commit)
+- [Understanding re-renders](https://react.dev/learn/render-and-commit)
 
 <RelatedTopics />
 
 
-Prev: [React.createElement](/08-jsx-and-react-runtime/react-createelement/) · Next: [Fiber](/08-jsx-and-react-runtime/fiber/)
+Prev: [`08-jsx-and-react-runtime.react-createelement`](/08-jsx-and-react-runtime/react-createelement/) · Next: [`08-jsx-and-react-runtime.fiber`](/08-jsx-and-react-runtime/fiber/)

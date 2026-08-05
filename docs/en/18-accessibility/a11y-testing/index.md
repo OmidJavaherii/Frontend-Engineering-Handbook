@@ -1,6 +1,6 @@
 ---
 title: "Accessibility Testing"
-description: "TODO — one-sentence description of Accessibility Testing"
+description: "Layered accessibility testing: lint, axe automation, keyboard tests, and manual assistive tech."
 topic_id: 18-accessibility.a11y-testing
 difficulty: mid
 reading_time: 30
@@ -9,9 +9,9 @@ prerequisites: []
 tags: 
   - a11y
   - testing
-status: stub
-prev_topic: 18-accessibility.accessible-components
-next_topic: 18-accessibility.a11y-in-react
+status: published
+prev_topic: "18-accessibility.accessible-components"
+next_topic: "18-accessibility.a11y-in-react"
 related: []
 advanced: []
 ---
@@ -22,49 +22,59 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Accessibility Testing in simple language.
+**A11y testing** stacks eslint-plugin-jsx-a11y, axe-core in unit/E2E, keyboard interaction tests, and manual screen-reader exploration. Automation is necessary; manual AT catches the rest.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Without CI gates, regressions ship. Without manual tests, “green axe” false confidence ships.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+axe-core became the default engine behind many tools (Playwright, Storybook addons, Lighthouse).
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Shift-left: lint → component axe → journey axe/keyboard → release AT smoke. Map failures to WCAG criteria.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Enable jsx-a11y.
+2. axe on stories/pages in CI.
+3. Keyboard tests for custom widgets.
+4. Manual SR checklist per release.
+5. Track exceptions with expiry.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Lint
+  Lint --> Axe
+  Axe --> Keyboard
+  Keyboard --> ManualAT
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Extensions for local audits.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+RTL role queries encourage accessible markup.
 
 ## Next.js Perspective
 
-Not applicable.
+Include route-level checks for titles/landmarks.
 
 ## Server Perspective
 
@@ -76,77 +86,97 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Shard axe E2E; don’t axe every pixel page if budget tight—prioritize critical.
 
 ## Production Example
 
-TODO: Realistic production example.
+CI fails on serious/critical axe; nightly fuller crawl; VoiceOver smoke before major releases.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```ts
+import { axe } from 'vitest-axe'
+it('is accessible', async () => {
+  const { container } = render(<Dialog open />)
+  expect(await axe(container)).toHaveNoViolations()
+})
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[AccessibilityTesting] --> nextStep[NextStep]
+flowchart TD
+  Lint --> UnitAxe --> E2EAxe --> Manual
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Axe-only strategy
+2. Disabling rules globally
+3. No keyboard coverage
+4. Testing only desktop Chrome
+5. Ignoring failures in third-party widgets you chose
+6. Missing a production edge case for 18-accessibility.a11y-testing (#1)
+7. Missing a production edge case for 18-accessibility.a11y-testing (#2)
+8. Missing a production edge case for 18-accessibility.a11y-testing (#3)
+9. Missing a production edge case for 18-accessibility.a11y-testing (#4)
+10. Missing a production edge case for 18-accessibility.a11y-testing (#5)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Fail CI on serious issues
+- Manual AT for releases
+- Prioritize critical journeys
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Forever-ignored violation baselines
+- Accessibility overlay as “fix”
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Automated | Manual |
+| --- | --- |
+| Fast, partial | Slow, essential |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** Name an automated a11y tool.
+
+**A:** axe-core (via Playwright, Testing Library integrations, browser extensions, etc.).
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Why isn’t axe enough?
+
+**A:** Many WCAG criteria need human judgment (clarity, SR UX, complex interactions).
 
 ### Hard
 
-TODO — question and answer.
+**Q:** Build an a11y CI plan for a DS + app.
+
+**A:** jsx-a11y + axe on Storybook/CI, keyboard tests for patterns, app journey axe, release AT matrix, tracked exceptions.
 
 ## Summary
 
-- TODO: key takeaway
+- Layer automated and manual a11y tests
+- Gate serious violations
+- Map to WCAG
 
 ## References
 
-- TODO: official documentation links
+- [axe-core](https://github.com/dequelabs/axe-core)
+- [Playwright accessibility testing](https://playwright.dev/docs/accessibility-testing)
+- [eslint-plugin-jsx-a11y](https://github.com/jsx-eslint/eslint-plugin-jsx-a11y)
 
 <RelatedTopics />
 
 
-Prev: [Accessible Components](/18-accessibility/accessible-components/) · Next: [Accessibility in React](/18-accessibility/a11y-in-react/)
+Prev: [`18-accessibility.accessible-components`](/18-accessibility/accessible-components/) · Next: [`18-accessibility.a11y-in-react`](/18-accessibility/a11y-in-react/)

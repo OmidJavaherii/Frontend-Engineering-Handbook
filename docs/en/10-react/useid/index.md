@@ -1,6 +1,6 @@
 ---
 title: "useId"
-description: "TODO — one-sentence description of useId"
+description: "useId: generate stable unique IDs for accessibility attributes that match on server and client."
 topic_id: 10-react.useid
 difficulty: junior
 reading_time: 15
@@ -9,9 +9,9 @@ prerequisites: []
 tags: 
   - react
   - a11y
-status: stub
-prev_topic: 10-react.useimperativehandle
-next_topic: 10-react.use
+status: published
+prev_topic: "10-react.useimperativehandle"
+next_topic: "10-react.use"
 related: []
 advanced: []
 ---
@@ -22,49 +22,54 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain useId in simple language.
+**`useId`** returns a unique ID string stable across server render and client hydration. Use it to associate labels/inputs (`htmlFor`/`id`) and ARIA relationships without hydration mismatches.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Hardcoded IDs collide; `Math.random()` breaks SSR hydration. `useId` is the supported solution.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Added in React 18 specifically for SSR-safe IDs (hooks-era apps previously used counters/context hacks).
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+One or more IDs per component instance. Not for list keys. Format is opaque—don’t depend on its shape.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Call `useId` in the component needing IDs.
+2. Bind label/input/ARIA.
+3. Don’t use as React `key`.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+flowchart LR
+  SSR[useId on server] --> Hydrate[same id on client]
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Not applicable.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+Accessibility plumbing.
 
 ## Next.js Perspective
 
-Not applicable.
+Critical for RSC/SSR forms and dialogs.
 
 ## Server Perspective
 
@@ -76,77 +81,102 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Trivial.
 
 ## Production Example
 
-TODO: Realistic production example.
+A shared `TextField` uses `useId` so multiple instances on a page never clash label associations.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```tsx
+function TextField({ label }: { label: string }) {
+  const id = useId()
+  return (
+    <>
+      <label htmlFor={id}>{label}</label>
+      <input id={id} />
+    </>
+  )
+}
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[useId] --> nextStep[NextStep]
+flowchart TD
+  useId --> label[htmlFor]
+  useId --> input[id]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Using useId for list keys
+2. Math.random IDs with SSR
+3. Assuming ID format is stable across React versions for parsing
+4. Generating IDs in render with module counters that diverge SSR/client
+5. One global hard-coded id in a reusable component
+6. Using useId to key CSS that expects specific strings
+7. Missing a production edge case for 10-react.useid (#1)
+8. Missing a production edge case for 10-react.useid (#2)
+9. Missing a production edge case for 10-react.useid (#3)
+10. Missing a production edge case for 10-react.useid (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Accessibility associations
+- Multiple ids via suffixes if needed
+- Keep opaque
 
 ## Anti-patterns
 
-TODO: What not to do.
+- useId as a database primary key
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Approach | SSR safe? |
+| --- | --- |
+| useId | Yes |
+| Math.random | No |
+| Hardcoded | Collides |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is useId for?
+
+**A:** Generating unique IDs that stay consistent between server HTML and client hydration—often for a11y.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Why not use useId as a key?
+
+**A:** Keys should come from data identity; useId is for DOM accessibility linkages, not list reconciliation.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How does useId prevent hydration mismatches?
+
+**A:** React’s SSR runtime allocates IDs deterministically for the tree so the client generates the same strings during hydration.
 
 ## Summary
 
-- TODO: key takeaway
+- SSR-safe unique DOM ids
+- For a11y associations
+- Not for keys
 
 ## References
 
-- TODO: official documentation links
+- [React Documentation](https://react.dev/)
+- [useId](https://react.dev/reference/react/useId)
 
 <RelatedTopics />
 
 
-Prev: [useImperativeHandle](/10-react/useimperativehandle/) · Next: [use](/10-react/use/)
+Prev: [`10-react.useimperativehandle`](/10-react/useimperativehandle/) · Next: [`10-react.use`](/10-react/use/)

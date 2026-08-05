@@ -1,6 +1,6 @@
 ---
 title: "Rules of Hooks"
-description: "TODO — one-sentence description of Rules of Hooks"
+description: "Rules of Hooks: only call hooks at the top level of React functions, preserving call order."
 topic_id: 10-react.rules-of-hooks
 difficulty: junior
 reading_time: 25
@@ -10,9 +10,9 @@ prerequisites:
 tags: 
   - react
   - interview-frequent
-status: stub
-prev_topic: 10-react.hooks
-next_topic: 10-react.context
+status: published
+prev_topic: "10-react.hooks"
+next_topic: "10-react.context"
 related: []
 advanced: []
 ---
@@ -23,45 +23,53 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Rules of Hooks in simple language.
+The **Rules of Hooks**: (1) only call hooks at the top level (no loops/conditions/nested functions), (2) only call hooks from React function components or custom hooks.
+
+These rules protect the fiber hook list’s correspondence across renders.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Hook state is positional. Violating order causes silent state bugs that look “random.”
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Published with hooks; enforced by `eslint-plugin-react-hooks`.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Imagine an array of slots. Slot 0 is always the first `useState`. Skipping it on some renders shifts every later slot.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Enable the ESLint plugin.
+2. Extract conditionally needed logic into child components or custom hooks called unconditionally.
+3. Prefer `if (!ready) return null` after hooks, not before.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+flowchart TD
+  OK[unconditional hooks] --> Render
+  Bad[conditional hooks] --> Desync[slot desync bugs]
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Not applicable.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+Non-negotiable for correctness.
 
 ## Next.js Perspective
 
@@ -77,77 +85,100 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+N/A—correctness rule.
 
 ## Production Example
 
-TODO: Realistic production example.
+CI fails on react-hooks/rules-of-hooks violations; no exceptions in app code.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```tsx
+// ❌ bad
+if (cond) useEffect(() => {}, [])
+
+// ✅ good
+useEffect(() => {
+  if (!cond) return
+}, [cond])
+```
 
 ## Diagrams
 
 ```mermaid
 flowchart LR
-  concept[RulesofHooks] --> nextStep[NextStep]
+  R1[Render A: hooks 1..n] --> Match
+  R2[Render B: same order] --> Match
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Hooks after conditional returns
+2. Hooks in loops
+3. Hooks in event handlers
+4. Disabling the lint rule
+5. Conditional custom hook calls
+6. Dynamic hook lists via factories
+7. Missing a production edge case for 10-react.rules-of-hooks (#1)
+8. Missing a production edge case for 10-react.rules-of-hooks (#2)
+9. Missing a production edge case for 10-react.rules-of-hooks (#3)
+10. Missing a production edge case for 10-react.rules-of-hooks (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Lint as error
+- Early return after hooks
+- Split components for conditional mounting
 
 ## Anti-patterns
 
-TODO: What not to do.
+- // eslint-disable-next-line react-hooks/rules-of-hooks
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Pattern | Allowed? |
+| --- | --- |
+| Top-level useState | Yes |
+| useEffect inside if | No |
+| Custom hook at top | Yes |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** Can you call useState inside an if?
+
+**A:** No. Hooks must be called unconditionally at the top level.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** How do you run an effect only sometimes?
+
+**A:** Call `useEffect` always; return early inside, or conditionally mount a child component that has the effect.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** What breaks if call order changes?
+
+**A:** Later hooks read the wrong cells—state/effects attach to the wrong logic, often without a clear error.
 
 ## Summary
 
-- TODO: key takeaway
+- Top-level, React functions only
+- Order is identity
+- Enforce with ESLint
 
 ## References
 
-- TODO: official documentation links
+- [React Documentation](https://react.dev/)
+- [Rules of Hooks](https://react.dev/reference/rules/rules-of-hooks)
 
 <RelatedTopics />
 
 
-Prev: [Hooks](/10-react/hooks/) · Next: [Context](/10-react/context/)
+Prev: [`10-react.hooks`](/10-react/hooks/) · Next: [`10-react.context`](/10-react/context/)

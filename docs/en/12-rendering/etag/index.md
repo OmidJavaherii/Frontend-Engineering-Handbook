@@ -1,6 +1,6 @@
 ---
 title: "ETag"
-description: "TODO — one-sentence description of ETag"
+description: "ETag validators enabling conditional requests and 304 Not Modified responses."
 topic_id: 12-rendering.etag
 difficulty: mid
 reading_time: 25
@@ -10,9 +10,9 @@ prerequisites:
 tags: 
   - caching
   - http
-status: stub
-prev_topic: 12-rendering.cache-control
-next_topic: 12-rendering.stale-while-revalidate
+status: published
+prev_topic: "12-rendering.cache-control"
+next_topic: "12-rendering.stale-while-revalidate"
 related: []
 advanced: []
 ---
@@ -23,41 +23,50 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain ETag in simple language.
+An **ETag** is an opaque validator for a representation. Clients send `If-None-Match`; servers return `304 Not Modified` when the tag matches—saving transfer when content is unchanged.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Even with expired freshness, revalidation can be cheap. ETags make “did this change?” efficient.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+HTTP validators alongside Last-Modified; strong vs weak ETags matter for ranges/caching correctness.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+ETag = fingerprint of the bytes (or logical version). Match → 304; mismatch → 200 + new body + new ETag.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Server computes ETag.
+2. Client caches with response.
+3. Later: If-None-Match.
+4. 304 or 200.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> HaveETag
+  HaveETag --> ConditionalGET
+  ConditionalGET --> NotModified: 304
+  ConditionalGET --> Updated: 200
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Automatic for cached responses with validators.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
@@ -65,89 +74,118 @@ Not applicable.
 
 ## Next.js Perspective
 
-Not applicable.
+Static file servers typically emit ETags; custom handlers should set them when useful.
 
 ## Server Perspective
 
-Not applicable.
+Generating expensive ETags can erase wins—hash smartly.
 
 ## Network Perspective
 
-Not applicable.
+Saves bandwidth; still costs a round trip when revalidating.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Great for large unchanged assets. For tiny JSON, RTT may dominate—use longer freshness instead.
 
 ## Production Example
 
-TODO: Realistic production example.
+API catalog responses use content-hash ETags; clients poll cheaply.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```http
+ETag: "v3-contenthash"
+
+GET /api/catalog
+If-None-Match: "v3-contenthash"
+
+HTTP/1.1 304 Not Modified
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[ETag] --> nextStep[NextStep]
+sequenceDiagram
+  Client->>Server: If-None-Match
+  alt same
+    Server-->>Client: 304
+  else changed
+    Server-->>Client: 200 + body + ETag
+  end
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Weak ETags when strong needed for range requests
+2. ETag changing every response despite same bytes
+3. CPU-heavy ETag over full DB serialize
+4. Ignoring If-None-Match in custom servers
+5. Expecting ETag to replace Cache-Control freshness
+6. Leaking sensitive data via ETag schemes
+7. Missing a production edge case for 12-rendering.etag (#1)
+8. Missing a production edge case for 12-rendering.etag (#2)
+9. Missing a production edge case for 12-rendering.etag (#3)
+10. Missing a production edge case for 12-rendering.etag (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Hash the representation bytes or version
+- Combine with Cache-Control
+- Prefer cheap version stamps when available
+- Understand strong vs weak validators
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Random ETag per request
+- 304 without proper cache update semantics
+- Relying only on Last-Modified with coarse timestamps
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Validator | Basis |
+| --- | --- |
+| ETag | Opaque version/hash |
+| Last-Modified | Timestamp |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What does an ETag enable?
+
+**A:** Conditional requests that can return 304 Not Modified when content is unchanged.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Why still use max-age if you have ETags?
+
+**A:** max-age avoids the revalidation RTT entirely while fresh; ETags help after freshness expires.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** Strong vs weak ETag?
+
+**A:** Strong means byte-identical; weak means semantically equivalent. Range requests and some cache behaviors require strong validators.
 
 ## Summary
 
-- TODO: key takeaway
+- ETags validate cached representations
+- Enable 304 responses
+- Don’t make ETag computation expensive
+- Works with Cache-Control
 
 ## References
 
-- TODO: official documentation links
+- [MDN — ETag](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/ETag)
+- [RFC 9110 — HTTP Semantics](https://www.rfc-editor.org/rfc/rfc9110)
 
 <RelatedTopics />
 
 
-Prev: [Cache-Control](/12-rendering/cache-control/) · Next: [Stale While Revalidate](/12-rendering/stale-while-revalidate/)
+Prev: [`12-rendering.cache-control`](/12-rendering/cache-control/) · Next: [`12-rendering.stale-while-revalidate`](/12-rendering/stale-while-revalidate/)

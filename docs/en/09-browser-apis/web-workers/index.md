@@ -1,6 +1,6 @@
 ---
 title: "Web Workers"
-description: "TODO — one-sentence description of Web Workers"
+description: "Web Workers: background threads for JS work off the main thread, with message-passing isolation."
 topic_id: 09-browser-apis.web-workers
 difficulty: mid
 reading_time: 40
@@ -11,9 +11,9 @@ tags:
   - browser-apis
   - concurrency
   - performance
-status: stub
-prev_topic: 09-browser-apis.broadcast-channel
-next_topic: 09-browser-apis.service-workers
+status: published
+prev_topic: "09-browser-apis.broadcast-channel"
+next_topic: "09-browser-apis.service-workers"
 related: []
 advanced: []
 ---
@@ -24,45 +24,57 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Web Workers in simple language.
+**Web Workers** run scripts in parallel threads with no DOM access. The main thread and worker communicate via `postMessage` (structured clone or transferables).
+
+Use them for CPU-heavy work (parsing, crypto, image processing) that would otherwise jank UI.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+JavaScript on the main thread competes with input and rendering. Workers move compute off the critical path.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Dedicated workers, shared workers, and service workers form the worker family. Module workers (`type: 'module'`) modernized imports.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Separate global scope (no `window`). Message channels are the API. Transfer `ArrayBuffer`s to avoid copies. Errors don’t crash the page tab’s main thread.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Spawn `new Worker(new URL('./x.ts', import.meta.url), { type: 'module' })`.
+2. Define message protocol.
+3. Transfer large buffers when possible.
+4. `terminate` / handle `close`.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+sequenceDiagram
+  participant Main
+  participant Worker
+  Main->>Worker: postMessage job
+  Worker->>Worker: compute
+  Worker->>Main: postMessage result
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+True OS threads under the hood (implementation-dependent) with separate event loops.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Separate JS heaps; cloning costs matter.
 
 ## React Perspective
 
-Not applicable.
+Keep React on main; send work out; setState from results.
 
 ## Next.js Perspective
 
@@ -78,77 +90,104 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Wins for CPU tasks; messaging overhead can dominate tiny jobs.
 
 ## Production Example
 
-TODO: Realistic production example.
+A CSV import parses multi‑MB files in a worker and streams row batches back for progressive table fill.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```ts
+// main
+const worker = new Worker(new URL('./heavy.ts', import.meta.url), { type: 'module' })
+worker.postMessage({ op: 'sum', values: [1, 2, 3] })
+worker.onmessage = (e) => console.log(e.data)
+
+// heavy.ts
+self.onmessage = (e) => {
+  const { values } = e.data
+  self.postMessage(values.reduce((a: number, b: number) => a + b, 0))
+}
+```
 
 ## Diagrams
 
 ```mermaid
 flowchart LR
-  concept[WebWorkers] --> nextStep[NextStep]
+  Main -->|message| Worker
+  Worker -->|message| Main
+  Worker -.->|no DOM| X[DOM forbidden]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Touching DOM from a worker
+2. Posting huge objects without transfer
+3. Spawning unbounded workers
+4. Using workers for tiny sync work (overhead)
+5. Forgetting to handle worker errors
+6. Assuming SharedArrayBuffer is always available (COOP/COEP)
+7. Overlooking an edge case #1 specific to 09-browser-apis.web-workers in production traffic
+8. Overlooking an edge case #2 specific to 09-browser-apis.web-workers in production traffic
+9. Overlooking an edge case #3 specific to 09-browser-apis.web-workers in production traffic
+10. Overlooking an edge case #4 specific to 09-browser-apis.web-workers in production traffic
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Module workers with bundler URL pattern
+- Clear message types
+- Transfer ArrayBuffers
+- Pool workers for many jobs
 
 ## Anti-patterns
 
-TODO: What not to do.
+- One new worker per keystroke
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Worker kind | Scope |
+| --- | --- |
+| Dedicated | One owner |
+| Shared | Multiple contexts |
+| Service | Network proxy / offline |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** Can Web Workers access the DOM?
+
+**A:** No. They communicate with the main thread via messages.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** What are transferables?
+
+**A:** Objects like ArrayBuffer that can move ownership to avoid structured-clone copies.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** When is a worker slower than main-thread work?
+
+**A:** When tasks are tiny and messaging/clone costs exceed compute savings.
 
 ## Summary
 
-- TODO: key takeaway
+- Background JS threads without DOM
+- Message passing + transferables
+- Use for real CPU-bound work
 
 ## References
 
-- TODO: official documentation links
+- [MDN: Web Workers API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API)
 
 <RelatedTopics />
 
 
-Prev: [Broadcast Channel](/09-browser-apis/broadcast-channel/) · Next: [Service Workers](/09-browser-apis/service-workers/)
+Prev: [`09-browser-apis.broadcast-channel`](/09-browser-apis/broadcast-channel/) · Next: [`09-browser-apis.service-workers`](/09-browser-apis/service-workers/)

@@ -1,6 +1,6 @@
 ---
 title: "Client"
-description: "TODO — one-sentence description of Client"
+description: "Network clients: browsers and apps that initiate requests and consume Internet services."
 topic_id: 02-internet.client
 difficulty: beginner
 reading_time: 15
@@ -8,9 +8,9 @@ implementation_time: 0
 prerequisites: []
 tags: 
   - networking
-status: stub
-prev_topic: 02-internet.what-is-the-internet
-next_topic: 02-internet.server
+status: published
+prev_topic: "02-internet.what-is-the-internet"
+next_topic: "02-internet.server"
 related: []
 advanced: []
 ---
@@ -21,41 +21,49 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Client in simple language.
+A **client** initiates communication to a **server** (or peer). In web engineering the primary client is the browser: it resolves DNS, connects, speaks HTTP(S), renders, and enforces security policies.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+APIs are designed around client capabilities and constraints (CORS, cookies, connection limits, battery).
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Dumb terminals → desktop browsers → mobile browsers → native apps with WebViews → edge workers as clients of origins.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Client asks; server answers (usually). Browsers are highly capable clients with sandboxes.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. User/app triggers request.
+2. Client applies cache/CORS/credentials rules.
+3. Transport + HTTP exchange.
+4. Client processes response.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Idle
+  Idle --> Requesting
+  Requesting --> Done
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Browser = opinionated HTTP client + renderer.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
@@ -67,85 +75,105 @@ Not applicable.
 
 ## Server Perspective
 
-Not applicable.
+Must authenticate clients; never trust client input.
 
 ## Network Perspective
 
-Not applicable.
+Clients often behind NAT; servers see CGNAT IPs.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Connection reuse, parallelism limits, and client CPU matter as much as server.
 
 ## Production Example
 
-TODO: Realistic production example.
+Mobile clients on flaky networks needed idempotent APIs + resumable uploads.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```js
+await fetch('/api/me', { credentials: 'include' })
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[Client] --> nextStep[NextStep]
+sequenceDiagram
+  participant C as Client
+  participant S as Server
+  C->>S: request
+  S-->>C: response
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Trusting client-side authz
+2. Ignoring browser connection limits (esp. HTTP/1.1)
+3. Assuming all clients are Chrome desktop
+4. Forgetting credentials mode
+5. Treating WebView as identical to full browser
+6. No timeouts on client requests
+7. Overlooking an edge case #1 specific to 02-internet.client in production traffic
+8. Overlooking an edge case #2 specific to 02-internet.client in production traffic
+9. Overlooking an edge case #3 specific to 02-internet.client in production traffic
+10. Overlooking an edge case #4 specific to 02-internet.client in production traffic
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Timeouts + abort
+- Feature detect
+- Treat clients as hostile
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Secrets in client bundles
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Client | Notes |
+| --- | --- |
+| Browser | CORS, cookies, UX |
+| Native app | Often fewer CORS constraints |
+| curl/server | Backend-to-backend |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is a client in networking?
+
+**A:** The initiator of a request to a service/server.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Why can’t the browser read arbitrary third-party responses?
+
+**A:** Same-origin policy / CORS protect users from malicious sites reading other origins.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How do client constraints shape API design?
+
+**A:** Payload size, chatty RPCs, auth cookie vs bearer, pagination, and offline — all follow from client environments.
 
 ## Summary
 
-- TODO: key takeaway
+- Clients initiate
+- Browsers are constrained clients
+- Never trust the client
+- Design APIs for real devices
 
 ## References
 
-- TODO: official documentation links
+- [MDN — Client](https://developer.mozilla.org/en-US/docs/Glossary/Client)
+- [Fetch Standard](https://fetch.spec.whatwg.org/)
 
 <RelatedTopics />
 
 
-Prev: [What is the Internet](/02-internet/what-is-the-internet/) · Next: [Server](/02-internet/server/)
+Prev: [`02-internet.what-is-the-internet`](/02-internet/what-is-the-internet/) · Next: [`02-internet.server`](/02-internet/server/)

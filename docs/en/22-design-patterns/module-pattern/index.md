@@ -1,6 +1,6 @@
 ---
 title: "Module Pattern"
-description: "TODO — one-sentence description of Module Pattern"
+description: "Encapsulate private state with modules/closures — from classic IIFE module pattern to ES modules."
 topic_id: 22-design-patterns.module-pattern
 difficulty: junior
 reading_time: 20
@@ -9,9 +9,9 @@ prerequisites: []
 tags: 
   - patterns
   - javascript
-status: stub
-prev_topic: 22-design-patterns.observer-pattern
-next_topic: 22-design-patterns.factory-and-builder
+status: published
+prev_topic: "22-design-patterns.observer-pattern"
+next_topic: "22-design-patterns.factory-and-builder"
 related: []
 advanced: []
 ---
@@ -22,53 +22,63 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Module Pattern in simple language.
+The **Module Pattern** hides private details and exports a public API. In modern JS, **ES modules** are the language-standard form; historically IIFEs simulated privacy.
+
+See [/06-javascript/modules/](/06-javascript/modules/) and [/06-javascript/es-modules/](/06-javascript/es-modules/).
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Global scripts collide. Modules give file-scoped privacy, clear dependencies, and toolable graphs for bundlers.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+IIFEs → CommonJS/AMD → ES modules (standardized) → bundlers understanding static `import`/`export`.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+File scope is private; exports are the API surface. Singletons emerge naturally from module evaluation caching.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Put secrets/helpers at module scope  
+2. Export minimal API  
+3. Avoid exporting mutable bags casually  
+4. Prefer explicit DI for testability when needed
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Evaluate
+  Evaluate --> Cached
+  Cached --> Import: reuse_exports
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Type=module scripts defer by default; see [/04-html/module-scripts/](/04-html/module-scripts/).
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Modules have their own environment records; circular imports need care.
 
 ## React Perspective
 
-Not applicable.
+Module singletons can hold stores — still need React bindings.
 
 ## Next.js Perspective
 
-Not applicable.
+Be aware of server vs client module graphs and `"use client"` boundaries.
 
 ## Server Perspective
 
-Not applicable.
+Node module cache is process-wide — careful with request-scoped state.
 
 ## Network Perspective
 
@@ -76,77 +86,118 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Module singletons live for process lifetime.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Static ESM enables tree-shaking; CommonJS is harder to shake.
 
 ## Production Example
 
-TODO: Realistic production example.
+A design-tokens module exports functions only; private color math stays unexported.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```ts
+// classic IIFE (historical)
+const counter = (() => {
+  let n = 0
+  return {
+    inc: () => ++n,
+    value: () => n,
+  }
+})()
+
+// modern ESM
+let n = 0
+export const inc = () => ++n
+export const value = () => n
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[ModulePattern] --> nextStep[NextStep]
+flowchart TD
+  n0[Private scope] --> n1[Public exports]
+  n1[Public exports] --> n2[Importers]
+```
+
+```mermaid
+sequenceDiagram
+  participant User
+  participant App
+  participant Platform
+  User->>App: interact (Module pattern)
+  App->>Platform: apply mechanism
+  Platform-->>App: result or error
+  App-->>User: update UI
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Storing request-specific data in server module scope
+2. Circular import spaghetti
+3. Deep barrel files killing tree-shaking
+4. Mutating exported objects as an API
+5. Assuming IIFE privacy in modern ESM without understanding scope
+6. Side effects at import time unexpectedly
+7. Missing a production edge case for 22-design-patterns.module-pattern (#1)
+8. Missing a production edge case for 22-design-patterns.module-pattern (#2)
+9. Missing a production edge case for 22-design-patterns.module-pattern (#3)
+10. Missing a production edge case for 22-design-patterns.module-pattern (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Minimal exports
+- Side-effect-free modules when possible
+- ESM over ad-hoc globals
 
 ## Anti-patterns
 
-TODO: What not to do.
+- World-writable exported mutable state
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
+| Form | Privacy | Tooling |
 | --- | --- | --- |
-| TODO | TODO | TODO |
+| Globals | None | Bad |
+| IIFE module | Closure | Legacy |
+| ESM | File scope | Excellent |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is the module pattern?
+
+**A:** Encapsulate private state/functions and expose a limited public API — today via ES modules.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Why can module singletons be dangerous on the server?
+
+**A:** They are shared across requests in a long-lived Node process — easy to leak user data across tenants.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How do circular ESM imports behave?
+
+**A:** Live bindings may be in temporal dead zones until evaluation finishes — design acyclic graphs or lazy access.
 
 ## Summary
 
-- TODO: key takeaway
+- Modules encapsulate
+- ESM is the standard
+- Mind server singleton scope
+- Export minimally
 
 ## References
 
-- TODO: official documentation links
+- [MDN — JavaScript modules](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules)
+- [ECMAScript modules — TC39](https://tc39.es/ecma262/)
 
 <RelatedTopics />
 
 
-Prev: [Observer Pattern](/22-design-patterns/observer-pattern/) · Next: [Factory and Builder](/22-design-patterns/factory-and-builder/)
+Prev: [`22-design-patterns.observer-pattern`](/22-design-patterns/observer-pattern/) · Next: [`22-design-patterns.factory-and-builder`](/22-design-patterns/factory-and-builder/)

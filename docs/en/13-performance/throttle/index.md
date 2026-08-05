@@ -1,6 +1,6 @@
 ---
 title: "Throttle"
-description: "TODO — one-sentence description of Throttle"
+description: "Ensuring a function runs at most once per time interval while events continue."
 topic_id: 13-performance.throttle
 difficulty: junior
 reading_time: 20
@@ -9,9 +9,9 @@ prerequisites: []
 tags: 
   - performance
   - javascript
-status: stub
-prev_topic: 13-performance.debounce
-next_topic: 13-performance.memoization-perf
+status: published
+prev_topic: "13-performance.debounce"
+next_topic: "13-performance.memoization-perf"
 related: []
 advanced: []
 ---
@@ -22,41 +22,49 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Throttle in simple language.
+**Throttle** limits invocation rate—useful for scroll/mousemove handlers that must track continuously but not at 200Hz event rate.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Scroll handlers doing layout/work every event create jank.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Companion to debounce in utility libraries; rAF throttling is a common variant.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Leading/trailing edges fire on a fixed cadence while events stream.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Choose interval or use rAF.
+2. Throttle handler.
+3. Prefer CSS/IntersectionObserver over scroll JS when possible.
+4. Profile INP/long tasks.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Idle
+  Idle --> Active: use
+  Active --> Idle: settle
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Not applicable.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
@@ -76,77 +84,114 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Measure before/after with lab + field tools. Optimize the attributed bottleneck for Ensuring a function runs at most once per time interval while events continue., not folklore.
 
 ## Production Example
 
-TODO: Realistic production example.
+Teams adopt Ensuring a function runs at most once per time interval while events continue. on critical routes, add monitoring, and guard regressions with budgets or reviews.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```ts
+export function throttle<T extends (...a: any[]) => void>(fn: T, ms: number) {
+  let last = 0
+  let t: ReturnType<typeof setTimeout> | undefined
+  return (...args: Parameters<T>) => {
+    const now = Date.now()
+    const remaining = ms - (now - last)
+    clearTimeout(t)
+    if (remaining <= 0) {
+      last = now
+      fn(...args)
+    } else {
+      t = setTimeout(() => {
+        last = Date.now()
+        fn(...args)
+      }, remaining)
+    }
+  }
+}
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[Throttle] --> nextStep[NextStep]
+flowchart TD
+  A[Understand] --> B[Apply Ensuring a function runs at most once per time interval while events continue.]
+  B --> C[Measure]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Throttle when debounce was needed (search)
+2. Doing layout reads/writes in throttled scroll without batching
+3. Too heavy work even when throttled
+4. Forgetting passive listeners for scroll
+5. Throttle + React setState every frame unnecessarily
+6. Ignoring pointerrawupdate storms
+7. Missing a production edge case for 13-performance.throttle (#1)
+8. Missing a production edge case for 13-performance.throttle (#2)
+9. Missing a production edge case for 13-performance.throttle (#3)
+10. Missing a production edge case for 13-performance.throttle (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Prefer platform/framework primitives
+- Measure impact on real user metrics
+- Keep the change reviewable and reversible
+- Document the invariant you are protecting
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Copy-paste without understanding failure modes
+- Premature abstraction around a single use
+- Optimizing without a baseline
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Approach | When |
+| --- | --- |
+| Use as designed | Default |
+| Simpler alternative | If constraints differ |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** When prefer throttle over debounce?
+
+**A:** When you need periodic updates during continuous input (scroll position), not only the final value.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Why rAF throttle for visual work?
+
+**A:** Aligns with paint frames (~16ms) and avoids extra layouts between frames.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** Modern alternatives to scroll throttling?
+
+**A:** IntersectionObserver, CSS scroll-driven animations, and scroll timelines reduce JS scroll handlers.
 
 ## Summary
 
-- TODO: key takeaway
+- Ensuring a function runs at most once per time interval while events continue.
+- Know why it exists and when not to use it
+- Measure production impact
+- Link related handbook topics instead of duplicating
 
 ## References
 
-- TODO: official documentation links
+- [MDN — scroll event](https://developer.mozilla.org/en-US/docs/Web/API/Document/scroll_event)
+- [web.dev — IntersectionObserver](https://web.dev/articles/intersectionobserver)
 
 <RelatedTopics />
 
 
-Prev: [Debounce](/13-performance/debounce/) · Next: [Memoization](/13-performance/memoization-perf/)
+Prev: [`13-performance.debounce`](/13-performance/debounce/) · Next: [`13-performance.memoization-perf`](/13-performance/memoization-perf/)

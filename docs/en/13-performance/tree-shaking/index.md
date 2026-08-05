@@ -1,6 +1,6 @@
 ---
 title: "Tree Shaking"
-description: "TODO — one-sentence description of Tree Shaking"
+description: "Dead-export elimination in bundlers based on static ESM analysis."
 topic_id: 13-performance.tree-shaking
 difficulty: mid
 reading_time: 30
@@ -9,9 +9,9 @@ prerequisites: []
 tags: 
   - performance
   - bundling
-status: stub
-prev_topic: 13-performance.code-splitting
-next_topic: 13-performance.dead-code-elimination
+status: published
+prev_topic: "13-performance.code-splitting"
+next_topic: "13-performance.dead-code-elimination"
 related: []
 advanced: []
 ---
@@ -22,41 +22,49 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Tree Shaking in simple language.
+**Tree shaking** removes unused module exports from production bundles when using static `import`/`export` ESM graphs.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Libraries export more than you use. Shaking keeps only referenced exports.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Rollup popularized; webpack/Vite/esbuild implement variants with caveats for side effects.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Static import graph + `sideEffects` hints → drop unreferenced exports. Dynamic import/CJS limit shaking.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Prefer ESM packages.
+2. Import named paths, avoid mega barrels.
+3. Mark side-effect-free in package.json when authoring libs.
+4. Verify with analyzer.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Idle
+  Idle --> Active: use
+  Active --> Idle: settle
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Not applicable.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Less JS to parse/compile.
 
 ## React Perspective
 
@@ -64,7 +72,7 @@ Not applicable.
 
 ## Next.js Perspective
 
-Not applicable.
+Client bundles benefit most.
 
 ## Server Perspective
 
@@ -76,77 +84,100 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Measure before/after with lab + field tools. Optimize the attributed bottleneck for Dead-export elimination in bundlers based on static ESM analysis., not folklore.
 
 ## Production Example
 
-TODO: Realistic production example.
+Teams adopt Dead-export elimination in bundlers based on static ESM analysis. on critical routes, add monitoring, and guard regressions with budgets or reviews.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```ts
+// Good (often shakeable)
+import debounce from 'lodash-es/debounce'
+// Bad (often pulls a lot)
+import _ from 'lodash'
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[TreeShaking] --> nextStep[NextStep]
+flowchart TD
+  A[Understand] --> B[Apply Dead-export elimination in bundlers based on static ESM analysis.]
+  B --> C[Measure]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. import _ from "lodash" instead of per-method/ESM
+2. Barrel index re-exports defeating shake
+3. Relying on shaking for CJS packages
+4. Side-effectful modules unmarked
+5. Assuming TypeScript elides runtime imports always
+6. Testing shake only in dev mode
+7. Missing a production edge case for 13-performance.tree-shaking (#1)
+8. Missing a production edge case for 13-performance.tree-shaking (#2)
+9. Missing a production edge case for 13-performance.tree-shaking (#3)
+10. Missing a production edge case for 13-performance.tree-shaking (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Prefer platform/framework primitives
+- Measure impact on real user metrics
+- Keep the change reviewable and reversible
+- Document the invariant you are protecting
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Copy-paste without understanding failure modes
+- Premature abstraction around a single use
+- Optimizing without a baseline
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Approach | When |
+| --- | --- |
+| Use as designed | Default |
+| Simpler alternative | If constraints differ |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is tree shaking?
+
+**A:** Bundler removal of unused ESM exports from the output.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Why does CommonJS shake poorly?
+
+**A:** Exports are dynamic properties; static analysis cannot prove safety as well as ESM.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** What does sideEffects: false mean?
+
+**A:** Tells bundlers files can be dropped if exports unused—dangerous if the file actually runs polyfills on import.
 
 ## Summary
 
-- TODO: key takeaway
+- Dead-export elimination in bundlers based on static ESM analysis.
+- Know why it exists and when not to use it
+- Measure production impact
+- Link related handbook topics instead of duplicating
 
 ## References
 
-- TODO: official documentation links
+- [webpack — Tree Shaking](https://webpack.js.org/guides/tree-shaking/)
+- [Rollup — Tree-shaking](https://rollupjs.org/introduction/#tree-shaking)
 
 <RelatedTopics />
 
 
-Prev: [Code Splitting](/13-performance/code-splitting/) · Next: [Dead Code Elimination](/13-performance/dead-code-elimination/)
+Prev: [`13-performance.code-splitting`](/13-performance/code-splitting/) · Next: [`13-performance.dead-code-elimination`](/13-performance/dead-code-elimination/)

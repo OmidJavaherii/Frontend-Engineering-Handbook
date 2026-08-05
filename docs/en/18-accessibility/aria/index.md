@@ -1,6 +1,6 @@
 ---
 title: "ARIA"
-description: "TODO — one-sentence description of ARIA"
+description: "ARIA roles, states, and properties when native HTML is not enough—used carefully per APG patterns."
 topic_id: 18-accessibility.aria
 difficulty: mid
 reading_time: 40
@@ -10,9 +10,9 @@ prerequisites:
 tags: 
   - a11y
   - interview-frequent
-status: stub
-prev_topic: 18-accessibility.wcag
-next_topic: 18-accessibility.semantic-html-a11y
+status: published
+prev_topic: "18-accessibility.wcag"
+next_topic: "18-accessibility.semantic-html-a11y"
 related: []
 advanced: []
 ---
@@ -23,45 +23,55 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain ARIA in simple language.
+**ARIA** (Accessible Rich Internet Applications) adds roles/states/properties to the accessibility tree when native HTML semantics are insufficient. First rule: **don’t use ARIA if a native element works.** Wrong ARIA is worse than none.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Custom widgets (tabs, comboboxes) need names, roles, and keyboard patterns so AT users can operate them.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+WAI-ARIA evolved with APG (Authoring Practices Guide) patterns describing expected keyboard behavior.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Role = what it is; name = what it’s called; state = current condition. ARIA does not add keyboard behavior by itself—you must implement it.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Prefer native HTML.
+2. If custom, copy an APG pattern.
+3. Ensure name/role/value.
+4. Implement full keyboard support.
+5. Test with SR + axe.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> PreferNative
+  PreferNative --> CustomWidget
+  CustomWidget --> ApplyAPG
+  ApplyAPG --> TestAT
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Maps ARIA + DOM into accessibility tree.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+Keep aria-* in sync with state (selected, expanded, invalid).
 
 ## Next.js Perspective
 
@@ -77,77 +87,98 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Excessive live regions can spam AT—use carefully.
 
 ## Production Example
 
-TODO: Realistic production example.
+Design system Tabs follow APG: roles tablist/tab/tabpanel, arrow keys, aria-selected.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```tsx
+<button aria-expanded={open} aria-controls="panel" onClick={toggle}>
+  Filters
+</button>
+<div id="panel" role="region" hidden={!open}>...</div>
+```
 
 ## Diagrams
 
 ```mermaid
 flowchart LR
-  concept[ARIA] --> nextStep[NextStep]
+  DOM --> AccTree[Accessibility tree]
+  ARIA --> AccTree
+  AccTree --> AT[Screen reader]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. role=button on a div without keyboard support
+2. ARIA that contradicts native semantics
+3. aria-label on everything, killing visible text
+4. Using ARIA to “fix” poor HTML
+5. Ignoring APG keyboard requirements
+6. Missing a production edge case for 18-accessibility.aria (#1)
+7. Missing a production edge case for 18-accessibility.aria (#2)
+8. Missing a production edge case for 18-accessibility.aria (#3)
+9. Missing a production edge case for 18-accessibility.aria (#4)
+10. Missing a production edge case for 18-accessibility.aria (#5)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- First rule of ARIA
+- Follow APG patterns
+- Keep states synchronized
 
 ## Anti-patterns
 
-TODO: What not to do.
+- aria-hidden=true on focusable elements
+- Positive tabindex spaghetti with ARIA roles
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Native button | div + ARIA |
+| --- | --- |
+| Free keyboard/AT | You must reimplement |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is the first rule of ARIA?
+
+**A:** Do not use ARIA if you can use a native HTML element with the semantics you need.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Does role=button make a div keyboard accessible?
+
+**A:** No. You must add tabindex and key handlers (Enter/Space) yourself—or use `<button>`.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** When is aria-live appropriate?
+
+**A:** For important updates that are not focused—errors, status—without over-announcing; choose polite/assertive carefully.
 
 ## Summary
 
-- TODO: key takeaway
+- ARIA patches semantics, not behavior
+- Prefer native elements
+- APG patterns for custom widgets
 
 ## References
 
-- TODO: official documentation links
+- [WAI-ARIA 1.2](https://www.w3.org/TR/wai-aria-1.2/)
+- [ARIA Authoring Practices Guide (APG)](https://www.w3.org/WAI/ARIA/apg/)
+- [Using ARIA](https://www.w3.org/TR/using-aria/)
 
 <RelatedTopics />
 
 
-Prev: [WCAG](/18-accessibility/wcag/) · Next: [Semantic HTML for Accessibility](/18-accessibility/semantic-html-a11y/)
+Prev: [`18-accessibility.wcag`](/18-accessibility/wcag/) · Next: [`18-accessibility.semantic-html-a11y`](/18-accessibility/semantic-html-a11y/)

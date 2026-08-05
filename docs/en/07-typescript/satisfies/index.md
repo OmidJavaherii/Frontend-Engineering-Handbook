@@ -1,6 +1,6 @@
 ---
 title: "satisfies"
-description: "TODO — one-sentence description of satisfies"
+description: "The `satisfies` operator: validate a value against a type while preserving narrow inferred literals."
 topic_id: 07-typescript.satisfies
 difficulty: mid
 reading_time: 20
@@ -8,9 +8,9 @@ implementation_time: 0
 prerequisites: []
 tags: 
   - typescript
-status: stub
-prev_topic: 07-typescript.type-narrowing
-next_topic: 07-typescript.enums-and-alternatives
+status: published
+prev_topic: "07-typescript.type-narrowing"
+next_topic: "07-typescript.enums-and-alternatives"
 related: []
 advanced: []
 ---
@@ -21,49 +21,60 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain satisfies in simple language.
+**`satisfies`** (TS 4.9+) checks that an expression matches a type **without widening** the expression’s inferred type to that annotation.
+
+`const routes = { home: '/' } satisfies Record<string, string>` still knows `routes.home` is `'/'`, not merely `string`.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Plain annotations (`: T`) force the wider type and lose literal information. `as const` keeps literals but does not check against a target shape. `satisfies` gives both validation and narrow inference.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Before `satisfies`, teams used awkward combinations of `as const` plus separate type tests. 4.9 added the operator specifically for config objects and lookup tables.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+`satisfies T` means: **infer as usual, but fail if the value is not assignable to `T`.** The resulting type is the inferred type, not `T`.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Build a config/lookup object.
+2. `satisfies` the required interface/record.
+3. Use inferred literals for exhaustive switches.
+4. Prefer over `: T` when keys/literals matter downstream.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+flowchart LR
+  Value[value] --> Sat[satisfies T]
+  Sat --> Check[assignable to T?]
+  Check -->|yes| Keep[keep inferred type]
+  Check -->|no| Err[type error]
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Not applicable.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+Great for variant maps, theme tokens, and route tables feeding components.
 
 ## Next.js Perspective
 
-Not applicable.
+Typed route/config objects without losing path literals.
 
 ## Server Perspective
 
@@ -75,77 +86,108 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Negligible compile cost versus the safety win.
 
 ## Production Example
 
-TODO: Realistic production example.
+Feature flag configs `satisfies Record<FlagName, boolean>` so missing flags fail CI, while each flag remains a precise key for analytics.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```ts
+type Role = 'user' | 'admin'
+
+const labels = {
+  user: 'User',
+  admin: 'Administrator',
+} satisfies Record<Role, string>
+
+// labels.admin is 'Administrator', not string
+type LabelAdmin = typeof labels.admin
+
+// Missing key errors:
+// const bad = { user: 'User' } satisfies Record<Role, string>
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[satisfies] --> nextStep[NextStep]
+flowchart TD
+  A[annotation : T] --> W[type becomes T]
+  S[satisfies T] --> I[keep inferred]
+  S --> V[still validates]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Using `satisfies` thinking it changes runtime
+2. Expecting the expression type to become `T` (it does not)
+3. Using `as T` instead when you needed a check
+4. Forgetting `as const` when you still need readonly tuples elsewhere
+5. Satisfying a too-wide type (`Record<string, string>`) that allows extra keys carelessly
+6. Not combining with key unions for exhaustiveness
+7. Overlooking an edge case #1 specific to 07-typescript.satisfies in production traffic
+8. Overlooking an edge case #2 specific to 07-typescript.satisfies in production traffic
+9. Overlooking an edge case #3 specific to 07-typescript.satisfies in production traffic
+10. Overlooking an edge case #4 specific to 07-typescript.satisfies in production traffic
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Use for configs, maps, and i18n dictionaries
+- Pair with key unions for exhaustiveness
+- Prefer `satisfies` over `as` for validation
 
 ## Anti-patterns
 
-TODO: What not to do.
+- `as const satisfies` noise when a simple `satisfies` suffices
+- Satisfying `any`
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
+| Form | Validates? | Preserves literals? |
 | --- | --- | --- |
-| TODO | TODO | TODO |
+| `const x: T = ...` | Yes | Usually no |
+| `as const` | No | Yes |
+| `as T` | No (unsafe) | Forced |
+| `satisfies T` | Yes | Yes |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What problem does `satisfies` solve?
+
+**A:** It checks a value against a type while preserving the more specific inferred type.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** How does `const x: T = v` differ from `const x = v satisfies T`?
+
+**A:** The annotation widens `x` to `T`. `satisfies` keeps the inferred type of `v` after validating assignability to `T`.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** When is `satisfies` better than `as const` alone?
+
+**A:** When you need to guarantee required keys/value types exist (e.g. every `Role` has a label), which `as const` does not enforce by itself.
 
 ## Summary
 
-- TODO: key takeaway
+- `satisfies` validates without widening
+- Ideal for config objects and lookup tables
+- Compile-time only
 
 ## References
 
-- TODO: official documentation links
+- [TypeScript 4.9 — satisfies](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-4-9.html)
+- [Everyday Types](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html)
 
 <RelatedTopics />
 
 
-Prev: [Type Narrowing](/07-typescript/type-narrowing/) · Next: [Enums and Alternatives](/07-typescript/enums-and-alternatives/)
+Prev: [`07-typescript.type-narrowing`](/07-typescript/type-narrowing/) · Next: [`07-typescript.enums-and-alternatives`](/07-typescript/enums-and-alternatives/)

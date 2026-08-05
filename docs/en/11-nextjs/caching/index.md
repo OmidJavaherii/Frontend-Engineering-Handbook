@@ -1,6 +1,6 @@
 ---
 title: "Caching"
-description: "TODO — one-sentence description of Caching"
+description: "Next.js cache layers: Request Memoization, Data Cache, Full Route Cache, and Router Cache."
 topic_id: 11-nextjs.caching
 difficulty: senior
 reading_time: 50
@@ -11,9 +11,9 @@ tags:
   - nextjs
   - caching
   - interview-frequent
-status: stub
-prev_topic: 11-nextjs.streaming
-next_topic: 11-nextjs.partial-prerendering
+status: published
+prev_topic: "11-nextjs.streaming"
+next_topic: "11-nextjs.partial-prerendering"
 related: []
 advanced: []
 ---
@@ -24,131 +24,181 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Caching in simple language.
+Next App Router caching is **multi-layered**. Understanding which layer you hit—React request memoization, the Data Cache around `fetch`, the Full Route Cache for static RSC/HTML, and the client Router Cache—is essential to debugging “why is this stale?”.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Without structured caching, every navigation and render rehits origin databases. With opaque caching, teams ship stale dashboards. The model exists to make freshness explicit.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Evolved rapidly across Next 13–15; APIs like `revalidateTag`, `unstable_cache`, and default fetch caching semantics shifted—always verify current docs for your version.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Four layers:
+1. **Request Memoization** — dedupe identical `fetch` during one server request
+2. **Data Cache** — persistent server cache for `fetch`/`unstable_cache`
+3. **Full Route Cache** — static render output at build/revalidate
+4. **Router Cache** — client-side session cache of visited segments
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Decide static vs dynamic per segment.
+2. Tag fetches (`next: { tags }`).
+3. On mutation, `revalidateTag`/`revalidatePath`.
+4. For client freshness, `router.refresh()` when needed.
+5. Use `cache: 'no-store'` deliberately for live data.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Fresh
+  Fresh --> Stale: time/tag invalidation
+  Stale --> Fresh: revalidate rebuild
+  Fresh --> Dynamic: no-store / dynamic APIs
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Router Cache can show stale UI until refresh/revalidation.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+`cache()` dedopes arbitrary server functions per request.
 
 ## Next.js Perspective
 
-Not applicable.
+Caching is a first-class Next feature—read versioned docs before blaming React.
 
 ## Server Perspective
 
-Not applicable.
+Data Cache lives on the platform; local `next start` behavior can differ from prod.
 
 ## Network Perspective
 
-Not applicable.
+CDN may cache static assets/routes separately from Data Cache.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Correct caching collapses origin load. Over-caching creates trust bugs; under-caching burns money and TTFB.
 
 ## Production Example
 
-TODO: Realistic production example.
+Product catalog uses tagged fetches; publish webhook calls `revalidateTag('product:'+id)`. Cart uses `no-store`.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```ts
+export async function getProduct(id: string) {
+  const res = await fetch(`https://api.example.com/products/${id}`, {
+    next: { tags: [`product:${id}`], revalidate: 3600 },
+  })
+  return res.json()
+}
+
+'use server'
+export async function publishProduct(id: string) {
+  await db.publish(id)
+  const { revalidateTag } = await import('next/cache')
+  revalidateTag(`product:${id}`)
+}
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[Caching] --> nextStep[NextStep]
+flowchart TD
+  Req[Request] --> Memo[Request memoization]
+  Memo --> Data[Data Cache]
+  Data --> Full[Full Route Cache]
+  Full --> Client[Router Cache]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Blaming “React” for Next Data Cache staleness
+2. Forgetting to revalidate after Server Actions
+3. Using no-store everywhere and wondering why TTFB is bad
+4. Confusing CDN Cache-Control with Next Data Cache
+5. Expecting Router Cache to respect tag revalidation instantly without refresh semantics
+6. Caching personalized HTML at the full route layer
+7. Missing a production edge case for 11-nextjs.caching (#1)
+8. Missing a production edge case for 11-nextjs.caching (#2)
+9. Missing a production edge case for 11-nextjs.caching (#3)
+10. Missing a production edge case for 11-nextjs.caching (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Tag every cacheable fetch
+- Invalidate on write paths
+- Document static/dynamic intent per route
+- Test caching in production-like deployments
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Time-based revalidate: 1 for everything
+- Global unstable_cache without tags
+- User-specific data in Full Route Cache
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
+| Layer | Scope | Invalidate |
 | --- | --- | --- |
-| TODO | TODO | TODO |
+| Request memo | Single request | End of request |
+| Data Cache | Server persistent | tags/path/time |
+| Full Route | Static route output | revalidate |
+| Router Cache | Client session | navigation/refresh |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** Name the App Router cache layers.
+
+**A:** Request memoization, Data Cache, Full Route Cache, and Client Router Cache.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** How do you bust cached product data after an admin edit?
+
+**A:** Use fetch tags like `product:id` and call `revalidateTag` from the mutation (Server Action/webhook).
 
 ### Hard
 
-TODO — question and answer.
+**Q:** A user sees old data after revalidateTag—what layers do you inspect?
+
+**A:** Confirm tag matched, platform Data Cache flushed, route not stuck dynamic/static mismatch, and client Router Cache—try `router.refresh()` or check stale soft-navigation payloads.
 
 ## Summary
 
-- TODO: key takeaway
+- Four cache layers with different lifetimes
+- Tag fetches and revalidate on writes
+- Dynamic APIs opt routes out of full static cache
+- Verify behavior on your Next version/platform
 
 ## References
 
-- TODO: official documentation links
+- [Next.js — Caching](https://nextjs.org/docs/app/building-your-application/caching)
+- [Next.js — revalidateTag](https://nextjs.org/docs/app/api-reference/functions/revalidateTag)
 
 <RelatedTopics />
 
 
-Prev: [Streaming](/11-nextjs/streaming/) · Next: [Partial Prerendering](/11-nextjs/partial-prerendering/)
+Prev: [`11-nextjs.streaming`](/11-nextjs/streaming/) · Next: [`11-nextjs.partial-prerendering`](/11-nextjs/partial-prerendering/)

@@ -44,7 +44,7 @@ function expandTopic(
     beginner_path: topic.beginner_path,
     perspective_of: topic.perspective_of ?? [],
     tags: topic.tags ?? [],
-    status: 'stub',
+    status: 'draft',
     order: order.value++,
   }
 

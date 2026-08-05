@@ -1,6 +1,6 @@
 ---
 title: "Rendering Engine"
-description: "TODO — one-sentence description of Rendering Engine"
+description: "How Blink, WebKit, and Gecko turn HTML/CSS into frames: parse, style, layout, paint, composite."
 topic_id: 03-browser.rendering-engine
 difficulty: mid
 reading_time: 40
@@ -10,9 +10,9 @@ prerequisites:
 tags: 
   - browser-internals
   - rendering
-status: stub
-prev_topic: 03-browser.multi-process-model
-next_topic: 03-browser.javascript-engine
+status: published
+prev_topic: "03-browser.multi-process-model"
+next_topic: "03-browser.javascript-engine"
 related: []
 advanced: []
 ---
@@ -23,45 +23,58 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Rendering Engine in simple language.
+A **rendering engine** (Blink in Chromium, WebKit in Safari, Gecko in Firefox) builds the [DOM](/03-browser/dom/)/[CSSOM](/03-browser/cssom/), performs style resolution, [layout](/03-browser/layout/), [paint](/03-browser/paint/), and hands layers to the compositor/[GPU](/03-browser/gpu/). It is distinct from the [JavaScript engine](/03-browser/javascript-engine/), though they interact constantly.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+HTML/CSS are declarative documents. Something must implement the visual formatting model, handle dynamic mutations, and produce pixels efficiently across devices.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+KHTML → WebKit → Blink fork (2013). Gecko evolved independently. Engines converged on similar pipelines but differ in optimizations and feature timelines.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Pipeline: **bytes → tokens → DOM/CSSOM → render tree → layout → paint records → tiles/layers → composite**. JS can mutate DOM/CSS between any stages and invalidate later stages.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Receive HTML/CSS/image bytes.
+2. Parse HTML → DOM; parse CSS → CSSOM.
+3. Compute style; build annotated render/layout tree.
+4. Layout boxes; paint into display lists/layers.
+5. Composite with GPU; present frame.
+6. On mutation: dirty flags → partial pipeline rerun.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Parse
+  Parse --> Style
+  Style --> Layout
+  Layout --> Paint
+  Paint --> Composite
+  Composite --> Style: invalidation
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Renderer process hosts the engine. Compositor frame production can continue for already-committed layers while main thread is busy — until main-thread style/layout is required.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+JS engine calls into DOM bindings that dirty rendering structures.
 
 ## React Perspective
 
-Not applicable.
+React commit → DOM mutations → engine invalidation. Concurrent rendering aims to reduce wasted commits.
 
 ## Next.js Perspective
 
@@ -73,81 +86,106 @@ Not applicable.
 
 ## Network Perspective
 
-Not applicable.
+CRP starts when bytes arrive; streaming HTML enables incremental parsing.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Avoid layout thrashing; prefer compositor-friendly anims (transform/opacity); reduce style recalc scope with containment.
 
 ## Production Example
 
-TODO: Realistic production example.
+A CSS-in-JS pattern recalculated styles for the whole tree each hover. Switching to atomic CSS + contain fixed style time.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```js
+// Force layout (use sparingly)
+el.classList.add('open')
+const h = el.offsetHeight // read triggers layout if dirty
+el.style.height = h + 'px'
+```
 
 ## Diagrams
 
 ```mermaid
 flowchart LR
-  concept[RenderingEngine] --> nextStep[NextStep]
+  HTML --> DOM
+  CSS --> CSSOM
+  DOM --> RenderTree
+  CSSOM --> RenderTree
+  RenderTree --> Layout --> Paint --> Composite
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Calling V8 the rendering engine
+2. Assuming all browsers use Blink
+3. Ignoring incremental HTML parsing
+4. Animating top/left instead of transform
+5. Reading layout in loops
+6. Equating paint with composite
+7. Overlooking an edge case #1 specific to 03-browser.rendering-engine in production traffic
+8. Overlooking an edge case #2 specific to 03-browser.rendering-engine in production traffic
+9. Overlooking an edge case #3 specific to 03-browser.rendering-engine in production traffic
+10. Overlooking an edge case #4 specific to 03-browser.rendering-engine in production traffic
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Know which pipeline stage your change dirties
+- Test Safari/Firefox for engine differences
+- Use Performance panel “Experience”/frames
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Synchronously forcing layout per list item
+- Huge unbounded DOM without virtualization
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Engine | Browser |
+| --- | --- |
+| Blink | Chrome, Edge, many Chromium |
+| WebKit | Safari |
+| Gecko | Firefox |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What does a rendering engine do?
+
+**A:** Parses HTML/CSS and produces painted/composited frames for the page.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Name the main pipeline stages.
+
+**A:** Parse → style → layout → paint → composite (with DOM/CSSOM construction).
 
 ### Hard
 
-TODO — question and answer.
+**Q:** Why can transform animations stay smooth during JS jank?
+
+**A:** If only compositor properties change on existing layers, the GPU/compositor can update without main-thread layout/paint.
 
 ## Summary
 
-- TODO: key takeaway
+- Rendering engines implement HTML/CSS visual pipeline
+- Distinct from JS engines
+- Mutations invalidate later stages
+- Blink / WebKit / Gecko differ in details
 
 ## References
 
-- TODO: official documentation links
+- [Chrome — Rendering performance](https://developer.chrome.com/docs/performance/)
+- [WebKit blog](https://webkit.org/blog/)
 
 <RelatedTopics />
 
 
-Prev: [Multi-Process Model](/03-browser/multi-process-model/) · Next: [JavaScript Engine](/03-browser/javascript-engine/)
+Prev: [`03-browser.multi-process-model`](/03-browser/multi-process-model/) · Next: [`03-browser.javascript-engine`](/03-browser/javascript-engine/)

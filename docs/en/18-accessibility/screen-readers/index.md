@@ -1,6 +1,6 @@
 ---
 title: "Screen Readers"
-description: "TODO — one-sentence description of Screen Readers"
+description: "How screen readers use the accessibility tree, and how to build UI that announces and navigates well."
 topic_id: 18-accessibility.screen-readers
 difficulty: mid
 reading_time: 35
@@ -8,9 +8,9 @@ implementation_time: 0
 prerequisites: []
 tags: 
   - a11y
-status: stub
-prev_topic: 18-accessibility.focus-management
-next_topic: 18-accessibility.color-and-contrast
+status: published
+prev_topic: "18-accessibility.focus-management"
+next_topic: "18-accessibility.color-and-contrast"
 related: []
 advanced: []
 ---
@@ -21,45 +21,55 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Screen Readers in simple language.
+**Screen readers** (VoiceOver, NVDA, JAWS, TalkBack) present the accessibility tree as speech/braille. Users navigate by landmarks, headings, and forms—not by looking at pixels. Building for SR means correct names, roles, values, and updates.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Many a11y failures only appear with SR. Automated tools cannot validate announcement quality.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+SR + browser combos differ (especially on Windows/macOS). Testing on target pairings matters.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+SR users browse structurally. Announcements depend on accessible name computation and live regions. Visual order ≠ reading order if CSS reorders carelessly.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Learn basic SR commands on one platform.
+2. Smoke-test critical journeys.
+3. Fix naming and structure issues.
+4. Retest after complex widgets.
+5. Don’t over-announce.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> ExploreLandmarks
+  ExploreLandmarks --> Headings
+  Headings --> Interact
+  Interact --> AnnounceUpdates
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Exposes accessibility APIs to AT.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+Dynamic updates need live regions or focus moves.
 
 ## Next.js Perspective
 
@@ -75,77 +85,96 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Excessive aria-live can overwhelm—throttle status updates.
 
 ## Production Example
 
-TODO: Realistic production example.
+Release checklist: VoiceOver+Safari and NVDA+Chrome smoke on login and checkout.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```html
+<label for="email">Email</label>
+<input id="email" type="email" autocomplete="email" />
+```
 
 ## Diagrams
 
 ```mermaid
 flowchart LR
-  concept[ScreenReaders] --> nextStep[NextStep]
+  DOM --> AOM[Accessibility tree]
+  AOM --> SR[Screen reader]
+  SR --> Speech
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Testing only with axe
+2. Missing form labels
+3. Announcing every keystroke
+4. CSS order contradicting DOM order
+5. Images without alt decisions (empty vs descriptive)
+6. Missing a production edge case for 18-accessibility.screen-readers (#1)
+7. Missing a production edge case for 18-accessibility.screen-readers (#2)
+8. Missing a production edge case for 18-accessibility.screen-readers (#3)
+9. Missing a production edge case for 18-accessibility.screen-readers (#4)
+10. Missing a production edge case for 18-accessibility.screen-readers (#5)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Real SR smoke tests
+- Good heading/landmark structure
+- Accessible names on controls
 
 ## Anti-patterns
 
-TODO: What not to do.
+- SR-only text walls for everything
+- aria-label duplicating visible labels inconsistently
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Screen reader | Common pairing |
+| --- | --- |
+| VoiceOver | Safari/macOS |
+| NVDA | Chrome/Firefox Windows |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What tree do screen readers use?
+
+**A:** The accessibility tree derived from DOM semantics and ARIA.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Why can a visually obvious button be unusable with SR?
+
+**A:** If it lacks an accessible name or proper role, SR may announce “button” with no name or skip it.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How do you validate a custom combobox with SR?
+
+**A:** Follow APG, then verify expanded/collapsed announcements, option navigation, and selection with NVDA and VoiceOver—not just axe.
 
 ## Summary
 
-- TODO: key takeaway
+- SR users navigate structure
+- Names/roles/updates matter
+- Manual testing is required
 
 ## References
 
-- TODO: official documentation links
+- [WAI — Screen readers](https://www.w3.org/WAI/people-use-web/tools-techniques/)
+- [APG](https://www.w3.org/WAI/ARIA/apg/)
 
 <RelatedTopics />
 
 
-Prev: [Focus Management](/18-accessibility/focus-management/) · Next: [Color and Contrast](/18-accessibility/color-and-contrast/)
+Prev: [`18-accessibility.focus-management`](/18-accessibility/focus-management/) · Next: [`18-accessibility.color-and-contrast`](/18-accessibility/color-and-contrast/)

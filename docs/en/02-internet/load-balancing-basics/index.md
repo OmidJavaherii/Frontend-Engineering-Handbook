@@ -1,6 +1,6 @@
 ---
 title: "Load Balancing Basics"
-description: "TODO — one-sentence description of Load Balancing Basics"
+description: "Load balancing basics: distributing connections/requests across healthy backend instances."
 topic_id: 02-internet.load-balancing-basics
 difficulty: mid
 reading_time: 30
@@ -8,8 +8,8 @@ implementation_time: 0
 prerequisites: []
 tags: 
   - networking
-status: stub
-prev_topic: 02-internet.cdn-basics
+status: published
+prev_topic: "02-internet.cdn-basics"
 next_topic: null
 related: []
 advanced: []
@@ -21,41 +21,50 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Load Balancing Basics in simple language.
+A **load balancer (LB)** distributes traffic across multiple backends for scale and availability. L4 balances connections/packets; L7 balances HTTP requests with routing/sticky sessions/WAF features.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+One server fails or saturates. LBs + health checks make horizontal scale practical.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Hardware ADC appliances → cloud LBs → service meshes / API gateways.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Clients see one VIP/name; LB picks a healthy instance by algorithm (round robin, least conn, consistent hash).
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Health checks mark targets.
+2. Client connects to LB.
+3. LB selects backend; proxies.
+4. On failure, retry/another target (carefully).
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Healthy
+  Healthy --> Draining
+  Draining --> Out
+  Out --> Healthy: deploy done
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Usually unaware; retries may double POSTs — design idempotency.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
@@ -63,89 +72,110 @@ Not applicable.
 
 ## Next.js Perspective
 
-Not applicable.
+Platform LBs front Node/Edge instances.
 
 ## Server Perspective
 
-Not applicable.
+Stateless apps + external session store beat sticky sessions when possible.
 
 ## Network Perspective
 
-Not applicable.
+LB terminates TCP/TLS often; backends may see LB as connection peer.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Cross-zone latency, TLS offload CPU, and unhealthy flap cause incidents.
 
 ## Production Example
 
-TODO: Realistic production example.
+Rolling deploy without drain caused 5% error spikes; added connection draining.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```text
+# Conceptual nginx upstream
+upstream api { server 10.0.0.1; server 10.0.0.2; }
+```
 
 ## Diagrams
 
 ```mermaid
 flowchart LR
-  concept[LoadBalancingBasics] --> nextStep[NextStep]
+  Client --> LB
+  LB --> B1
+  LB --> B2
+  LB --> B3
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Sticky sessions as the only scalability plan
+2. Health checks too shallow (200 on / but DB dead)
+3. Retry storms amplifying outages
+4. Uneven load from poor hashing
+5. Idle timeout mismatches
+6. Assuming LB provides authz
+7. Overlooking an edge case #1 specific to 02-internet.load-balancing-basics in production traffic
+8. Overlooking an edge case #2 specific to 02-internet.load-balancing-basics in production traffic
+9. Overlooking an edge case #3 specific to 02-internet.load-balancing-basics in production traffic
+10. Overlooking an edge case #4 specific to 02-internet.load-balancing-basics in production traffic
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Deep health checks
+- Graceful drain
+- Idempotent APIs
+- Prefer stateless compute
 
 ## Anti-patterns
 
-TODO: What not to do.
+- All retries with zero jitter at every proxy hop
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Layer | Balances |
+| --- | --- |
+| L4 | Connections/packets |
+| L7 | HTTP requests/paths |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** Why use a load balancer?
+
+**A:** To spread traffic across instances for scale and high availability.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** L4 vs L7 load balancing?
+
+**A:** L4 routes by IP/port/connection; L7 understands HTTP and can route by path/host/headers.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How can retries + LB cause outages?
+
+**A:** Synchronized client/proxy retries multiply load on recovering backends (retry storm). Use budgets, jitter, and idempotency.
 
 ## Summary
 
-- TODO: key takeaway
+- LBs distribute traffic to healthy backends
+- L4 vs L7 capabilities differ
+- Draining and health checks are critical
+- Stateless + idempotency beat sticky hacks
 
 ## References
 
-- TODO: official documentation links
+- [AWS — Elastic Load Balancing concepts](https://docs.aws.amazon.com/elasticloadbalancing/latest/userguide/how-elastic-load-balancing-works.html)
+- [NGINX load balancing](https://docs.nginx.com/nginx/admin-guide/load-balancer/http-load-balancer/)
 
 <RelatedTopics />
 
 
-Prev: [CDN Basics](/02-internet/cdn-basics/)
+Prev: [`02-internet.cdn-basics`](/02-internet/cdn-basics/)

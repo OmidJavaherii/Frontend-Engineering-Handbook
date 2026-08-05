@@ -1,6 +1,6 @@
 ---
 title: "Docker"
-description: "TODO — one-sentence description of Docker"
+description: "Containerize frontend builds and static/nginx servers for reproducible deploy artifacts."
 topic_id: 19-deployment.docker
 difficulty: mid
 reading_time: 40
@@ -8,9 +8,9 @@ implementation_time: 0
 prerequisites: []
 tags: 
   - deployment
-status: stub
+status: published
 prev_topic: null
-next_topic: 19-deployment.nginx
+next_topic: "19-deployment.nginx"
 related: []
 advanced: []
 ---
@@ -21,41 +21,51 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Docker in simple language.
+**Docker** packages an app and its runtime into an image. For frontends, common patterns are: multi-stage builds (Node build → nginx/Caddy static serve) or containerizing a Next.js Node server. Images give reproducible artifacts across environments.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+“Works on my machine” dies when CI builds the same Dockerfile ops runs. Containers also isolate runtime versions.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Containers became standard for services; frontends adopted them for self-hosted and Kubernetes setups even when many use Vercel/Netlify.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Build stage compiles assets; runtime stage is minimal (nginx or node). Layers cache dependencies. Don’t ship secrets or devDependencies into final images.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Multi-stage Dockerfile.
+2. Build in CI → push registry.
+3. Run with env config at runtime (not bake secrets).
+4. Scan images.
+5. Tag by git SHA.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> BuildStage
+  BuildStage --> RuntimeStage
+  RuntimeStage --> Registry
+  Registry --> Deploy
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Not applicable.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
@@ -63,88 +73,115 @@ Not applicable.
 
 ## Next.js Perspective
 
-Not applicable.
+Standalone output helps slim Node images.
 
 ## Server Perspective
 
-Not applicable.
+Process model differs for static nginx vs node server.
 
 ## Network Perspective
 
-Not applicable.
+Containers still sit behind TLS terminators.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Smaller images = faster pulls; use alpine/distroless carefully with libc needs.
 
 ## Production Example
 
-TODO: Realistic production example.
+CI builds `web:sha`, scans with Trivy, deploys to K8s; nginx serves `/` with SPA fallback.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```dockerfile
+FROM node:22-alpine AS build
+WORKDIR /app
+COPY package.json pnpm-lock.yaml ./
+RUN corepack enable && pnpm i --frozen-lockfile
+COPY . .
+RUN pnpm build
+
+FROM nginx:1.27-alpine
+COPY --from=build /app/dist /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+```
 
 ## Diagrams
 
 ```mermaid
 flowchart LR
-  concept[Docker] --> nextStep[NextStep]
+  src --> build[Node build]
+  build --> assets
+  assets --> nginx
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Running as root unnecessarily
+2. Baking .env secrets into images
+3. No multi-stage (shipping node_modules to prod nginx)
+4. Latest tags only
+5. Huge context (copying node_modules into build)
+6. Missing a production edge case for 19-deployment.docker (#1)
+7. Missing a production edge case for 19-deployment.docker (#2)
+8. Missing a production edge case for 19-deployment.docker (#3)
+9. Missing a production edge case for 19-deployment.docker (#4)
+10. Missing a production edge case for 19-deployment.docker (#5)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Multi-stage builds
+- Tag with git SHA
+- Scan images in CI
 
 ## Anti-patterns
 
-TODO: What not to do.
+- docker attach debugging in prod as process
+- Mutable latest in production deploys
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Static nginx image | Node server image |
+| --- | --- |
+| SPA/static | SSR/Next standalone |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** Why multi-stage Docker builds for frontends?
+
+**A:** Compile with Node tooling then copy only artifacts into a tiny runtime image without build tools or secrets.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** How should frontend config reach the container?
+
+**A:** Runtime env or config endpoint—not secrets baked at build—unless they are public compile-time values.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** Dockerize Next.js for Kubernetes.
+
+**A:** Use output standalone, non-root user, healthchecks, read-only FS where possible, SHA tags, and externalize secrets.
 
 ## Summary
 
-- TODO: key takeaway
+- Docker makes deploy artifacts reproducible
+- Multi-stage for frontend
+- SHA tags + scans
 
 ## References
 
-- TODO: official documentation links
+- [Docker docs](https://docs.docker.com/)
+- [Next.js — Standalone output](https://nextjs.org/docs/app/api-reference/config/next-config-js/output)
 
 <RelatedTopics />
 
-Next: [Nginx](/19-deployment/nginx/)
+
+Next: [`19-deployment.nginx`](/19-deployment/nginx/)

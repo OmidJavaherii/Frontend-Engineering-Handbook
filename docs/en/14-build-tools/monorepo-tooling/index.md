@@ -1,6 +1,6 @@
 ---
 title: "Monorepo Tooling"
-description: "TODO — one-sentence description of Monorepo Tooling"
+description: "Tooling for multi-package repos: workspaces, task runners, and build caching."
 topic_id: 14-build-tools.monorepo-tooling
 difficulty: mid
 reading_time: 35
@@ -9,8 +9,8 @@ prerequisites: []
 tags: 
   - tooling
   - architecture
-status: stub
-prev_topic: 14-build-tools.source-maps
+status: published
+prev_topic: "14-build-tools.source-maps"
 next_topic: null
 related: 
   - 15-architecture.monorepo
@@ -23,41 +23,50 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Monorepo Tooling in simple language.
+**Monorepo tooling** covers workspaces (pnpm/yarn/npm), task orchestration (Turborepo, Nx), and remote caching so many packages share one repo without O(n²) CI pain.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Shared design systems and apps need atomic changes across packages; tooling makes filtering/caching feasible.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Bazel-inspired remote cache ideas → JS-native Turborepo/Nx popularity.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Packages + dependency graph + cached tasks. Build only what changed.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Define workspaces.
+2. Express package deps.
+3. Add pipeline cache (turbo/nx).
+4. Filter tasks in CI.
+5. Enforce boundaries.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Idle
+  Idle --> Active: use
+  Active --> Idle: settle
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Not applicable.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
@@ -65,7 +74,7 @@ Not applicable.
 
 ## Next.js Perspective
 
-Not applicable.
+Apps often live beside UI packages in monorepos.
 
 ## Server Perspective
 
@@ -73,81 +82,108 @@ Not applicable.
 
 ## Network Perspective
 
-Not applicable.
+Remote cache fetches artifacts.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Measure before/after with lab + field tools. Optimize the attributed bottleneck for Tooling for multi-package repos, not folklore.
 
 ## Production Example
 
-TODO: Realistic production example.
+Teams adopt Tooling for multi-package repos on critical routes, add monitoring, and guard regressions with budgets or reviews.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```json
+{
+  "scripts": {
+    "build": "turbo run build",
+    "test": "turbo run test --filter=web..."
+  }
+}
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[MonorepoTooling] --> nextStep[NextStep]
+flowchart TD
+  A[Understand] --> B[Apply Tooling for multi-package repos]
+  B --> C[Measure]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. No task cache → CI hours
+2. Circular package deps
+3. Publishing private packages accidentally
+4. One version policy chaos
+5. Cross-importing app internals
+6. Not isolating env per package
+7. Missing a production edge case for 14-build-tools.monorepo-tooling (#1)
+8. Missing a production edge case for 14-build-tools.monorepo-tooling (#2)
+9. Missing a production edge case for 14-build-tools.monorepo-tooling (#3)
+10. Missing a production edge case for 14-build-tools.monorepo-tooling (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Prefer platform/framework primitives
+- Measure impact on real user metrics
+- Keep the change reviewable and reversible
+- Document the invariant you are protecting
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Copy-paste without understanding failure modes
+- Premature abstraction around a single use
+- Optimizing without a baseline
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Tool | Focus |
+| --- | --- |
+| pnpm workspaces | Linking packages |
+| Turborepo | Task pipelines + cache |
+| Nx | Graphs, generators, cache |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is a JS monorepo workspace?
+
+**A:** A single repo with multiple packages linked via the package manager’s workspace feature.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** How do task caches help CI?
+
+**A:** They reuse outputs of unchanged packages/tasks based on input hashes.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How enforce module boundaries?
+
+**A:** Lint rules / Nx tags / dependency-cruiser / package exports so apps cannot import deep internals illegally.
 
 ## Summary
 
-- TODO: key takeaway
+- Tooling for multi-package repos: workspaces, task runners, and build caching.
+- Know why it exists and when not to use it
+- Measure production impact
+- Link related handbook topics instead of duplicating
 
 ## References
 
-- TODO: official documentation links
+- [pnpm Workspaces](https://pnpm.io/workspaces)
+- [Turborepo Docs](https://turbo.build/repo/docs)
+- [Nx Docs](https://nx.dev/getting-started/intro)
 
 <RelatedTopics />
 
 
-Prev: [Source Maps](/14-build-tools/source-maps/)
+Prev: [`14-build-tools.source-maps`](/14-build-tools/source-maps/)

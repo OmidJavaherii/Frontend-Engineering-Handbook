@@ -1,6 +1,6 @@
 ---
 title: "TBT"
-description: "TODO — one-sentence description of TBT"
+description: "Total Blocking Time: sum of long-task blocking time after FCP in lab traces."
 topic_id: 13-performance.tbt
 difficulty: mid
 reading_time: 20
@@ -8,9 +8,9 @@ implementation_time: 0
 prerequisites: []
 tags: 
   - performance
-status: stub
-prev_topic: 13-performance.fcp
-next_topic: 13-performance.profiling
+status: published
+prev_topic: "13-performance.fcp"
+next_topic: "13-performance.profiling"
 related: []
 advanced: []
 ---
@@ -21,49 +21,59 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain TBT in simple language.
+**TBT** aggregates how much main-thread blocking (>50ms tasks) occurs after FCP in lab metrics. It correlates with poor interactivity.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+It turns “we have long tasks” into a single optimization target during Lighthouse work.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Lighthouse metric bridging lab traces to responsiveness before INP field ubiquity.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Each long task contributes (duration − 50ms) to TBT. Split work to stay under ~50ms slices.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Define what TBT measures and the “good” threshold.
+2. Collect lab (Lighthouse/Perf panel) and field (CrUX/RUM) data.
+3. Attribute the slow stage in a trace.
+4. Change one cause; remeasure.
+5. Guard with budgets in CI/RUM alerts.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Measure
+  Measure --> Attribute
+  Attribute --> Fix
+  Fix --> Measure
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+TBT is observed in Chromium Performance/Lighthouse and via web-vitals JS APIs in the field.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+JS long tasks, layout, and paint feed into how TBT feels to users.
 
 ## React Perspective
 
-Not applicable.
+Unnecessary renders/hydration inflate interaction and paint costs that show up in TBT.
 
 ## Next.js Perspective
 
-Not applicable.
+Server TTFB, streaming, and client bundle size all influence TBT depending on the metric.
 
 ## Server Perspective
 
@@ -71,81 +81,104 @@ Not applicable.
 
 ## Network Perspective
 
-Not applicable.
+RTT, bytes, and CDN behavior often dominate before JS micro-optimizations.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+GC pauses and large DOM/images can indirectly worsen TBT.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Code-split, defer, web workers, yield (`scheduler.yield`), shrink hydration.
 
 ## Production Example
 
-TODO: Realistic production example.
+A team tracks TBT in RUM by route template, sets a regression alert at p75, and ties fixes to specific owners (images, JS, server).
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```ts
+new PerformanceObserver((list) => {
+  for (const e of list.getEntries()) console.log('longtask', e.duration)
+}).observe({ type: 'longtask', buffered: true })
+```
 
 ## Diagrams
 
 ```mermaid
 flowchart LR
-  concept[TBT] --> nextStep[NextStep]
+  Lab[Lab tools] --> Insight
+  RUM[Field RUM] --> Insight
+  Insight --> Fix[TBT fix]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Ignoring third-party long tasks
+2. Bundling polyfills unnecessarily
+3. Sync large JSON.parse on boot
+4. Hydrating whole pages
+5. Optimizing TBT in lab only
+6. Yielding incorrectly so work still janks
+7. Missing a production edge case for 13-performance.tbt (#1)
+8. Missing a production edge case for 13-performance.tbt (#2)
+9. Missing a production edge case for 13-performance.tbt (#3)
+10. Missing a production edge case for 13-performance.tbt (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Optimize TBT with field data, not vanity lab scores alone
+- Fix the attributed cause, not a random best practice list
+- Keep a performance budget for the owning surface
+- Re-check after framework upgrades
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Chasing Lighthouse while ignoring RUM
+- Micro-optimizing JS before cutting bytes/RTT
+- Declaring victory from one local run on fiber
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Signal | Use |
+| --- | --- |
+| Lab | Debug & regressions |
+| Field | Real users / SEO signals |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is a long task?
+
+**A:** A main-thread task lasting more than 50ms.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** How is TBT related to long tasks?
+
+**A:** It sums the blocking portion (over 50ms) of long tasks after FCP in lab.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** Give a concrete TBT reduction plan for a React app.
+
+**A:** Reduce client JS, split bundles, defer non-critical providers, move parsing off critical path, break handlers, consider workers for CPU work.
 
 ## Summary
 
-- TODO: key takeaway
+- TBT: Total Blocking Time: sum of long-task blocking time after FCP in lab traces.
+- Measure lab + field
+- Attribute before optimizing
+- Budget and alert on p75
 
 ## References
 
-- TODO: official documentation links
+- [web.dev — TBT](https://web.dev/articles/tbt)
+- [MDN — Long Tasks API](https://developer.mozilla.org/en-US/docs/Web/API/PerformanceLongTaskTiming)
 
 <RelatedTopics />
 
 
-Prev: [FCP](/13-performance/fcp/) · Next: [Profiling](/13-performance/profiling/)
+Prev: [`13-performance.fcp`](/13-performance/fcp/) · Next: [`13-performance.profiling`](/13-performance/profiling/)

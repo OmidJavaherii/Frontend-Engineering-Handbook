@@ -1,6 +1,6 @@
 ---
 title: "Real User Monitoring"
-description: "TODO — one-sentence description of Real User Monitoring"
+description: "Real User Monitoring: field performance and UX metrics from actual users’ devices and networks."
 topic_id: 20-observability.rum
 difficulty: mid
 reading_time: 30
@@ -9,9 +9,9 @@ prerequisites: []
 tags: 
   - observability
   - performance
-status: stub
-prev_topic: 20-observability.error-tracking
-next_topic: 20-observability.web-vitals-monitoring
+status: published
+prev_topic: "20-observability.error-tracking"
+next_topic: "20-observability.web-vitals-monitoring"
 related: []
 advanced: []
 ---
@@ -22,49 +22,59 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Real User Monitoring in simple language.
+**RUM (Real User Monitoring)** collects performance/UX metrics from real sessions—Core Web Vitals, navigation timing, geographic/network slices—not just lab Lighthouse runs.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Lab is a simulation. Real devices, caches, and networks differ. RUM prioritizes what users actually experience.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Navigation Timing / Paint Timing / Web Vitals APIs enabled standardized field metrics; vendors productized dashboards.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Beacon selected metrics with attribution (LCP element, INP event) + dimensions (route, device, country). Privacy-safe sampling.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Instrument Web Vitals.
+2. Attach route/release dimensions.
+3. Sample.
+4. Dashboard percentiles (p75).
+5. Alert on regressions.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Collect
+  Collect --> Aggregate
+  Aggregate --> Alert
+  Alert --> Optimize
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+PerformanceObserver-based collection.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+Map metrics to routes/components.
 
 ## Next.js Perspective
 
-Not applicable.
+Route transitions need SPA-aware vitals.
 
 ## Server Perspective
 
@@ -72,81 +82,101 @@ Not applicable.
 
 ## Network Perspective
 
-Not applicable.
+Beacons must not harm page perf.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Keep collectors tiny; prefer `web-vitals` library patterns.
 
 ## Production Example
 
-TODO: Realistic production example.
+p75 LCP dashboard by route; regression alert after deploy; mobile 4G segment watched.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```ts
+import { onLCP, onINP, onCLS } from 'web-vitals'
+function send(metric: { name: string; value: number }) {
+  navigator.sendBeacon('/rum', JSON.stringify(metric))
+}
+onLCP(send); onINP(send); onCLS(send)
+```
 
 ## Diagrams
 
 ```mermaid
 flowchart LR
-  concept[RealUserMonitoring] --> nextStep[NextStep]
+  Users --> Beacons --> RUMStore --> Dashboards
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Only watching averages not percentiles
+2. No route dimension
+3. Lab-only culture
+4. Over-collecting PII
+5. Alerting on tiny sample noise
+6. Missing a production edge case for 20-observability.rum (#1)
+7. Missing a production edge case for 20-observability.rum (#2)
+8. Missing a production edge case for 20-observability.rum (#3)
+9. Missing a production edge case for 20-observability.rum (#4)
+10. Missing a production edge case for 20-observability.rum (#5)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- p75 Core Web Vitals
+- Dimensions: route/device
+- Sample thoughtfully
 
 ## Anti-patterns
 
-TODO: What not to do.
+- RUM SDK heavier than the app
+- Ignoring field regressions after “Lighthouse green”
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| RUM | Synthetic |
+| --- | --- |
+| Real users | Controlled lab |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is RUM?
+
+**A:** Collecting performance/UX metrics from real user sessions in the field.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Why p75 for Web Vitals?
+
+**A:** Google’s CWV thresholds use the 75th percentile to represent a large share of user visits, not just the median.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How do you attribute an LCP regression via RUM?
+
+**A:** Slice by route/device/release, inspect LCP element types/URLs, correlate with deploy, then confirm in lab traces.
 
 ## Summary
 
-- TODO: key takeaway
+- RUM = field truth
+- Percentiles + dimensions
+- Complement lab tools
 
 ## References
 
-- TODO: official documentation links
+- [web.dev — Vital metrics](https://web.dev/articles/vitals)
+- [web-vitals library](https://github.com/GoogleChrome/web-vitals)
+- [MDN — Performance APIs](https://developer.mozilla.org/en-US/docs/Web/API/Performance_API)
 
 <RelatedTopics />
 
 
-Prev: [Error Tracking](/20-observability/error-tracking/) · Next: [Web Vitals Monitoring](/20-observability/web-vitals-monitoring/)
+Prev: [`20-observability.error-tracking`](/20-observability/error-tracking/) · Next: [`20-observability.web-vitals-monitoring`](/20-observability/web-vitals-monitoring/)

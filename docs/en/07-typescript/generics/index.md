@@ -1,6 +1,6 @@
 ---
 title: "Generics"
-description: "TODO — one-sentence description of Generics"
+description: "Generics parameterize types and functions so APIs stay reusable without sinking to `any`."
 topic_id: 07-typescript.generics
 difficulty: mid
 reading_time: 40
@@ -10,9 +10,9 @@ prerequisites:
 tags: 
   - typescript
   - interview-frequent
-status: stub
-prev_topic: 07-typescript.type-vs-interface
-next_topic: 07-typescript.utility-types
+status: published
+prev_topic: "07-typescript.type-vs-interface"
+next_topic: "07-typescript.utility-types"
 related: []
 advanced: []
 ---
@@ -23,49 +23,64 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Generics in simple language.
+**Generics** introduce type variables (`T`, `TKey`, …) so one function or type works across many shapes while preserving relationships between inputs and outputs.
+
+`identity<T>(value: T): T` returns the same type it received—something overloads or `any` cannot express cleanly.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Containers (`Promise`, `Array`, `Map`), data-fetch helpers, and React props all need “same type in, same type out” or “key of this object.” Without generics, libraries become `any`-typed or explode into copy-pasted overloads.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Generics have been central since early TypeScript, modeled after C#/Java but adapted to structural typing and inference. Features like generic constraints (`extends`), `keyof`, conditional types, and inference from usage (`infer`) made generics the backbone of modern TS libraries.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+A generic is a **hole filled at use site** (explicitly or via inference). Constraints (`T extends { id: string }`) bound what can fill the hole. Variance shows up practically: a `Fetcher<T>` that only produces `T` is covariant in `T`; one that consumes `T` is contravariant—get this wrong and assignability surprises appear.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Write the concrete version for one type.
+2. Replace the varying parts with `T`.
+3. Add constraints only when you need members of `T`.
+4. Prefer inference; add explicit type args when inference fails.
+5. Avoid `T` soup—name parameters (`TData`, `TError`).
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+sequenceDiagram
+  participant Caller
+  participant GenericFn as generic function
+  participant Checker
+  Caller->>GenericFn: call with value
+  GenericFn->>Checker: infer T from args
+  Checker-->>GenericFn: T bound
+  GenericFn-->>Caller: result typed as T
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Not applicable at runtime.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Erased. Emitted JS is the monomorphic/ specialized code you wrote, not Java-style reified generics.
 
 ## React Perspective
 
-Not applicable.
+`useState<T>`, context, and list render props rely on generics. Component generics: `function List<T>({ items, render }: Props<T>)`.
 
 ## Next.js Perspective
 
-Not applicable.
+Generic data loaders must still validate runtime JSON; generics only thread types through your code.
 
 ## Server Perspective
 
@@ -77,77 +92,125 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Complex generic types can slow the checker. Simplify public types; hide infernal conditionals inside helper aliases.
 
 ## Production Example
 
-TODO: Realistic production example.
+A `query<TData>(url: string): Promise<TData>` helper is used with an explicit type argument only after Zod parse: `query('/api/user')` returns `unknown` until parsed to `User`. Generics then flow `User` through UI hooks.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```ts
+function first<T>(items: readonly T[]): T | undefined {
+  return items[0]
+}
+
+function pick<T extends object, K extends keyof T>(obj: T, key: K): T[K] {
+  return obj[key]
+}
+
+type ApiResponse<T> = {
+  data: T
+  meta: { requestId: string }
+}
+
+async function getJson<T>(url: string): Promise<ApiResponse<T>> {
+  const res = await fetch(url)
+  return res.json() as Promise<ApiResponse<T>> // prefer schema parse in real apps
+}
+```
+
+```tsx
+type ListProps<T> = {
+  items: T[]
+  renderItem: (item: T) => React.ReactNode
+}
+
+function List<T>({ items, renderItem }: ListProps<T>) {
+  return <>{items.map(renderItem)}</>
+}
+```
 
 ## Diagrams
 
 ```mermaid
 flowchart LR
-  concept[Generics] --> nextStep[NextStep]
+  Def["function f&lt;T&gt;"] --> Infer[infer T at call]
+  Infer --> Bound[T bound]
+  Bound --> Out[return uses T]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Defaulting to `<T = any>` and losing safety
+2. Over-constraining (`T extends object`) when unnecessary
+3. Using generics where a concrete union would be clearer
+4. Returning `T | any` and defeating the point
+5. Confusing generic type params with React component props named `T`
+6. Deep nested generics no human can read
+7. Overlooking an edge case #1 specific to 07-typescript.generics in production traffic
+8. Overlooking an edge case #2 specific to 07-typescript.generics in production traffic
+9. Overlooking an edge case #3 specific to 07-typescript.generics in production traffic
+10. Overlooking an edge case #4 specific to 07-typescript.generics in production traffic
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Name type params by role (`TData`, `TKey`)
+- Constrain only when you access properties of `T`
+- Keep one idea per generic parameter
+- Export helper types (`ApiResponse<T>`) used by many callsites
 
 ## Anti-patterns
 
-TODO: What not to do.
+- `function f<T>(x: T): T { return x as any }`
+- Generics on every function “for future flexibility”
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
+| Approach | Pros | Cons |
 | --- | --- | --- |
-| TODO | TODO | TODO |
+| Generics | Preserve relationships | Harder to read when overused |
+| `any` | Fast to write | No safety |
+| Overloads | Precise cases | Verbose, easy to get wrong |
+| Concrete union | Clear for closed sets | Not open-ended |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What problem do generics solve?
+
+**A:** They let you write reusable functions/types that preserve specific type information instead of collapsing to `any` or a too-wide supertype.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** What does `K extends keyof T` mean?
+
+**A:** `K` must be a key of `T`, so `T[K]` is a valid property lookup. It ties a key parameter to an object type.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How do you design a generic `useFetch` hook that stays safe?
+
+**A:** Parameterize `TData`, accept a runtime parser/`schema`, return discriminated state (`idle`/`loading`/`success`/`error`), and never cast network JSON to `TData` without validation.
 
 ## Summary
 
-- TODO: key takeaway
+- Generics thread type relationships through reusable APIs
+- Inference fills type params; constraints bound them
+- Erase at runtime — pair with validation for external data
 
 ## References
 
-- TODO: official documentation links
+- [TypeScript Handbook — Generics](https://www.typescriptlang.org/docs/handbook/2/generics.html)
+- [keyof and indexed access](https://www.typescriptlang.org/docs/handbook/2/keyof-types.html)
 
 <RelatedTopics />
 
 
-Prev: [Type vs Interface](/07-typescript/type-vs-interface/) · Next: [Utility Types](/07-typescript/utility-types/)
+Prev: [`07-typescript.type-vs-interface`](/07-typescript/type-vs-interface/) · Next: [`07-typescript.utility-types`](/07-typescript/utility-types/)

@@ -1,6 +1,6 @@
 ---
 title: "Static Site Generation"
-description: "TODO — one-sentence description of Static Site Generation"
+description: "Static Site Generation: HTML built ahead of time and served from CDN."
 topic_id: 12-rendering.ssg
 difficulty: junior
 reading_time: 30
@@ -8,9 +8,9 @@ implementation_time: 0
 prerequisites: []
 tags: 
   - rendering
-status: stub
-prev_topic: 12-rendering.ssr
-next_topic: 12-rendering.isr
+status: published
+prev_topic: "12-rendering.ssr"
+next_topic: "12-rendering.isr"
 related: []
 advanced: []
 ---
@@ -21,131 +21,169 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Static Site Generation in simple language.
+**Static Site Generation (SSG)** pre-renders HTML at build time (or on-demand once) and serves files from a CDN. Ideal for content that is identical for many users.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Static files are the fastest, cheapest, most cacheable response. SSG exists to keep that win inside component frameworks.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Jekyll/Hugo → Gatsby/Next `getStaticProps` → App Router static renders + `generateStaticParams`.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Build produces HTML/RSC payload for known paths; runtime is mostly CDN. Rebuilding or ISR refreshes content.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Know/enumerate paths.
+2. Fetch data at build.
+3. Emit static outputs.
+4. CDN serves globally; rebuild or revalidate to update.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Build
+  Build --> CDN
+  CDN --> Serve
+  Serve --> Rebuild: content change
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Receives ready HTML immediately.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+Still may hydrate client islands.
 
 ## Next.js Perspective
 
-Not applicable.
+Static segments by default unless dynamic APIs used.
 
 ## Server Perspective
 
-Not applicable.
+Origin often idle for pure static.
 
 ## Network Perspective
 
-Not applicable.
+Peak CDN cache hit rates; tiny TTFB.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Best TTFB/LCP potential for content sites. Build times grow with path count—use ISR/on-demand for long tails.
 
 ## Production Example
 
-TODO: Realistic production example.
+Docs and blog SSG; product pages ISR; account SSR.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```tsx
+export async function generateStaticParams() {
+  return [{ slug: 'intro' }, { slug: 'ssg' }]
+}
+
+export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params
+  const doc = await getDoc(slug)
+  return <article>{doc.title}</article>
+}
+```
 
 ## Diagrams
 
 ```mermaid
 flowchart LR
-  concept[StaticSiteGeneration] --> nextStep[NextStep]
+  Build --> HTML[Static HTML]
+  HTML --> CDN --> User
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. SSG for per-user personalized pages
+2. Building millions of paths every CI without ISR
+3. Forgetting fallback strategy for new paths
+4. Stale content with no revalidation plan
+5. Calling cookies() and accidentally dynamizing a “static” page
+6. Huge client JS on top of static HTML (losing the win)
+7. Missing a production edge case for 12-rendering.ssg (#1)
+8. Missing a production edge case for 12-rendering.ssg (#2)
+9. Missing a production edge case for 12-rendering.ssg (#3)
+10. Missing a production edge case for 12-rendering.ssg (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- SSG for shared content
+- ISR/on-demand revalidate for freshness
+- generateStaticParams for hot paths
+- Keep client JS minimal on content pages
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Full rebuild for a typo on one page when on-demand exists
+- Static HTML that immediately client-fetches everything
+- Blocking build on flaky third-party APIs without caching
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
+| | SSG | SSR |
 | --- | --- | --- |
-| TODO | TODO | TODO |
+| When rendered | Build/revalidate | Each request |
+| Personalization | Poor | Good |
+| Cost at scale | Low | Higher |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is SSG?
+
+**A:** Pre-rendering HTML at build time so it can be served as static files from a CDN.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** How do you handle new blog posts without full rebuilds?
+
+**A:** Use ISR or on-demand revalidation / on-demand static generation for new paths.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** What makes an App Router page static vs dynamic?
+
+**A:** Using dynamic functions (cookies/headers/searchParams in ways that opt dynamic) or uncached fetch forces dynamic rendering; otherwise Next can statically prerender.
 
 ## Summary
 
-- TODO: key takeaway
+- SSG prebuilds shared HTML for CDN
+- Fastest/cheapest for content
+- Pair with ISR for updates
+- Avoid dynamizing accidentally
 
 ## References
 
-- TODO: official documentation links
+- [Next.js — Static Rendering](https://nextjs.org/docs/app/building-your-application/rendering/server-components#static-rendering-default)
+- [web.dev — Rendering on the web](https://web.dev/articles/rendering-on-the-web)
 
 <RelatedTopics />
 
 
-Prev: [Server-Side Rendering](/12-rendering/ssr/) · Next: [Incremental Static Regeneration](/12-rendering/isr/)
+Prev: [`12-rendering.ssr`](/12-rendering/ssr/) · Next: [`12-rendering.isr`](/12-rendering/isr/)

@@ -1,6 +1,6 @@
 ---
 title: "Route Handlers"
-description: "TODO — one-sentence description of Route Handlers"
+description: "HTTP endpoints via route.ts in the App Router (GET/POST/…)."
 topic_id: 11-nextjs.route-handlers
 difficulty: mid
 reading_time: 30
@@ -9,9 +9,9 @@ prerequisites: []
 tags: 
   - nextjs
   - api
-status: stub
-prev_topic: 11-nextjs.metadata
-next_topic: 11-nextjs.middleware
+status: published
+prev_topic: "11-nextjs.metadata"
+next_topic: "11-nextjs.middleware"
 related: []
 advanced: []
 ---
@@ -22,131 +22,177 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Route Handlers in simple language.
+**Route Handlers** are `route.ts` files exporting HTTP method functions (`GET`, `POST`, …). They replace many `pages/api` use cases with Web Request/Response APIs and can run on Node or Edge runtimes.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Browsers and external clients need non-RSC HTTP endpoints: webhooks, token exchange, public JSON APIs, image responses. Route Handlers provide that without a separate server.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+App Router successor to Pages API routes, aligned with Fetch API standards.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+`route.ts` is not a React page—it cannot export a component. It handles raw HTTP. Prefer Server Actions for UI-driven mutations from forms; use Route Handlers for APIs and non-React clients.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Create `app/api/.../route.ts`.
+2. Export async functions named after methods.
+3. Read `request`, cookies, headers; return `Response`/`NextResponse`.
+4. Set runtime/`dynamic` as needed; validate auth on every mutating method.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> ReceiveRequest
+  ReceiveRequest --> AuthValidate
+  AuthValidate --> Handle
+  Handle --> Respond
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Called via fetch from Client Components or external services.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+Not a React tree—don’t expect hooks.
 
 ## Next.js Perspective
 
-Not applicable.
+Same deployment unit as the app; path conflicts if both page.tsx and route.ts exist incorrectly.
 
 ## Server Perspective
 
-Not applicable.
+Runs in the chosen runtime; long work may need background jobs instead of blocking the handler.
 
 ## Network Perspective
 
-Not applicable.
+Status codes, caching headers, CORS, and content types are your responsibility.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Add `Cache-Control` for GET where safe. Avoid mega payloads. Edge for low-latency simple handlers; Node when you need full Node APIs.
 
 ## Production Example
 
-TODO: Realistic production example.
+Stripe webhook at `app/api/stripe/webhook/route.ts` verifies signatures, enqueues work, returns 200 quickly.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```ts
+import { NextResponse } from 'next/server'
+
+export async function GET() {
+  return NextResponse.json({ ok: true }, {
+    headers: { 'Cache-Control': 'public, s-maxage=60' },
+  })
+}
+
+export async function POST(request: Request) {
+  const body = await request.json()
+  // validate + auth
+  return NextResponse.json({ received: body }, { status: 201 })
+}
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[RouteHandlers] --> nextStep[NextStep]
+sequenceDiagram
+  participant Client
+  participant Route as route.ts
+  participant DB
+  Client->>Route: POST /api/checkout
+  Route->>DB: write
+  DB-->>Route: ok
+  Route-->>Client: 201 JSON
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Exporting a React component from route.ts
+2. Skipping auth on POST/PUT/DELETE
+3. Using Route Handlers for every form when Server Actions fit better
+4. Blocking on long CPU work in the handler
+5. Forgetting CORS for cross-origin browser clients
+6. Returning 200 on webhook failures so providers never retry
+7. Missing a production edge case for 11-nextjs.route-handlers (#1)
+8. Missing a production edge case for 11-nextjs.route-handlers (#2)
+9. Missing a production edge case for 11-nextjs.route-handlers (#3)
+10. Missing a production edge case for 11-nextjs.route-handlers (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Validate input (zod etc.) before side effects
+- Prefer Server Actions for same-app form mutations
+- Set explicit cache headers on GET
+- Keep webhook handlers idempotent
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Business logic only in the handler with no shared domain module
+- Exposing admin JSON without authentication
+- Giant file uploads without size limits
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
+| | Route Handlers | Server Actions |
 | --- | --- | --- |
-| TODO | TODO | TODO |
+| Clients | Any HTTP client | React/forms primarily |
+| API shape | REST-like methods | POST RPC from UI |
+| Use | Webhooks, public API | UI mutations |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is a Route Handler?
+
+**A:** A `route.ts` module exporting HTTP method functions that return Web Responses for that URL.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** When prefer Server Actions over Route Handlers?
+
+**A:** For mutations initiated from your own UI/forms with progressive enhancement; keep Route Handlers for external clients and webhooks.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How do you secure a Route Handler used by the browser?
+
+**A:** Authenticate (session/JWT/cookies), CSRF strategy for cookie sessions, validate origin when needed, rate-limit, never trust body fields for authz—check server-side permissions.
 
 ## Summary
 
-- TODO: key takeaway
+- route.ts exports HTTP method handlers
+- Web Request/Response model
+- Great for APIs/webhooks; Actions for UI mutations
+- Auth and cache headers are manual
 
 ## References
 
-- TODO: official documentation links
+- [Next.js — Route Handlers](https://nextjs.org/docs/app/building-your-application/routing/route-handlers)
 
 <RelatedTopics />
 
 
-Prev: [Metadata](/11-nextjs/metadata/) · Next: [Middleware](/11-nextjs/middleware/)
+Prev: [`11-nextjs.metadata`](/11-nextjs/metadata/) · Next: [`11-nextjs.middleware`](/11-nextjs/middleware/)

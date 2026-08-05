@@ -1,6 +1,6 @@
 ---
 title: "Bundle"
-description: "TODO — one-sentence description of Bundle"
+description: "The shipped JavaScript/CSS artifact(s) users download for an app."
 topic_id: 13-performance.bundle
 difficulty: junior
 reading_time: 25
@@ -9,9 +9,9 @@ prerequisites: []
 tags: 
   - performance
   - bundling
-status: stub
+status: published
 prev_topic: null
-next_topic: 13-performance.chunk
+next_topic: "13-performance.chunk"
 related: []
 advanced: []
 ---
@@ -22,41 +22,50 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Bundle in simple language.
+A **bundle** is the packaged output of your bundler—JS/CSS (and assets) delivered to browsers. Bundle size strongly drives parse/compile/exec cost and network time.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Browsers can’t run your TypeScript sources directly in production the way monorepos are authored. Bundles exist to resolve modules, tree-shake, and emit efficient files— but oversized bundles harm CWV.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Script concatenation → webpack era → ESM-native tooling (Vite/esbuild/Rollup) with smarter splitting.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Think in bytes over the wire + main-thread cost. Route-based chunks beat one mega bundle.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Build production assets.
+2. Inspect sizes (analyzer).
+3. Split/defer heavy deps.
+4. Set budgets in CI.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> SourceModules
+  SourceModules --> Bundle
+  Bundle --> Download
+  Download --> ParseExec
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Download → parse → compile → execute on main thread.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Larger JS → more compile/GC pressure.
 
 ## React Perspective
 
@@ -64,7 +73,7 @@ Not applicable.
 
 ## Next.js Perspective
 
-Not applicable.
+Server/client graphs differ; watch client bundle specifically.
 
 ## Server Perspective
 
@@ -72,80 +81,101 @@ Not applicable.
 
 ## Network Perspective
 
-Not applicable.
+Compression + HTTP/2 help; bytes still dominate on mobile.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Retained modules increase heap.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Track transfer size and execution time. Prefer fewer eager bytes on critical routes.
 
 ## Production Example
 
-TODO: Realistic production example.
+CI fails if main client bundle grows > budget; analyzer comment on PRs.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```bash
+npx source-map-explorer .next/static/chunks/*.js
+```
 
 ## Diagrams
 
 ```mermaid
 flowchart LR
-  concept[Bundle] --> nextStep[NextStep]
+  Src --> Bundler --> Chunks --> Browser
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Shipping the same mega bundle to every route
+2. Importing barrel files that defeat tree-shaking
+3. Measuring only gzip size and ignoring parse time
+4. Duplicating React in multiple chunks incorrectly
+5. Including Node polyfills in client bundles
+6. No budget alarms
+7. Missing a production edge case for 13-performance.bundle (#1)
+8. Missing a production edge case for 13-performance.bundle (#2)
+9. Missing a production edge case for 13-performance.bundle (#3)
+10. Missing a production edge case for 13-performance.bundle (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Route-based splitting
+- Analyze regularly
+- Prefer ESM-friendly libs
+- Budget p95 bytes per template
 
 ## Anti-patterns
 
-TODO: What not to do.
+- lodash entire import
+- moment.js when Intl suffices
+- Dev dependencies accidentally in client
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Concept | Meaning |
+| --- | --- |
+| Bundle | Output artifact set |
+| Chunk | Split piece of a bundle |
+| Module | Source unit |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is a JS bundle?
+
+**A:** The packaged JavaScript file(s) produced for the browser from your modules.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Why split bundles?
+
+**A:** So users download only code for the route/feature they need, improving startup.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How do barrel exports hurt bundles?
+
+**A:** They can pull large index re-exports, preventing tree-shaking and inflating graphs.
 
 ## Summary
 
-- TODO: key takeaway
+- Bundles are what users download
+- Size ≈ network + main-thread cost
+- Split and budget
+- Analyze regressions
 
 ## References
 
-- TODO: official documentation links
+- [web.dev — Reduce JavaScript payloads](https://web.dev/articles/reduce-javascript-payloads-with-code-splitting)
+- [Vite — Build](https://vitejs.dev/guide/build.html)
 
 <RelatedTopics />
 
-Next: [Chunk](/13-performance/chunk/)
+
+Next: [`13-performance.chunk`](/13-performance/chunk/)

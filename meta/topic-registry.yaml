@@ -126,7 +126,7 @@ topics:
     perspective_of: []
     tags:
       - orientation
-    status: stub
+    status: published
     order: 0
   - id: 00-foundations.how-the-web-works-map
     title: How the Web Works Map
@@ -135,7 +135,7 @@ topics:
     difficulty: beginner
     estimated_reading_minutes: 25
     estimated_implementation_minutes: 0
-    prerequisites: &a1
+    prerequisites:
       - 00-foundations.start-here
     recommended_next:
       - 00-foundations.how-to-read-this-handbook
@@ -143,14 +143,15 @@ topics:
       - 00-foundations
     children: []
     related: []
-    depends_on: *a1
+    depends_on:
+      - 00-foundations.start-here
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - orientation
       - mental-model
-    status: stub
+    status: published
     order: 1
   - id: 00-foundations.how-to-read-this-handbook
     title: How to Read This Handbook
@@ -172,7 +173,7 @@ topics:
     perspective_of: []
     tags:
       - orientation
-    status: stub
+    status: published
     order: 2
   - id: 00-foundations.prerequisites-checklist
     title: Prerequisites Checklist
@@ -194,7 +195,7 @@ topics:
     perspective_of: []
     tags:
       - orientation
-    status: stub
+    status: published
     order: 3
   - id: 00-foundations.conventions-used
     title: Conventions Used
@@ -215,7 +216,7 @@ topics:
     perspective_of: []
     tags:
       - orientation
-    status: stub
+    status: published
     order: 4
   - id: 01-computer-science.binary
     title: Binary
@@ -238,7 +239,7 @@ topics:
     perspective_of: []
     tags:
       - cs-fundamentals
-    status: stub
+    status: published
     order: 5
   - id: 01-computer-science.bits-and-bytes
     title: Bits and Bytes
@@ -247,7 +248,7 @@ topics:
     difficulty: beginner
     estimated_reading_minutes: 20
     estimated_implementation_minutes: 0
-    prerequisites: &a2
+    prerequisites:
       - 01-computer-science.binary
     recommended_next:
       - 01-computer-science.cpu
@@ -255,14 +256,15 @@ topics:
       - 01-computer-science
     children: []
     related: []
-    depends_on: *a2
+    depends_on:
+      - 01-computer-science.binary
     dependents:
       - 01-computer-science.cpu
     advanced: []
     perspective_of: []
     tags:
       - cs-fundamentals
-    status: stub
+    status: published
     order: 6
   - id: 01-computer-science.cpu
     title: CPU
@@ -271,7 +273,7 @@ topics:
     difficulty: beginner
     estimated_reading_minutes: 30
     estimated_implementation_minutes: 0
-    prerequisites: &a3
+    prerequisites:
       - 01-computer-science.bits-and-bytes
     recommended_next:
       - 01-computer-science.memory
@@ -279,7 +281,8 @@ topics:
       - 01-computer-science
     children: []
     related: []
-    depends_on: *a3
+    depends_on:
+      - 01-computer-science.bits-and-bytes
     dependents:
       - 01-computer-science.memory
       - 01-computer-science.compiler
@@ -287,7 +290,7 @@ topics:
     perspective_of: []
     tags:
       - cs-fundamentals
-    status: stub
+    status: published
     order: 7
   - id: 01-computer-science.memory
     title: Memory
@@ -296,7 +299,7 @@ topics:
     difficulty: beginner
     estimated_reading_minutes: 35
     estimated_implementation_minutes: 0
-    prerequisites: &a4
+    prerequisites:
       - 01-computer-science.cpu
     recommended_next:
       - 01-computer-science.stack
@@ -304,7 +307,8 @@ topics:
       - 01-computer-science
     children: []
     related: []
-    depends_on: *a4
+    depends_on:
+      - 01-computer-science.cpu
     dependents:
       - 01-computer-science.stack
       - 01-computer-science.heap
@@ -314,7 +318,7 @@ topics:
     tags:
       - cs-fundamentals
       - memory
-    status: stub
+    status: published
     order: 8
   - id: 01-computer-science.stack
     title: Stack
@@ -323,7 +327,7 @@ topics:
     difficulty: junior
     estimated_reading_minutes: 25
     estimated_implementation_minutes: 0
-    prerequisites: &a5
+    prerequisites:
       - 01-computer-science.memory
     recommended_next:
       - 01-computer-science.heap
@@ -331,7 +335,8 @@ topics:
       - 01-computer-science
     children: []
     related: []
-    depends_on: *a5
+    depends_on:
+      - 01-computer-science.memory
     dependents:
       - 03-browser.call-stack
       - 06-javascript.memory-and-references
@@ -340,7 +345,7 @@ topics:
     tags:
       - cs-fundamentals
       - memory
-    status: stub
+    status: published
     order: 9
   - id: 01-computer-science.heap
     title: Heap
@@ -349,7 +354,7 @@ topics:
     difficulty: junior
     estimated_reading_minutes: 25
     estimated_implementation_minutes: 0
-    prerequisites: &a6
+    prerequisites:
       - 01-computer-science.memory
     recommended_next:
       - 01-computer-science.process
@@ -357,7 +362,8 @@ topics:
       - 01-computer-science
     children: []
     related: []
-    depends_on: *a6
+    depends_on:
+      - 01-computer-science.memory
     dependents:
       - 01-computer-science.garbage-collection
       - 03-browser.memory-management
@@ -367,7 +373,7 @@ topics:
     tags:
       - cs-fundamentals
       - memory
-    status: stub
+    status: published
     order: 10
   - id: 01-computer-science.process
     title: Process
@@ -376,7 +382,7 @@ topics:
     difficulty: junior
     estimated_reading_minutes: 30
     estimated_implementation_minutes: 0
-    prerequisites: &a7
+    prerequisites:
       - 01-computer-science.memory
     recommended_next:
       - 01-computer-science.thread
@@ -384,7 +390,8 @@ topics:
       - 01-computer-science
     children: []
     related: []
-    depends_on: *a7
+    depends_on:
+      - 01-computer-science.memory
     dependents:
       - 01-computer-science.thread
       - 03-browser.multi-process-model
@@ -393,7 +400,7 @@ topics:
     tags:
       - cs-fundamentals
       - concurrency
-    status: stub
+    status: published
     order: 11
   - id: 01-computer-science.thread
     title: Thread
@@ -402,7 +409,7 @@ topics:
     difficulty: junior
     estimated_reading_minutes: 30
     estimated_implementation_minutes: 0
-    prerequisites: &a8
+    prerequisites:
       - 01-computer-science.process
     recommended_next:
       - 01-computer-science.event-loop-cs
@@ -410,7 +417,8 @@ topics:
       - 01-computer-science
     children: []
     related: []
-    depends_on: *a8
+    depends_on:
+      - 01-computer-science.process
     dependents:
       - 01-computer-science.event-loop-cs
       - 09-browser-apis.web-workers
@@ -419,7 +427,7 @@ topics:
     tags:
       - cs-fundamentals
       - concurrency
-    status: stub
+    status: published
     order: 12
   - id: 01-computer-science.event-loop-cs
     title: Event Loop (Runtime View)
@@ -428,7 +436,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 35
     estimated_implementation_minutes: 0
-    prerequisites: &a9
+    prerequisites:
       - 01-computer-science.thread
     recommended_next:
       - 01-computer-science.compiler
@@ -438,14 +446,15 @@ topics:
     related:
       - 03-browser.event-loop
       - 06-javascript.event-loop-js
-    depends_on: *a9
+    depends_on:
+      - 01-computer-science.thread
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - cs-fundamentals
       - async
-    status: stub
+    status: published
     order: 13
   - id: 01-computer-science.compiler
     title: Compiler
@@ -454,7 +463,7 @@ topics:
     difficulty: junior
     estimated_reading_minutes: 35
     estimated_implementation_minutes: 0
-    prerequisites: &a10
+    prerequisites:
       - 01-computer-science.cpu
     recommended_next:
       - 01-computer-science.interpreter
@@ -462,7 +471,8 @@ topics:
       - 01-computer-science
     children: []
     related: []
-    depends_on: *a10
+    depends_on:
+      - 01-computer-science.cpu
     dependents:
       - 01-computer-science.interpreter
       - 07-typescript.compiler
@@ -472,7 +482,7 @@ topics:
     tags:
       - cs-fundamentals
       - compilers
-    status: stub
+    status: published
     order: 14
   - id: 01-computer-science.interpreter
     title: Interpreter
@@ -481,7 +491,7 @@ topics:
     difficulty: junior
     estimated_reading_minutes: 30
     estimated_implementation_minutes: 0
-    prerequisites: &a11
+    prerequisites:
       - 01-computer-science.compiler
     recommended_next:
       - 01-computer-science.runtime
@@ -489,7 +499,8 @@ topics:
       - 01-computer-science
     children: []
     related: []
-    depends_on: *a11
+    depends_on:
+      - 01-computer-science.compiler
     dependents:
       - 01-computer-science.runtime
     advanced: []
@@ -497,7 +508,7 @@ topics:
     tags:
       - cs-fundamentals
       - compilers
-    status: stub
+    status: published
     order: 15
   - id: 01-computer-science.runtime
     title: Runtime
@@ -506,7 +517,7 @@ topics:
     difficulty: junior
     estimated_reading_minutes: 30
     estimated_implementation_minutes: 0
-    prerequisites: &a12
+    prerequisites:
       - 01-computer-science.interpreter
     recommended_next:
       - 01-computer-science.garbage-collection
@@ -514,7 +525,8 @@ topics:
       - 01-computer-science
     children: []
     related: []
-    depends_on: *a12
+    depends_on:
+      - 01-computer-science.interpreter
     dependents:
       - 01-computer-science.garbage-collection
       - 03-browser.javascript-engine
@@ -522,7 +534,7 @@ topics:
     perspective_of: []
     tags:
       - cs-fundamentals
-    status: stub
+    status: published
     order: 16
   - id: 01-computer-science.garbage-collection
     title: Garbage Collection
@@ -531,7 +543,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 40
     estimated_implementation_minutes: 0
-    prerequisites: &a13
+    prerequisites:
       - 01-computer-science.heap
       - 01-computer-science.runtime
     recommended_next:
@@ -540,7 +552,9 @@ topics:
       - 01-computer-science
     children: []
     related: []
-    depends_on: *a13
+    depends_on:
+      - 01-computer-science.heap
+      - 01-computer-science.runtime
     dependents:
       - 03-browser.garbage-collection-browser
     advanced: []
@@ -548,7 +562,7 @@ topics:
     tags:
       - cs-fundamentals
       - memory
-    status: stub
+    status: published
     order: 17
   - id: 01-computer-science.time-complexity
     title: Time Complexity
@@ -573,7 +587,7 @@ topics:
     tags:
       - cs-fundamentals
       - algorithms
-    status: stub
+    status: published
     order: 18
   - id: 01-computer-science.space-complexity
     title: Space Complexity
@@ -582,7 +596,7 @@ topics:
     difficulty: junior
     estimated_reading_minutes: 25
     estimated_implementation_minutes: 0
-    prerequisites: &a14
+    prerequisites:
       - 01-computer-science.time-complexity
     recommended_next:
       - 01-computer-science.big-o
@@ -590,7 +604,8 @@ topics:
       - 01-computer-science
     children: []
     related: []
-    depends_on: *a14
+    depends_on:
+      - 01-computer-science.time-complexity
     dependents:
       - 01-computer-science.big-o
     advanced: []
@@ -598,7 +613,7 @@ topics:
     tags:
       - cs-fundamentals
       - algorithms
-    status: stub
+    status: published
     order: 19
   - id: 01-computer-science.big-o
     title: Big O
@@ -607,7 +622,7 @@ topics:
     difficulty: junior
     estimated_reading_minutes: 35
     estimated_implementation_minutes: 0
-    prerequisites: &a15
+    prerequisites:
       - 01-computer-science.time-complexity
       - 01-computer-science.space-complexity
     recommended_next:
@@ -616,7 +631,9 @@ topics:
       - 01-computer-science
     children: []
     related: []
-    depends_on: *a15
+    depends_on:
+      - 01-computer-science.time-complexity
+      - 01-computer-science.space-complexity
     dependents:
       - 01-computer-science.data-structures
     advanced: []
@@ -625,7 +642,7 @@ topics:
       - cs-fundamentals
       - algorithms
       - interview-frequent
-    status: stub
+    status: published
     order: 20
   - id: 01-computer-science.data-structures
     title: Data Structures
@@ -634,7 +651,7 @@ topics:
     difficulty: junior
     estimated_reading_minutes: 20
     estimated_implementation_minutes: 0
-    prerequisites: &a16
+    prerequisites:
       - 01-computer-science.big-o
     recommended_next:
       - 01-computer-science.data-structures-array
@@ -649,7 +666,8 @@ topics:
       - 01-computer-science.data-structures-tree
       - 01-computer-science.data-structures-graph
     related: []
-    depends_on: *a16
+    depends_on:
+      - 01-computer-science.big-o
     dependents:
       - 01-computer-science.data-structures-array
       - 01-computer-science.data-structures-linked-list
@@ -664,7 +682,7 @@ topics:
     tags:
       - cs-fundamentals
       - data-structures
-    status: stub
+    status: published
     order: 21
   - id: 01-computer-science.data-structures-array
     title: Array
@@ -673,7 +691,7 @@ topics:
     difficulty: beginner
     estimated_reading_minutes: 25
     estimated_implementation_minutes: 0
-    prerequisites: &a17
+    prerequisites:
       - 01-computer-science.data-structures
     recommended_next:
       - 01-computer-science.data-structures-linked-list
@@ -681,13 +699,14 @@ topics:
       - 01-computer-science.data-structures
     children: []
     related: []
-    depends_on: *a17
+    depends_on:
+      - 01-computer-science.data-structures
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - data-structures
-    status: stub
+    status: published
     order: 22
   - id: 01-computer-science.data-structures-linked-list
     title: Linked List
@@ -696,7 +715,7 @@ topics:
     difficulty: junior
     estimated_reading_minutes: 25
     estimated_implementation_minutes: 0
-    prerequisites: &a18
+    prerequisites:
       - 01-computer-science.data-structures
     recommended_next:
       - 01-computer-science.data-structures-stack-ds
@@ -704,13 +723,14 @@ topics:
       - 01-computer-science.data-structures
     children: []
     related: []
-    depends_on: *a18
+    depends_on:
+      - 01-computer-science.data-structures
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - data-structures
-    status: stub
+    status: published
     order: 23
   - id: 01-computer-science.data-structures-stack-ds
     title: Stack (Data Structure)
@@ -719,7 +739,7 @@ topics:
     difficulty: junior
     estimated_reading_minutes: 20
     estimated_implementation_minutes: 0
-    prerequisites: &a19
+    prerequisites:
       - 01-computer-science.data-structures
     recommended_next:
       - 01-computer-science.data-structures-queue
@@ -727,13 +747,14 @@ topics:
       - 01-computer-science.data-structures
     children: []
     related: []
-    depends_on: *a19
+    depends_on:
+      - 01-computer-science.data-structures
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - data-structures
-    status: stub
+    status: published
     order: 24
   - id: 01-computer-science.data-structures-queue
     title: Queue
@@ -742,7 +763,7 @@ topics:
     difficulty: junior
     estimated_reading_minutes: 20
     estimated_implementation_minutes: 0
-    prerequisites: &a20
+    prerequisites:
       - 01-computer-science.data-structures
     recommended_next:
       - 01-computer-science.data-structures-hash-table
@@ -750,13 +771,14 @@ topics:
       - 01-computer-science.data-structures
     children: []
     related: []
-    depends_on: *a20
+    depends_on:
+      - 01-computer-science.data-structures
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - data-structures
-    status: stub
+    status: published
     order: 25
   - id: 01-computer-science.data-structures-hash-table
     title: Hash Table
@@ -765,7 +787,7 @@ topics:
     difficulty: junior
     estimated_reading_minutes: 35
     estimated_implementation_minutes: 0
-    prerequisites: &a21
+    prerequisites:
       - 01-computer-science.data-structures
     recommended_next:
       - 01-computer-science.data-structures-tree
@@ -773,14 +795,15 @@ topics:
       - 01-computer-science.data-structures
     children: []
     related: []
-    depends_on: *a21
+    depends_on:
+      - 01-computer-science.data-structures
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - data-structures
       - interview-frequent
-    status: stub
+    status: published
     order: 26
   - id: 01-computer-science.data-structures-tree
     title: Tree
@@ -789,7 +812,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 40
     estimated_implementation_minutes: 0
-    prerequisites: &a22
+    prerequisites:
       - 01-computer-science.data-structures
     recommended_next:
       - 01-computer-science.data-structures-graph
@@ -797,13 +820,14 @@ topics:
       - 01-computer-science.data-structures
     children: []
     related: []
-    depends_on: *a22
+    depends_on:
+      - 01-computer-science.data-structures
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - data-structures
-    status: stub
+    status: published
     order: 27
   - id: 01-computer-science.data-structures-graph
     title: Graph
@@ -812,7 +836,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 40
     estimated_implementation_minutes: 0
-    prerequisites: &a23
+    prerequisites:
       - 01-computer-science.data-structures
     recommended_next:
       - 01-computer-science.algorithms
@@ -820,13 +844,14 @@ topics:
       - 01-computer-science.data-structures
     children: []
     related: []
-    depends_on: *a23
+    depends_on:
+      - 01-computer-science.data-structures
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - data-structures
-    status: stub
+    status: published
     order: 28
   - id: 01-computer-science.algorithms
     title: Algorithms
@@ -835,7 +860,7 @@ topics:
     difficulty: junior
     estimated_reading_minutes: 20
     estimated_implementation_minutes: 0
-    prerequisites: &a24
+    prerequisites:
       - 01-computer-science.data-structures
     recommended_next:
       - 01-computer-science.algorithms-searching
@@ -847,7 +872,8 @@ topics:
       - 01-computer-science.algorithms-recursion
       - 01-computer-science.algorithms-dynamic-programming-intro
     related: []
-    depends_on: *a24
+    depends_on:
+      - 01-computer-science.data-structures
     dependents:
       - 01-computer-science.algorithms-searching
       - 01-computer-science.algorithms-sorting
@@ -858,7 +884,7 @@ topics:
     tags:
       - cs-fundamentals
       - algorithms
-    status: stub
+    status: published
     order: 29
   - id: 01-computer-science.algorithms-searching
     title: Searching
@@ -867,7 +893,7 @@ topics:
     difficulty: junior
     estimated_reading_minutes: 30
     estimated_implementation_minutes: 0
-    prerequisites: &a25
+    prerequisites:
       - 01-computer-science.algorithms
     recommended_next:
       - 01-computer-science.algorithms-sorting
@@ -875,13 +901,14 @@ topics:
       - 01-computer-science.algorithms
     children: []
     related: []
-    depends_on: *a25
+    depends_on:
+      - 01-computer-science.algorithms
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - algorithms
-    status: stub
+    status: published
     order: 30
   - id: 01-computer-science.algorithms-sorting
     title: Sorting
@@ -890,7 +917,7 @@ topics:
     difficulty: junior
     estimated_reading_minutes: 40
     estimated_implementation_minutes: 0
-    prerequisites: &a26
+    prerequisites:
       - 01-computer-science.algorithms
     recommended_next:
       - 01-computer-science.algorithms-recursion
@@ -898,14 +925,15 @@ topics:
       - 01-computer-science.algorithms
     children: []
     related: []
-    depends_on: *a26
+    depends_on:
+      - 01-computer-science.algorithms
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - algorithms
       - interview-frequent
-    status: stub
+    status: published
     order: 31
   - id: 01-computer-science.algorithms-recursion
     title: Recursion
@@ -914,7 +942,7 @@ topics:
     difficulty: junior
     estimated_reading_minutes: 30
     estimated_implementation_minutes: 0
-    prerequisites: &a27
+    prerequisites:
       - 01-computer-science.algorithms
     recommended_next:
       - 01-computer-science.algorithms-dynamic-programming-intro
@@ -922,13 +950,14 @@ topics:
       - 01-computer-science.algorithms
     children: []
     related: []
-    depends_on: *a27
+    depends_on:
+      - 01-computer-science.algorithms
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - algorithms
-    status: stub
+    status: published
     order: 32
   - id: 01-computer-science.algorithms-dynamic-programming-intro
     title: Dynamic Programming Intro
@@ -937,20 +966,21 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 45
     estimated_implementation_minutes: 0
-    prerequisites: &a28
+    prerequisites:
       - 01-computer-science.algorithms
     recommended_next: []
     parents:
       - 01-computer-science.algorithms
     children: []
     related: []
-    depends_on: *a28
+    depends_on:
+      - 01-computer-science.algorithms
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - algorithms
-    status: stub
+    status: published
     order: 33
   - id: 02-internet.what-is-the-internet
     title: What is the Internet
@@ -972,7 +1002,7 @@ topics:
     perspective_of: []
     tags:
       - networking
-    status: stub
+    status: published
     order: 34
   - id: 02-internet.client
     title: Client
@@ -994,7 +1024,7 @@ topics:
     perspective_of: []
     tags:
       - networking
-    status: stub
+    status: published
     order: 35
   - id: 02-internet.server
     title: Server
@@ -1016,7 +1046,7 @@ topics:
     perspective_of: []
     tags:
       - networking
-    status: stub
+    status: published
     order: 36
   - id: 02-internet.isp
     title: ISP
@@ -1038,7 +1068,7 @@ topics:
     perspective_of: []
     tags:
       - networking
-    status: stub
+    status: published
     order: 37
   - id: 02-internet.router
     title: Router
@@ -1060,7 +1090,7 @@ topics:
     perspective_of: []
     tags:
       - networking
-    status: stub
+    status: published
     order: 38
   - id: 02-internet.switch
     title: Switch
@@ -1082,7 +1112,7 @@ topics:
     perspective_of: []
     tags:
       - networking
-    status: stub
+    status: published
     order: 39
   - id: 02-internet.dns
     title: DNS
@@ -1105,7 +1135,7 @@ topics:
     tags:
       - networking
       - interview-frequent
-    status: stub
+    status: published
     order: 40
   - id: 02-internet.domain
     title: Domain
@@ -1127,7 +1157,7 @@ topics:
     perspective_of: []
     tags:
       - networking
-    status: stub
+    status: published
     order: 41
   - id: 02-internet.ip
     title: IP
@@ -1151,7 +1181,7 @@ topics:
     perspective_of: []
     tags:
       - networking
-    status: stub
+    status: published
     order: 42
   - id: 02-internet.ipv4
     title: IPv4
@@ -1160,7 +1190,7 @@ topics:
     difficulty: junior
     estimated_reading_minutes: 25
     estimated_implementation_minutes: 0
-    prerequisites: &a29
+    prerequisites:
       - 02-internet.ip
     recommended_next:
       - 02-internet.ipv6
@@ -1168,13 +1198,14 @@ topics:
       - 02-internet
     children: []
     related: []
-    depends_on: *a29
+    depends_on:
+      - 02-internet.ip
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - networking
-    status: stub
+    status: published
     order: 43
   - id: 02-internet.ipv6
     title: IPv6
@@ -1183,7 +1214,7 @@ topics:
     difficulty: junior
     estimated_reading_minutes: 25
     estimated_implementation_minutes: 0
-    prerequisites: &a30
+    prerequisites:
       - 02-internet.ip
     recommended_next:
       - 02-internet.tcp
@@ -1191,13 +1222,14 @@ topics:
       - 02-internet
     children: []
     related: []
-    depends_on: *a30
+    depends_on:
+      - 02-internet.ip
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - networking
-    status: stub
+    status: published
     order: 44
   - id: 02-internet.tcp
     title: TCP
@@ -1221,7 +1253,7 @@ topics:
     tags:
       - networking
       - interview-frequent
-    status: stub
+    status: published
     order: 45
   - id: 02-internet.udp
     title: UDP
@@ -1244,7 +1276,7 @@ topics:
     perspective_of: []
     tags:
       - networking
-    status: stub
+    status: published
     order: 46
   - id: 02-internet.http
     title: HTTP
@@ -1253,7 +1285,7 @@ topics:
     difficulty: junior
     estimated_reading_minutes: 45
     estimated_implementation_minutes: 0
-    prerequisites: &a31
+    prerequisites:
       - 02-internet.tcp
     recommended_next:
       - 02-internet.https
@@ -1261,7 +1293,8 @@ topics:
       - 02-internet
     children: []
     related: []
-    depends_on: *a31
+    depends_on:
+      - 02-internet.tcp
     dependents:
       - 02-internet.https
       - 02-internet.websocket
@@ -1279,7 +1312,7 @@ topics:
       - networking
       - http
       - interview-frequent
-    status: stub
+    status: published
     order: 47
   - id: 02-internet.https
     title: HTTPS
@@ -1288,7 +1321,7 @@ topics:
     difficulty: junior
     estimated_reading_minutes: 35
     estimated_implementation_minutes: 0
-    prerequisites: &a32
+    prerequisites:
       - 02-internet.http
     recommended_next:
       - 02-internet.ssl
@@ -1296,7 +1329,8 @@ topics:
       - 02-internet
     children: []
     related: []
-    depends_on: *a32
+    depends_on:
+      - 02-internet.http
     dependents:
       - 02-internet.ssl
       - 02-internet.tls
@@ -1306,7 +1340,7 @@ topics:
     tags:
       - networking
       - security
-    status: stub
+    status: published
     order: 48
   - id: 02-internet.ssl
     title: SSL
@@ -1315,7 +1349,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 25
     estimated_implementation_minutes: 0
-    prerequisites: &a33
+    prerequisites:
       - 02-internet.https
     recommended_next:
       - 02-internet.tls
@@ -1323,14 +1357,15 @@ topics:
       - 02-internet
     children: []
     related: []
-    depends_on: *a33
+    depends_on:
+      - 02-internet.https
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - security
       - networking
-    status: stub
+    status: published
     order: 49
   - id: 02-internet.tls
     title: TLS
@@ -1339,7 +1374,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 40
     estimated_implementation_minutes: 0
-    prerequisites: &a34
+    prerequisites:
       - 02-internet.https
     recommended_next:
       - 02-internet.ssh
@@ -1347,7 +1382,8 @@ topics:
       - 02-internet
     children: []
     related: []
-    depends_on: *a34
+    depends_on:
+      - 02-internet.https
     dependents:
       - 02-internet.quic
     advanced: []
@@ -1356,7 +1392,7 @@ topics:
       - security
       - networking
       - interview-frequent
-    status: stub
+    status: published
     order: 50
   - id: 02-internet.ssh
     title: SSH
@@ -1379,7 +1415,7 @@ topics:
     tags:
       - networking
       - security
-    status: stub
+    status: published
     order: 51
   - id: 02-internet.websocket
     title: WebSocket
@@ -1388,7 +1424,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 35
     estimated_implementation_minutes: 0
-    prerequisites: &a35
+    prerequisites:
       - 02-internet.http
     recommended_next:
       - 02-internet.sse
@@ -1396,7 +1432,8 @@ topics:
       - 02-internet
     children: []
     related: []
-    depends_on: *a35
+    depends_on:
+      - 02-internet.http
     dependents:
       - 09-browser-apis.web-sockets-api
       - 21-frontend-system-design.realtime-applications
@@ -1405,7 +1442,7 @@ topics:
     tags:
       - networking
       - realtime
-    status: stub
+    status: published
     order: 52
   - id: 02-internet.sse
     title: Server-Sent Events
@@ -1414,7 +1451,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 25
     estimated_implementation_minutes: 0
-    prerequisites: &a36
+    prerequisites:
       - 02-internet.http
     recommended_next:
       - 02-internet.http2
@@ -1422,14 +1459,15 @@ topics:
       - 02-internet
     children: []
     related: []
-    depends_on: *a36
+    depends_on:
+      - 02-internet.http
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - networking
       - realtime
-    status: stub
+    status: published
     order: 53
   - id: 02-internet.http2
     title: HTTP/2
@@ -1438,7 +1476,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 35
     estimated_implementation_minutes: 0
-    prerequisites: &a37
+    prerequisites:
       - 02-internet.http
     recommended_next:
       - 02-internet.http3
@@ -1446,7 +1484,8 @@ topics:
       - 02-internet
     children: []
     related: []
-    depends_on: *a37
+    depends_on:
+      - 02-internet.http
     dependents:
       - 02-internet.http3
     advanced: []
@@ -1454,7 +1493,7 @@ topics:
     tags:
       - http
       - networking
-    status: stub
+    status: published
     order: 54
   - id: 02-internet.http3
     title: HTTP/3
@@ -1463,7 +1502,7 @@ topics:
     difficulty: senior
     estimated_reading_minutes: 35
     estimated_implementation_minutes: 0
-    prerequisites: &a38
+    prerequisites:
       - 02-internet.http2
     recommended_next:
       - 02-internet.quic
@@ -1471,14 +1510,15 @@ topics:
       - 02-internet
     children: []
     related: []
-    depends_on: *a38
+    depends_on:
+      - 02-internet.http2
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - http
       - networking
-    status: stub
+    status: published
     order: 55
   - id: 02-internet.quic
     title: QUIC
@@ -1487,7 +1527,7 @@ topics:
     difficulty: senior
     estimated_reading_minutes: 40
     estimated_implementation_minutes: 0
-    prerequisites: &a39
+    prerequisites:
       - 02-internet.udp
       - 02-internet.tls
     recommended_next:
@@ -1496,13 +1536,15 @@ topics:
       - 02-internet
     children: []
     related: []
-    depends_on: *a39
+    depends_on:
+      - 02-internet.udp
+      - 02-internet.tls
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - networking
-    status: stub
+    status: published
     order: 56
   - id: 02-internet.cookies
     title: Cookies
@@ -1511,7 +1553,7 @@ topics:
     difficulty: junior
     estimated_reading_minutes: 35
     estimated_implementation_minutes: 0
-    prerequisites: &a40
+    prerequisites:
       - 02-internet.http
     recommended_next:
       - 02-internet.sessions
@@ -1519,7 +1561,8 @@ topics:
       - 02-internet
     children: []
     related: []
-    depends_on: *a40
+    depends_on:
+      - 02-internet.http
     dependents:
       - 02-internet.sessions
       - 17-security.cookies-security
@@ -1529,7 +1572,7 @@ topics:
       - http
       - security
       - interview-frequent
-    status: stub
+    status: published
     order: 57
   - id: 02-internet.sessions
     title: Sessions
@@ -1538,7 +1581,7 @@ topics:
     difficulty: junior
     estimated_reading_minutes: 30
     estimated_implementation_minutes: 0
-    prerequisites: &a41
+    prerequisites:
       - 02-internet.cookies
     recommended_next:
       - 02-internet.authentication
@@ -1546,14 +1589,15 @@ topics:
       - 02-internet
     children: []
     related: []
-    depends_on: *a41
+    depends_on:
+      - 02-internet.cookies
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - http
       - security
-    status: stub
+    status: published
     order: 58
   - id: 02-internet.authentication
     title: Authentication
@@ -1577,7 +1621,7 @@ topics:
     tags:
       - security
       - auth
-    status: stub
+    status: published
     order: 59
   - id: 02-internet.authorization
     title: Authorization
@@ -1586,7 +1630,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 35
     estimated_implementation_minutes: 0
-    prerequisites: &a42
+    prerequisites:
       - 02-internet.authentication
     recommended_next:
       - 02-internet.rest
@@ -1594,14 +1638,15 @@ topics:
       - 02-internet
     children: []
     related: []
-    depends_on: *a42
+    depends_on:
+      - 02-internet.authentication
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - security
       - auth
-    status: stub
+    status: published
     order: 60
   - id: 02-internet.rest
     title: REST
@@ -1610,7 +1655,7 @@ topics:
     difficulty: junior
     estimated_reading_minutes: 35
     estimated_implementation_minutes: 0
-    prerequisites: &a43
+    prerequisites:
       - 02-internet.http
     recommended_next:
       - 02-internet.graphql
@@ -1618,14 +1663,15 @@ topics:
       - 02-internet
     children: []
     related: []
-    depends_on: *a43
+    depends_on:
+      - 02-internet.http
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - api
       - http
-    status: stub
+    status: published
     order: 61
   - id: 02-internet.graphql
     title: GraphQL
@@ -1634,7 +1680,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 40
     estimated_implementation_minutes: 0
-    prerequisites: &a44
+    prerequisites:
       - 02-internet.http
     recommended_next:
       - 02-internet.http-caching
@@ -1642,13 +1688,14 @@ topics:
       - 02-internet
     children: []
     related: []
-    depends_on: *a44
+    depends_on:
+      - 02-internet.http
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - api
-    status: stub
+    status: published
     order: 62
   - id: 02-internet.http-caching
     title: HTTP Caching
@@ -1657,7 +1704,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 45
     estimated_implementation_minutes: 0
-    prerequisites: &a45
+    prerequisites:
       - 02-internet.http
     recommended_next:
       - 02-internet.cdn-basics
@@ -1665,7 +1712,8 @@ topics:
       - 02-internet
     children: []
     related: []
-    depends_on: *a45
+    depends_on:
+      - 02-internet.http
     dependents:
       - 02-internet.cdn-basics
       - 11-nextjs.caching
@@ -1680,7 +1728,7 @@ topics:
       - caching
       - performance
       - interview-frequent
-    status: stub
+    status: published
     order: 63
   - id: 02-internet.cdn-basics
     title: CDN Basics
@@ -1689,7 +1737,7 @@ topics:
     difficulty: junior
     estimated_reading_minutes: 30
     estimated_implementation_minutes: 0
-    prerequisites: &a46
+    prerequisites:
       - 02-internet.http-caching
     recommended_next:
       - 02-internet.load-balancing-basics
@@ -1697,14 +1745,15 @@ topics:
       - 02-internet
     children: []
     related: []
-    depends_on: *a46
+    depends_on:
+      - 02-internet.http-caching
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - networking
       - caching
-    status: stub
+    status: published
     order: 64
   - id: 02-internet.load-balancing-basics
     title: Load Balancing Basics
@@ -1725,7 +1774,7 @@ topics:
     perspective_of: []
     tags:
       - networking
-    status: stub
+    status: published
     order: 65
   - id: 03-browser.browser-architecture
     title: Browser Architecture
@@ -1750,7 +1799,7 @@ topics:
     perspective_of: []
     tags:
       - browser-internals
-    status: stub
+    status: published
     order: 66
   - id: 03-browser.multi-process-model
     title: Multi-Process Model
@@ -1759,7 +1808,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 35
     estimated_implementation_minutes: 0
-    prerequisites: &a47
+    prerequisites:
       - 03-browser.browser-architecture
       - 01-computer-science.process
     recommended_next:
@@ -1768,13 +1817,15 @@ topics:
       - 03-browser
     children: []
     related: []
-    depends_on: *a47
+    depends_on:
+      - 03-browser.browser-architecture
+      - 01-computer-science.process
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - browser-internals
-    status: stub
+    status: published
     order: 67
   - id: 03-browser.rendering-engine
     title: Rendering Engine
@@ -1783,7 +1834,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 40
     estimated_implementation_minutes: 0
-    prerequisites: &a48
+    prerequisites:
       - 03-browser.browser-architecture
     recommended_next:
       - 03-browser.javascript-engine
@@ -1791,7 +1842,8 @@ topics:
       - 03-browser
     children: []
     related: []
-    depends_on: *a48
+    depends_on:
+      - 03-browser.browser-architecture
     dependents:
       - 03-browser.parsing-html
       - 03-browser.parsing-css
@@ -1800,7 +1852,7 @@ topics:
     tags:
       - browser-internals
       - rendering
-    status: stub
+    status: published
     order: 68
   - id: 03-browser.javascript-engine
     title: JavaScript Engine
@@ -1809,7 +1861,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 40
     estimated_implementation_minutes: 0
-    prerequisites: &a49
+    prerequisites:
       - 03-browser.browser-architecture
       - 01-computer-science.runtime
     recommended_next:
@@ -1818,7 +1870,9 @@ topics:
       - 03-browser
     children: []
     related: []
-    depends_on: *a49
+    depends_on:
+      - 03-browser.browser-architecture
+      - 01-computer-science.runtime
     dependents:
       - 03-browser.v8
       - 03-browser.spidermonkey
@@ -1828,7 +1882,7 @@ topics:
     tags:
       - browser-internals
       - javascript-engine
-    status: stub
+    status: published
     order: 69
   - id: 03-browser.v8
     title: V8
@@ -1837,7 +1891,7 @@ topics:
     difficulty: senior
     estimated_reading_minutes: 50
     estimated_implementation_minutes: 0
-    prerequisites: &a50
+    prerequisites:
       - 03-browser.javascript-engine
     recommended_next:
       - 03-browser.spidermonkey
@@ -1845,14 +1899,15 @@ topics:
       - 03-browser
     children: []
     related: []
-    depends_on: *a50
+    depends_on:
+      - 03-browser.javascript-engine
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - javascript-engine
       - v8
-    status: stub
+    status: published
     order: 70
   - id: 03-browser.spidermonkey
     title: SpiderMonkey
@@ -1861,7 +1916,7 @@ topics:
     difficulty: senior
     estimated_reading_minutes: 30
     estimated_implementation_minutes: 0
-    prerequisites: &a51
+    prerequisites:
       - 03-browser.javascript-engine
     recommended_next:
       - 03-browser.javascriptcore
@@ -1869,13 +1924,14 @@ topics:
       - 03-browser
     children: []
     related: []
-    depends_on: *a51
+    depends_on:
+      - 03-browser.javascript-engine
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - javascript-engine
-    status: stub
+    status: published
     order: 71
   - id: 03-browser.javascriptcore
     title: JavaScriptCore
@@ -1884,7 +1940,7 @@ topics:
     difficulty: senior
     estimated_reading_minutes: 30
     estimated_implementation_minutes: 0
-    prerequisites: &a52
+    prerequisites:
       - 03-browser.javascript-engine
     recommended_next:
       - 03-browser.parsing-html
@@ -1892,13 +1948,14 @@ topics:
       - 03-browser
     children: []
     related: []
-    depends_on: *a52
+    depends_on:
+      - 03-browser.javascript-engine
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - javascript-engine
-    status: stub
+    status: published
     order: 72
   - id: 03-browser.parsing-html
     title: Parsing HTML
@@ -1907,7 +1964,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 35
     estimated_implementation_minutes: 0
-    prerequisites: &a53
+    prerequisites:
       - 03-browser.rendering-engine
     recommended_next:
       - 03-browser.parsing-css
@@ -1915,7 +1972,8 @@ topics:
       - 03-browser
     children: []
     related: []
-    depends_on: *a53
+    depends_on:
+      - 03-browser.rendering-engine
     dependents:
       - 03-browser.dom
     advanced: []
@@ -1923,7 +1981,7 @@ topics:
     tags:
       - browser-internals
       - html
-    status: stub
+    status: published
     order: 73
   - id: 03-browser.parsing-css
     title: Parsing CSS
@@ -1932,7 +1990,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 30
     estimated_implementation_minutes: 0
-    prerequisites: &a54
+    prerequisites:
       - 03-browser.rendering-engine
     recommended_next:
       - 03-browser.dom
@@ -1940,7 +1998,8 @@ topics:
       - 03-browser
     children: []
     related: []
-    depends_on: *a54
+    depends_on:
+      - 03-browser.rendering-engine
     dependents:
       - 03-browser.cssom
     advanced: []
@@ -1948,7 +2007,7 @@ topics:
     tags:
       - browser-internals
       - css
-    status: stub
+    status: published
     order: 74
   - id: 03-browser.dom
     title: DOM
@@ -1957,7 +2016,7 @@ topics:
     difficulty: junior
     estimated_reading_minutes: 35
     estimated_implementation_minutes: 0
-    prerequisites: &a55
+    prerequisites:
       - 03-browser.parsing-html
     recommended_next:
       - 03-browser.cssom
@@ -1965,7 +2024,8 @@ topics:
       - 03-browser
     children: []
     related: []
-    depends_on: *a55
+    depends_on:
+      - 03-browser.parsing-html
     dependents:
       - 03-browser.render-tree
       - 08-jsx-and-react-runtime.virtual-dom
@@ -1975,7 +2035,7 @@ topics:
       - browser-internals
       - html
       - interview-frequent
-    status: stub
+    status: published
     order: 75
   - id: 03-browser.cssom
     title: CSSOM
@@ -1984,7 +2044,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 30
     estimated_implementation_minutes: 0
-    prerequisites: &a56
+    prerequisites:
       - 03-browser.parsing-css
     recommended_next:
       - 03-browser.render-tree
@@ -1992,7 +2052,8 @@ topics:
       - 03-browser
     children: []
     related: []
-    depends_on: *a56
+    depends_on:
+      - 03-browser.parsing-css
     dependents:
       - 03-browser.render-tree
     advanced: []
@@ -2000,7 +2061,7 @@ topics:
     tags:
       - browser-internals
       - css
-    status: stub
+    status: published
     order: 76
   - id: 03-browser.render-tree
     title: Render Tree
@@ -2009,7 +2070,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 30
     estimated_implementation_minutes: 0
-    prerequisites: &a57
+    prerequisites:
       - 03-browser.dom
       - 03-browser.cssom
     recommended_next:
@@ -2018,7 +2079,9 @@ topics:
       - 03-browser
     children: []
     related: []
-    depends_on: *a57
+    depends_on:
+      - 03-browser.dom
+      - 03-browser.cssom
     dependents:
       - 03-browser.layout
       - 03-browser.critical-rendering-path
@@ -2027,7 +2090,7 @@ topics:
     tags:
       - browser-internals
       - rendering
-    status: stub
+    status: published
     order: 77
   - id: 03-browser.layout
     title: Layout
@@ -2036,7 +2099,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 35
     estimated_implementation_minutes: 0
-    prerequisites: &a58
+    prerequisites:
       - 03-browser.render-tree
     recommended_next:
       - 03-browser.paint
@@ -2044,7 +2107,8 @@ topics:
       - 03-browser
     children: []
     related: []
-    depends_on: *a58
+    depends_on:
+      - 03-browser.render-tree
     dependents:
       - 03-browser.paint
       - 03-browser.reflow
@@ -2054,7 +2118,7 @@ topics:
     tags:
       - browser-internals
       - rendering
-    status: stub
+    status: published
     order: 78
   - id: 03-browser.paint
     title: Paint
@@ -2063,7 +2127,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 30
     estimated_implementation_minutes: 0
-    prerequisites: &a59
+    prerequisites:
       - 03-browser.layout
     recommended_next:
       - 03-browser.composite
@@ -2071,7 +2135,8 @@ topics:
       - 03-browser
     children: []
     related: []
-    depends_on: *a59
+    depends_on:
+      - 03-browser.layout
     dependents:
       - 03-browser.composite
       - 03-browser.repaint
@@ -2081,7 +2146,7 @@ topics:
     tags:
       - browser-internals
       - rendering
-    status: stub
+    status: published
     order: 79
   - id: 03-browser.composite
     title: Composite
@@ -2090,7 +2155,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 35
     estimated_implementation_minutes: 0
-    prerequisites: &a60
+    prerequisites:
       - 03-browser.paint
     recommended_next:
       - 03-browser.gpu
@@ -2098,7 +2163,8 @@ topics:
       - 03-browser
     children: []
     related: []
-    depends_on: *a60
+    depends_on:
+      - 03-browser.paint
     dependents:
       - 03-browser.gpu
       - 05-css.compositing
@@ -2108,7 +2174,7 @@ topics:
       - browser-internals
       - rendering
       - performance
-    status: stub
+    status: published
     order: 80
   - id: 03-browser.gpu
     title: GPU
@@ -2117,7 +2183,7 @@ topics:
     difficulty: senior
     estimated_reading_minutes: 30
     estimated_implementation_minutes: 0
-    prerequisites: &a61
+    prerequisites:
       - 03-browser.composite
     recommended_next:
       - 03-browser.reflow
@@ -2125,14 +2191,15 @@ topics:
       - 03-browser
     children: []
     related: []
-    depends_on: *a61
+    depends_on:
+      - 03-browser.composite
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - browser-internals
       - rendering
-    status: stub
+    status: published
     order: 81
   - id: 03-browser.reflow
     title: Reflow
@@ -2141,7 +2208,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 30
     estimated_implementation_minutes: 0
-    prerequisites: &a62
+    prerequisites:
       - 03-browser.layout
     recommended_next:
       - 03-browser.repaint
@@ -2149,7 +2216,8 @@ topics:
       - 03-browser
     children: []
     related: []
-    depends_on: *a62
+    depends_on:
+      - 03-browser.layout
     dependents: []
     advanced: []
     perspective_of: []
@@ -2157,7 +2225,7 @@ topics:
       - browser-internals
       - performance
       - interview-frequent
-    status: stub
+    status: published
     order: 82
   - id: 03-browser.repaint
     title: Repaint
@@ -2166,7 +2234,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 25
     estimated_implementation_minutes: 0
-    prerequisites: &a63
+    prerequisites:
       - 03-browser.paint
     recommended_next:
       - 03-browser.critical-rendering-path
@@ -2174,14 +2242,15 @@ topics:
       - 03-browser
     children: []
     related: []
-    depends_on: *a63
+    depends_on:
+      - 03-browser.paint
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - browser-internals
       - performance
-    status: stub
+    status: published
     order: 83
   - id: 03-browser.critical-rendering-path
     title: Critical Rendering Path
@@ -2190,7 +2259,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 45
     estimated_implementation_minutes: 0
-    prerequisites: &a64
+    prerequisites:
       - 03-browser.render-tree
       - 03-browser.layout
       - 03-browser.paint
@@ -2200,7 +2269,10 @@ topics:
       - 03-browser
     children: []
     related: []
-    depends_on: *a64
+    depends_on:
+      - 03-browser.render-tree
+      - 03-browser.layout
+      - 03-browser.paint
     dependents:
       - 03-browser.devtools-rendering-panel
     advanced: []
@@ -2209,7 +2281,7 @@ topics:
       - browser-internals
       - performance
       - interview-frequent
-    status: stub
+    status: published
     order: 84
   - id: 03-browser.call-stack
     title: Call Stack
@@ -2218,7 +2290,7 @@ topics:
     difficulty: junior
     estimated_reading_minutes: 25
     estimated_implementation_minutes: 0
-    prerequisites: &a65
+    prerequisites:
       - 01-computer-science.stack
     recommended_next:
       - 03-browser.task-queue
@@ -2226,7 +2298,8 @@ topics:
       - 03-browser
     children: []
     related: []
-    depends_on: *a65
+    depends_on:
+      - 01-computer-science.stack
     dependents:
       - 03-browser.task-queue
       - 03-browser.event-loop
@@ -2236,7 +2309,7 @@ topics:
       - browser-internals
       - javascript
       - async
-    status: stub
+    status: published
     order: 85
   - id: 03-browser.task-queue
     title: Task Queue
@@ -2245,7 +2318,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 30
     estimated_implementation_minutes: 0
-    prerequisites: &a66
+    prerequisites:
       - 03-browser.call-stack
     recommended_next:
       - 03-browser.event-loop
@@ -2253,7 +2326,8 @@ topics:
       - 03-browser
     children: []
     related: []
-    depends_on: *a66
+    depends_on:
+      - 03-browser.call-stack
     dependents:
       - 03-browser.event-loop
     advanced: []
@@ -2261,7 +2335,7 @@ topics:
     tags:
       - browser-internals
       - async
-    status: stub
+    status: published
     order: 86
   - id: 03-browser.event-loop
     title: Event Loop
@@ -2270,7 +2344,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 45
     estimated_implementation_minutes: 0
-    prerequisites: &a67
+    prerequisites:
       - 03-browser.call-stack
       - 03-browser.task-queue
     recommended_next:
@@ -2281,7 +2355,9 @@ topics:
     related:
       - 01-computer-science.event-loop-cs
       - 06-javascript.event-loop-js
-    depends_on: *a67
+    depends_on:
+      - 03-browser.call-stack
+      - 03-browser.task-queue
     dependents:
       - 03-browser.microtasks
       - 03-browser.macrotasks
@@ -2292,7 +2368,7 @@ topics:
       - browser-internals
       - async
       - interview-frequent
-    status: stub
+    status: published
     order: 87
   - id: 03-browser.microtasks
     title: Microtasks
@@ -2301,7 +2377,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 35
     estimated_implementation_minutes: 0
-    prerequisites: &a68
+    prerequisites:
       - 03-browser.event-loop
     recommended_next:
       - 03-browser.macrotasks
@@ -2309,7 +2385,8 @@ topics:
       - 03-browser
     children: []
     related: []
-    depends_on: *a68
+    depends_on:
+      - 03-browser.event-loop
     dependents: []
     advanced: []
     perspective_of: []
@@ -2317,7 +2394,7 @@ topics:
       - browser-internals
       - async
       - interview-frequent
-    status: stub
+    status: published
     order: 88
   - id: 03-browser.macrotasks
     title: Macrotasks
@@ -2326,7 +2403,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 30
     estimated_implementation_minutes: 0
-    prerequisites: &a69
+    prerequisites:
       - 03-browser.event-loop
     recommended_next:
       - 03-browser.memory-management
@@ -2334,14 +2411,15 @@ topics:
       - 03-browser
     children: []
     related: []
-    depends_on: *a69
+    depends_on:
+      - 03-browser.event-loop
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - browser-internals
       - async
-    status: stub
+    status: published
     order: 89
   - id: 03-browser.memory-management
     title: Memory Management
@@ -2350,7 +2428,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 40
     estimated_implementation_minutes: 0
-    prerequisites: &a70
+    prerequisites:
       - 01-computer-science.heap
     recommended_next:
       - 03-browser.garbage-collection-browser
@@ -2358,7 +2436,8 @@ topics:
       - 03-browser
     children: []
     related: []
-    depends_on: *a70
+    depends_on:
+      - 01-computer-science.heap
     dependents:
       - 03-browser.garbage-collection-browser
     advanced: []
@@ -2366,7 +2445,7 @@ topics:
     tags:
       - browser-internals
       - memory
-    status: stub
+    status: published
     order: 90
   - id: 03-browser.garbage-collection-browser
     title: Garbage Collection in the Browser
@@ -2375,7 +2454,7 @@ topics:
     difficulty: senior
     estimated_reading_minutes: 40
     estimated_implementation_minutes: 0
-    prerequisites: &a71
+    prerequisites:
       - 03-browser.memory-management
       - 01-computer-science.garbage-collection
     recommended_next:
@@ -2384,7 +2463,9 @@ topics:
       - 03-browser
     children: []
     related: []
-    depends_on: *a71
+    depends_on:
+      - 03-browser.memory-management
+      - 01-computer-science.garbage-collection
     dependents: []
     advanced: []
     perspective_of: []
@@ -2392,7 +2473,7 @@ topics:
       - browser-internals
       - memory
       - v8
-    status: stub
+    status: published
     order: 91
   - id: 03-browser.devtools-rendering-panel
     title: DevTools Rendering Panel
@@ -2401,7 +2482,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 25
     estimated_implementation_minutes: 0
-    prerequisites: &a72
+    prerequisites:
       - 03-browser.critical-rendering-path
     recommended_next: []
     parents:
@@ -2409,14 +2490,15 @@ topics:
     children: []
     related:
       - 20-observability.chrome-devtools
-    depends_on: *a72
+    depends_on:
+      - 03-browser.critical-rendering-path
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - devtools
       - rendering
-    status: stub
+    status: published
     order: 92
   - id: 04-html.semantic-html
     title: Semantic HTML
@@ -2442,7 +2524,7 @@ topics:
       - html
       - a11y
       - seo
-    status: stub
+    status: published
     order: 93
   - id: 04-html.document-structure
     title: Document Structure
@@ -2464,7 +2546,7 @@ topics:
     perspective_of: []
     tags:
       - html
-    status: stub
+    status: published
     order: 94
   - id: 04-html.forms
     title: Forms
@@ -2488,7 +2570,7 @@ topics:
     tags:
       - html
       - a11y
-    status: stub
+    status: published
     order: 95
   - id: 04-html.media-elements
     title: Media Elements
@@ -2510,7 +2592,7 @@ topics:
     perspective_of: []
     tags:
       - html
-    status: stub
+    status: published
     order: 96
   - id: 04-html.metadata
     title: Metadata
@@ -2534,7 +2616,7 @@ topics:
     tags:
       - html
       - seo
-    status: stub
+    status: published
     order: 97
   - id: 04-html.seo-basics
     title: SEO Basics
@@ -2543,7 +2625,7 @@ topics:
     difficulty: junior
     estimated_reading_minutes: 35
     estimated_implementation_minutes: 0
-    prerequisites: &a73
+    prerequisites:
       - 04-html.semantic-html
       - 04-html.metadata
     recommended_next:
@@ -2552,14 +2634,16 @@ topics:
       - 04-html
     children: []
     related: []
-    depends_on: *a73
+    depends_on:
+      - 04-html.semantic-html
+      - 04-html.metadata
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - seo
       - html
-    status: stub
+    status: published
     order: 98
   - id: 04-html.scripts
     title: Scripts
@@ -2586,7 +2670,7 @@ topics:
       - html
       - javascript
       - performance
-    status: stub
+    status: published
     order: 99
   - id: 04-html.defer
     title: defer
@@ -2595,7 +2679,7 @@ topics:
     difficulty: junior
     estimated_reading_minutes: 20
     estimated_implementation_minutes: 0
-    prerequisites: &a74
+    prerequisites:
       - 04-html.scripts
     recommended_next:
       - 04-html.async
@@ -2603,14 +2687,15 @@ topics:
       - 04-html
     children: []
     related: []
-    depends_on: *a74
+    depends_on:
+      - 04-html.scripts
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - html
       - performance
-    status: stub
+    status: published
     order: 100
   - id: 04-html.async
     title: async
@@ -2619,7 +2704,7 @@ topics:
     difficulty: junior
     estimated_reading_minutes: 20
     estimated_implementation_minutes: 0
-    prerequisites: &a75
+    prerequisites:
       - 04-html.scripts
     recommended_next:
       - 04-html.module-scripts
@@ -2627,14 +2712,15 @@ topics:
       - 04-html
     children: []
     related: []
-    depends_on: *a75
+    depends_on:
+      - 04-html.scripts
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - html
       - performance
-    status: stub
+    status: published
     order: 101
   - id: 04-html.module-scripts
     title: Module Scripts
@@ -2643,7 +2729,7 @@ topics:
     difficulty: junior
     estimated_reading_minutes: 25
     estimated_implementation_minutes: 0
-    prerequisites: &a76
+    prerequisites:
       - 04-html.scripts
     recommended_next:
       - 04-html.preload
@@ -2651,14 +2737,15 @@ topics:
       - 04-html
     children: []
     related: []
-    depends_on: *a76
+    depends_on:
+      - 04-html.scripts
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - html
       - javascript
-    status: stub
+    status: published
     order: 102
   - id: 04-html.preload
     title: preload
@@ -2681,7 +2768,7 @@ topics:
     tags:
       - html
       - performance
-    status: stub
+    status: published
     order: 103
   - id: 04-html.prefetch
     title: prefetch
@@ -2704,7 +2791,7 @@ topics:
     tags:
       - html
       - performance
-    status: stub
+    status: published
     order: 104
   - id: 04-html.preconnect
     title: preconnect
@@ -2728,7 +2815,7 @@ topics:
       - html
       - performance
       - networking
-    status: stub
+    status: published
     order: 105
   - id: 04-html.modulepreload
     title: modulepreload
@@ -2751,7 +2838,7 @@ topics:
     tags:
       - html
       - performance
-    status: stub
+    status: published
     order: 106
   - id: 04-html.templates-and-slots
     title: Templates and Slots
@@ -2774,7 +2861,7 @@ topics:
     tags:
       - html
       - web-components
-    status: stub
+    status: published
     order: 107
   - id: 05-css.cascade
     title: Cascade
@@ -2798,7 +2885,7 @@ topics:
     tags:
       - css
       - interview-frequent
-    status: stub
+    status: published
     order: 108
   - id: 05-css.specificity
     title: Specificity
@@ -2807,7 +2894,7 @@ topics:
     difficulty: junior
     estimated_reading_minutes: 30
     estimated_implementation_minutes: 0
-    prerequisites: &a77
+    prerequisites:
       - 05-css.cascade
     recommended_next:
       - 05-css.inheritance
@@ -2815,14 +2902,15 @@ topics:
       - 05-css
     children: []
     related: []
-    depends_on: *a77
+    depends_on:
+      - 05-css.cascade
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - css
       - interview-frequent
-    status: stub
+    status: published
     order: 109
   - id: 05-css.inheritance
     title: Inheritance
@@ -2844,7 +2932,7 @@ topics:
     perspective_of: []
     tags:
       - css
-    status: stub
+    status: published
     order: 110
   - id: 05-css.box-model
     title: Box Model
@@ -2868,7 +2956,7 @@ topics:
     tags:
       - css
       - interview-frequent
-    status: stub
+    status: published
     order: 111
   - id: 05-css.positioning
     title: Positioning
@@ -2877,7 +2965,7 @@ topics:
     difficulty: junior
     estimated_reading_minutes: 35
     estimated_implementation_minutes: 0
-    prerequisites: &a78
+    prerequisites:
       - 05-css.box-model
     recommended_next:
       - 05-css.flexbox
@@ -2885,13 +2973,14 @@ topics:
       - 05-css
     children: []
     related: []
-    depends_on: *a78
+    depends_on:
+      - 05-css.box-model
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - css
-    status: stub
+    status: published
     order: 112
   - id: 05-css.flexbox
     title: Flexbox
@@ -2914,7 +3003,7 @@ topics:
     tags:
       - css
       - layout
-    status: stub
+    status: published
     order: 113
   - id: 05-css.grid
     title: Grid
@@ -2937,7 +3026,7 @@ topics:
     tags:
       - css
       - layout
-    status: stub
+    status: published
     order: 114
   - id: 05-css.responsive-design
     title: Responsive Design
@@ -2961,7 +3050,7 @@ topics:
     tags:
       - css
       - responsive
-    status: stub
+    status: published
     order: 115
   - id: 05-css.media-queries
     title: Media Queries
@@ -2970,7 +3059,7 @@ topics:
     difficulty: junior
     estimated_reading_minutes: 30
     estimated_implementation_minutes: 0
-    prerequisites: &a79
+    prerequisites:
       - 05-css.responsive-design
     recommended_next:
       - 05-css.container-queries
@@ -2978,7 +3067,8 @@ topics:
       - 05-css
     children: []
     related: []
-    depends_on: *a79
+    depends_on:
+      - 05-css.responsive-design
     dependents:
       - 05-css.container-queries
     advanced: []
@@ -2986,7 +3076,7 @@ topics:
     tags:
       - css
       - responsive
-    status: stub
+    status: published
     order: 116
   - id: 05-css.container-queries
     title: Container Queries
@@ -2995,7 +3085,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 30
     estimated_implementation_minutes: 0
-    prerequisites: &a80
+    prerequisites:
       - 05-css.media-queries
     recommended_next:
       - 05-css.animations
@@ -3003,14 +3093,15 @@ topics:
       - 05-css
     children: []
     related: []
-    depends_on: *a80
+    depends_on:
+      - 05-css.media-queries
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - css
       - responsive
-    status: stub
+    status: published
     order: 117
   - id: 05-css.animations
     title: Animations
@@ -3033,7 +3124,7 @@ topics:
     tags:
       - css
       - animation
-    status: stub
+    status: published
     order: 118
   - id: 05-css.transitions
     title: Transitions
@@ -3056,7 +3147,7 @@ topics:
     tags:
       - css
       - animation
-    status: stub
+    status: published
     order: 119
   - id: 05-css.transforms
     title: Transforms
@@ -3080,7 +3171,7 @@ topics:
       - css
       - animation
       - performance
-    status: stub
+    status: published
     order: 120
   - id: 05-css.compositing
     title: Compositing
@@ -3089,7 +3180,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 35
     estimated_implementation_minutes: 0
-    prerequisites: &a81
+    prerequisites:
       - 03-browser.composite
     recommended_next:
       - 05-css.containment
@@ -3097,7 +3188,8 @@ topics:
       - 05-css
     children: []
     related: []
-    depends_on: *a81
+    depends_on:
+      - 03-browser.composite
     dependents: []
     advanced: []
     perspective_of: []
@@ -3105,7 +3197,7 @@ topics:
       - css
       - performance
       - rendering
-    status: stub
+    status: published
     order: 121
   - id: 05-css.containment
     title: Containment
@@ -3128,7 +3220,7 @@ topics:
     tags:
       - css
       - performance
-    status: stub
+    status: published
     order: 122
   - id: 05-css.layers
     title: Layers
@@ -3150,7 +3242,7 @@ topics:
     perspective_of: []
     tags:
       - css
-    status: stub
+    status: published
     order: 123
   - id: 05-css.modern-css
     title: Modern CSS
@@ -3172,7 +3264,7 @@ topics:
     perspective_of: []
     tags:
       - css
-    status: stub
+    status: published
     order: 124
   - id: 05-css.css-architecture
     title: CSS Architecture
@@ -3195,7 +3287,7 @@ topics:
     tags:
       - css
       - architecture
-    status: stub
+    status: published
     order: 125
   - id: 06-javascript.variables
     title: Variables
@@ -3218,7 +3310,7 @@ topics:
     perspective_of: []
     tags:
       - javascript
-    status: stub
+    status: published
     order: 126
   - id: 06-javascript.types-and-values
     title: Types and Values
@@ -3242,7 +3334,7 @@ topics:
     tags:
       - javascript
       - interview-frequent
-    status: stub
+    status: published
     order: 127
   - id: 06-javascript.scope
     title: Scope
@@ -3268,7 +3360,7 @@ topics:
     tags:
       - javascript
       - interview-frequent
-    status: stub
+    status: published
     order: 128
   - id: 06-javascript.closures
     title: Closures
@@ -3277,7 +3369,7 @@ topics:
     difficulty: junior
     estimated_reading_minutes: 40
     estimated_implementation_minutes: 0
-    prerequisites: &a82
+    prerequisites:
       - 06-javascript.scope
     recommended_next:
       - 06-javascript.hoisting
@@ -3285,14 +3377,15 @@ topics:
       - 06-javascript
     children: []
     related: []
-    depends_on: *a82
+    depends_on:
+      - 06-javascript.scope
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - javascript
       - interview-frequent
-    status: stub
+    status: published
     order: 129
   - id: 06-javascript.hoisting
     title: Hoisting
@@ -3301,7 +3394,7 @@ topics:
     difficulty: junior
     estimated_reading_minutes: 30
     estimated_implementation_minutes: 0
-    prerequisites: &a83
+    prerequisites:
       - 06-javascript.variables
       - 06-javascript.scope
     recommended_next:
@@ -3310,14 +3403,16 @@ topics:
       - 06-javascript
     children: []
     related: []
-    depends_on: *a83
+    depends_on:
+      - 06-javascript.variables
+      - 06-javascript.scope
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - javascript
       - interview-frequent
-    status: stub
+    status: published
     order: 130
   - id: 06-javascript.execution-context
     title: Execution Context
@@ -3326,7 +3421,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 40
     estimated_implementation_minutes: 0
-    prerequisites: &a84
+    prerequisites:
       - 06-javascript.scope
     recommended_next:
       - 06-javascript.lexical-environment
@@ -3334,7 +3429,8 @@ topics:
       - 06-javascript
     children: []
     related: []
-    depends_on: *a84
+    depends_on:
+      - 06-javascript.scope
     dependents:
       - 06-javascript.lexical-environment
       - 06-javascript.event-loop-js
@@ -3343,7 +3439,7 @@ topics:
     tags:
       - javascript
       - javascript-engine
-    status: stub
+    status: published
     order: 131
   - id: 06-javascript.lexical-environment
     title: Lexical Environment
@@ -3352,7 +3448,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 35
     estimated_implementation_minutes: 0
-    prerequisites: &a85
+    prerequisites:
       - 06-javascript.execution-context
     recommended_next:
       - 06-javascript.prototype
@@ -3360,13 +3456,14 @@ topics:
       - 06-javascript
     children: []
     related: []
-    depends_on: *a85
+    depends_on:
+      - 06-javascript.execution-context
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - javascript
-    status: stub
+    status: published
     order: 132
   - id: 06-javascript.prototype
     title: Prototype
@@ -3392,7 +3489,7 @@ topics:
     tags:
       - javascript
       - interview-frequent
-    status: stub
+    status: published
     order: 133
   - id: 06-javascript.prototype-chain
     title: Prototype Chain
@@ -3401,7 +3498,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 35
     estimated_implementation_minutes: 0
-    prerequisites: &a86
+    prerequisites:
       - 06-javascript.prototype
     recommended_next:
       - 06-javascript.this
@@ -3409,14 +3506,15 @@ topics:
       - 06-javascript
     children: []
     related: []
-    depends_on: *a86
+    depends_on:
+      - 06-javascript.prototype
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - javascript
       - interview-frequent
-    status: stub
+    status: published
     order: 134
   - id: 06-javascript.this
     title: this
@@ -3439,7 +3537,7 @@ topics:
     tags:
       - javascript
       - interview-frequent
-    status: stub
+    status: published
     order: 135
   - id: 06-javascript.classes
     title: Classes
@@ -3448,7 +3546,7 @@ topics:
     difficulty: junior
     estimated_reading_minutes: 35
     estimated_implementation_minutes: 0
-    prerequisites: &a87
+    prerequisites:
       - 06-javascript.prototype
     recommended_next:
       - 06-javascript.functions
@@ -3456,13 +3554,14 @@ topics:
       - 06-javascript
     children: []
     related: []
-    depends_on: *a87
+    depends_on:
+      - 06-javascript.prototype
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - javascript
-    status: stub
+    status: published
     order: 136
   - id: 06-javascript.functions
     title: Functions
@@ -3485,7 +3584,7 @@ topics:
     perspective_of: []
     tags:
       - javascript
-    status: stub
+    status: published
     order: 137
   - id: 06-javascript.objects
     title: Objects
@@ -3507,7 +3606,7 @@ topics:
     perspective_of: []
     tags:
       - javascript
-    status: stub
+    status: published
     order: 138
   - id: 06-javascript.arrays
     title: Arrays
@@ -3529,7 +3628,7 @@ topics:
     perspective_of: []
     tags:
       - javascript
-    status: stub
+    status: published
     order: 139
   - id: 06-javascript.modules
     title: Modules
@@ -3553,7 +3652,7 @@ topics:
     perspective_of: []
     tags:
       - javascript
-    status: stub
+    status: published
     order: 140
   - id: 06-javascript.es-modules
     title: ES Modules
@@ -3562,7 +3661,7 @@ topics:
     difficulty: junior
     estimated_reading_minutes: 35
     estimated_implementation_minutes: 0
-    prerequisites: &a88
+    prerequisites:
       - 06-javascript.modules
     recommended_next:
       - 06-javascript.commonjs
@@ -3570,14 +3669,15 @@ topics:
       - 06-javascript
     children: []
     related: []
-    depends_on: *a88
+    depends_on:
+      - 06-javascript.modules
     dependents:
       - 14-build-tools.module-resolution
     advanced: []
     perspective_of: []
     tags:
       - javascript
-    status: stub
+    status: published
     order: 141
   - id: 06-javascript.commonjs
     title: CommonJS
@@ -3586,7 +3686,7 @@ topics:
     difficulty: junior
     estimated_reading_minutes: 25
     estimated_implementation_minutes: 0
-    prerequisites: &a89
+    prerequisites:
       - 06-javascript.modules
     recommended_next:
       - 06-javascript.async-programming
@@ -3594,14 +3694,15 @@ topics:
       - 06-javascript
     children: []
     related: []
-    depends_on: *a89
+    depends_on:
+      - 06-javascript.modules
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - javascript
       - nodejs
-    status: stub
+    status: published
     order: 142
   - id: 06-javascript.async-programming
     title: Async Programming
@@ -3625,7 +3726,7 @@ topics:
     tags:
       - javascript
       - async
-    status: stub
+    status: published
     order: 143
   - id: 06-javascript.event-loop-js
     title: Event Loop (JavaScript View)
@@ -3634,7 +3735,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 40
     estimated_implementation_minutes: 0
-    prerequisites: &a90
+    prerequisites:
       - 06-javascript.execution-context
     recommended_next:
       - 06-javascript.promise
@@ -3644,7 +3745,8 @@ topics:
     related:
       - 03-browser.event-loop
       - 01-computer-science.event-loop-cs
-    depends_on: *a90
+    depends_on:
+      - 06-javascript.execution-context
     dependents: []
     advanced: []
     perspective_of:
@@ -3653,7 +3755,7 @@ topics:
       - javascript
       - async
       - interview-frequent
-    status: stub
+    status: published
     order: 144
   - id: 06-javascript.promise
     title: Promise
@@ -3662,7 +3764,7 @@ topics:
     difficulty: junior
     estimated_reading_minutes: 40
     estimated_implementation_minutes: 0
-    prerequisites: &a91
+    prerequisites:
       - 06-javascript.async-programming
     recommended_next:
       - 06-javascript.async-await
@@ -3670,7 +3772,8 @@ topics:
       - 06-javascript
     children: []
     related: []
-    depends_on: *a91
+    depends_on:
+      - 06-javascript.async-programming
     dependents:
       - 06-javascript.async-await
       - 06-javascript.fetch-api
@@ -3680,7 +3783,7 @@ topics:
       - javascript
       - async
       - interview-frequent
-    status: stub
+    status: published
     order: 145
   - id: 06-javascript.async-await
     title: Async/Await
@@ -3689,7 +3792,7 @@ topics:
     difficulty: junior
     estimated_reading_minutes: 35
     estimated_implementation_minutes: 0
-    prerequisites: &a92
+    prerequisites:
       - 06-javascript.promise
     recommended_next:
       - 06-javascript.generator
@@ -3697,14 +3800,15 @@ topics:
       - 06-javascript
     children: []
     related: []
-    depends_on: *a92
+    depends_on:
+      - 06-javascript.promise
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - javascript
       - async
-    status: stub
+    status: published
     order: 146
   - id: 06-javascript.generator
     title: Generator
@@ -3726,7 +3830,7 @@ topics:
     perspective_of: []
     tags:
       - javascript
-    status: stub
+    status: published
     order: 147
   - id: 06-javascript.iterator
     title: Iterator
@@ -3748,7 +3852,7 @@ topics:
     perspective_of: []
     tags:
       - javascript
-    status: stub
+    status: published
     order: 148
   - id: 06-javascript.fetch-api
     title: Fetch API
@@ -3757,7 +3861,7 @@ topics:
     difficulty: junior
     estimated_reading_minutes: 35
     estimated_implementation_minutes: 0
-    prerequisites: &a93
+    prerequisites:
       - 06-javascript.promise
       - 02-internet.http
     recommended_next:
@@ -3766,7 +3870,9 @@ topics:
       - 06-javascript
     children: []
     related: []
-    depends_on: *a93
+    depends_on:
+      - 06-javascript.promise
+      - 02-internet.http
     dependents:
       - 06-javascript.abortcontroller
     advanced: []
@@ -3774,7 +3880,7 @@ topics:
     tags:
       - javascript
       - networking
-    status: stub
+    status: published
     order: 149
   - id: 06-javascript.abortcontroller
     title: AbortController
@@ -3783,7 +3889,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 25
     estimated_implementation_minutes: 0
-    prerequisites: &a94
+    prerequisites:
       - 06-javascript.fetch-api
     recommended_next:
       - 06-javascript.proxy
@@ -3791,14 +3897,15 @@ topics:
       - 06-javascript
     children: []
     related: []
-    depends_on: *a94
+    depends_on:
+      - 06-javascript.fetch-api
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - javascript
       - networking
-    status: stub
+    status: published
     order: 150
   - id: 06-javascript.proxy
     title: Proxy
@@ -3820,7 +3927,7 @@ topics:
     perspective_of: []
     tags:
       - javascript
-    status: stub
+    status: published
     order: 151
   - id: 06-javascript.reflect
     title: Reflect
@@ -3843,7 +3950,7 @@ topics:
     perspective_of: []
     tags:
       - javascript
-    status: stub
+    status: published
     order: 152
   - id: 06-javascript.symbols
     title: Symbols
@@ -3865,7 +3972,7 @@ topics:
     perspective_of: []
     tags:
       - javascript
-    status: stub
+    status: published
     order: 153
   - id: 06-javascript.weakmap
     title: WeakMap
@@ -3888,7 +3995,7 @@ topics:
     tags:
       - javascript
       - memory
-    status: stub
+    status: published
     order: 154
   - id: 06-javascript.weakset
     title: WeakSet
@@ -3911,7 +4018,7 @@ topics:
     tags:
       - javascript
       - memory
-    status: stub
+    status: published
     order: 155
   - id: 06-javascript.error-handling
     title: Error Handling
@@ -3933,7 +4040,7 @@ topics:
     perspective_of: []
     tags:
       - javascript
-    status: stub
+    status: published
     order: 156
   - id: 06-javascript.strict-mode
     title: Strict Mode
@@ -3955,7 +4062,7 @@ topics:
     perspective_of: []
     tags:
       - javascript
-    status: stub
+    status: published
     order: 157
   - id: 06-javascript.memory-and-references
     title: Memory and References
@@ -3964,7 +4071,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 35
     estimated_implementation_minutes: 0
-    prerequisites: &a95
+    prerequisites:
       - 01-computer-science.stack
       - 01-computer-science.heap
     recommended_next: []
@@ -3972,14 +4079,16 @@ topics:
       - 06-javascript
     children: []
     related: []
-    depends_on: *a95
+    depends_on:
+      - 01-computer-science.stack
+      - 01-computer-science.heap
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - javascript
       - memory
-    status: stub
+    status: published
     order: 158
   - id: 07-typescript.types
     title: Types
@@ -3988,7 +4097,7 @@ topics:
     difficulty: junior
     estimated_reading_minutes: 35
     estimated_implementation_minutes: 0
-    prerequisites: &a96
+    prerequisites:
       - 06-javascript.types-and-values
     recommended_next:
       - 07-typescript.interfaces
@@ -3996,7 +4105,8 @@ topics:
       - 07-typescript
     children: []
     related: []
-    depends_on: *a96
+    depends_on:
+      - 06-javascript.types-and-values
     dependents:
       - 07-typescript.type-vs-interface
       - 07-typescript.generics
@@ -4004,7 +4114,7 @@ topics:
     perspective_of: []
     tags:
       - typescript
-    status: stub
+    status: published
     order: 159
   - id: 07-typescript.interfaces
     title: Interfaces
@@ -4027,7 +4137,7 @@ topics:
     perspective_of: []
     tags:
       - typescript
-    status: stub
+    status: published
     order: 160
   - id: 07-typescript.type-vs-interface
     title: Type vs Interface
@@ -4036,7 +4146,7 @@ topics:
     difficulty: junior
     estimated_reading_minutes: 25
     estimated_implementation_minutes: 0
-    prerequisites: &a97
+    prerequisites:
       - 07-typescript.types
       - 07-typescript.interfaces
     recommended_next:
@@ -4045,14 +4155,16 @@ topics:
       - 07-typescript
     children: []
     related: []
-    depends_on: *a97
+    depends_on:
+      - 07-typescript.types
+      - 07-typescript.interfaces
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - typescript
       - interview-frequent
-    status: stub
+    status: published
     order: 161
   - id: 07-typescript.generics
     title: Generics
@@ -4061,7 +4173,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 40
     estimated_implementation_minutes: 0
-    prerequisites: &a98
+    prerequisites:
       - 07-typescript.types
     recommended_next:
       - 07-typescript.utility-types
@@ -4069,7 +4181,8 @@ topics:
       - 07-typescript
     children: []
     related: []
-    depends_on: *a98
+    depends_on:
+      - 07-typescript.types
     dependents:
       - 07-typescript.utility-types
       - 07-typescript.advanced-types
@@ -4078,7 +4191,7 @@ topics:
     tags:
       - typescript
       - interview-frequent
-    status: stub
+    status: published
     order: 162
   - id: 07-typescript.utility-types
     title: Utility Types
@@ -4087,7 +4200,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 35
     estimated_implementation_minutes: 0
-    prerequisites: &a99
+    prerequisites:
       - 07-typescript.generics
     recommended_next:
       - 07-typescript.type-inference
@@ -4095,13 +4208,14 @@ topics:
       - 07-typescript
     children: []
     related: []
-    depends_on: *a99
+    depends_on:
+      - 07-typescript.generics
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - typescript
-    status: stub
+    status: published
     order: 163
   - id: 07-typescript.type-inference
     title: Type Inference
@@ -4123,7 +4237,7 @@ topics:
     perspective_of: []
     tags:
       - typescript
-    status: stub
+    status: published
     order: 164
   - id: 07-typescript.advanced-types
     title: Advanced Types
@@ -4132,7 +4246,7 @@ topics:
     difficulty: senior
     estimated_reading_minutes: 45
     estimated_implementation_minutes: 0
-    prerequisites: &a100
+    prerequisites:
       - 07-typescript.generics
     recommended_next:
       - 07-typescript.declaration-files
@@ -4140,13 +4254,14 @@ topics:
       - 07-typescript
     children: []
     related: []
-    depends_on: *a100
+    depends_on:
+      - 07-typescript.generics
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - typescript
-    status: stub
+    status: published
     order: 165
   - id: 07-typescript.declaration-files
     title: Declaration Files
@@ -4168,7 +4283,7 @@ topics:
     perspective_of: []
     tags:
       - typescript
-    status: stub
+    status: published
     order: 166
   - id: 07-typescript.tsconfig
     title: tsconfig
@@ -4190,7 +4305,7 @@ topics:
     perspective_of: []
     tags:
       - typescript
-    status: stub
+    status: published
     order: 167
   - id: 07-typescript.compiler
     title: TypeScript Compiler
@@ -4199,7 +4314,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 35
     estimated_implementation_minutes: 0
-    prerequisites: &a101
+    prerequisites:
       - 01-computer-science.compiler
     recommended_next:
       - 07-typescript.type-narrowing
@@ -4207,14 +4322,15 @@ topics:
       - 07-typescript
     children: []
     related: []
-    depends_on: *a101
+    depends_on:
+      - 01-computer-science.compiler
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - typescript
       - compilers
-    status: stub
+    status: published
     order: 168
   - id: 07-typescript.type-narrowing
     title: Type Narrowing
@@ -4236,7 +4352,7 @@ topics:
     perspective_of: []
     tags:
       - typescript
-    status: stub
+    status: published
     order: 169
   - id: 07-typescript.satisfies
     title: satisfies
@@ -4258,7 +4374,7 @@ topics:
     perspective_of: []
     tags:
       - typescript
-    status: stub
+    status: published
     order: 170
   - id: 07-typescript.enums-and-alternatives
     title: Enums and Alternatives
@@ -4280,7 +4396,7 @@ topics:
     perspective_of: []
     tags:
       - typescript
-    status: stub
+    status: published
     order: 171
   - id: 07-typescript.typescript-with-react
     title: TypeScript with React
@@ -4303,7 +4419,7 @@ topics:
     tags:
       - typescript
       - react
-    status: stub
+    status: published
     order: 172
   - id: 08-jsx-and-react-runtime.jsx
     title: JSX
@@ -4312,7 +4428,7 @@ topics:
     difficulty: junior
     estimated_reading_minutes: 30
     estimated_implementation_minutes: 0
-    prerequisites: &a102
+    prerequisites:
       - 06-javascript.functions
     recommended_next:
       - 08-jsx-and-react-runtime.babel
@@ -4320,7 +4436,8 @@ topics:
       - 08-jsx-and-react-runtime
     children: []
     related: []
-    depends_on: *a102
+    depends_on:
+      - 06-javascript.functions
     dependents:
       - 08-jsx-and-react-runtime.jsx-transform
       - 10-react.components
@@ -4329,7 +4446,7 @@ topics:
     tags:
       - react
       - jsx
-    status: stub
+    status: published
     order: 173
   - id: 08-jsx-and-react-runtime.babel
     title: Babel
@@ -4352,7 +4469,7 @@ topics:
     tags:
       - compilers
       - javascript
-    status: stub
+    status: published
     order: 174
   - id: 08-jsx-and-react-runtime.ast
     title: AST
@@ -4361,7 +4478,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 35
     estimated_implementation_minutes: 0
-    prerequisites: &a103
+    prerequisites:
       - 01-computer-science.compiler
     recommended_next:
       - 08-jsx-and-react-runtime.jsx-transform
@@ -4369,14 +4486,15 @@ topics:
       - 08-jsx-and-react-runtime
     children: []
     related: []
-    depends_on: *a103
+    depends_on:
+      - 01-computer-science.compiler
     dependents:
       - 08-jsx-and-react-runtime.jsx-transform
     advanced: []
     perspective_of: []
     tags:
       - compilers
-    status: stub
+    status: published
     order: 175
   - id: 08-jsx-and-react-runtime.jsx-transform
     title: JSX Transform
@@ -4385,7 +4503,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 30
     estimated_implementation_minutes: 0
-    prerequisites: &a104
+    prerequisites:
       - 08-jsx-and-react-runtime.jsx
       - 08-jsx-and-react-runtime.ast
     recommended_next:
@@ -4394,7 +4512,9 @@ topics:
       - 08-jsx-and-react-runtime
     children: []
     related: []
-    depends_on: *a104
+    depends_on:
+      - 08-jsx-and-react-runtime.jsx
+      - 08-jsx-and-react-runtime.ast
     dependents:
       - 08-jsx-and-react-runtime.react-createelement
     advanced: []
@@ -4402,7 +4522,7 @@ topics:
     tags:
       - react
       - jsx
-    status: stub
+    status: published
     order: 176
   - id: 08-jsx-and-react-runtime.react-createelement
     title: React.createElement
@@ -4411,7 +4531,7 @@ topics:
     difficulty: junior
     estimated_reading_minutes: 25
     estimated_implementation_minutes: 0
-    prerequisites: &a105
+    prerequisites:
       - 08-jsx-and-react-runtime.jsx-transform
     recommended_next:
       - 08-jsx-and-react-runtime.virtual-dom
@@ -4419,14 +4539,15 @@ topics:
       - 08-jsx-and-react-runtime
     children: []
     related: []
-    depends_on: *a105
+    depends_on:
+      - 08-jsx-and-react-runtime.jsx-transform
     dependents:
       - 08-jsx-and-react-runtime.virtual-dom
     advanced: []
     perspective_of: []
     tags:
       - react
-    status: stub
+    status: published
     order: 177
   - id: 08-jsx-and-react-runtime.virtual-dom
     title: Virtual DOM
@@ -4435,7 +4556,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 40
     estimated_implementation_minutes: 0
-    prerequisites: &a106
+    prerequisites:
       - 08-jsx-and-react-runtime.react-createelement
       - 03-browser.dom
     recommended_next:
@@ -4444,7 +4565,9 @@ topics:
       - 08-jsx-and-react-runtime
     children: []
     related: []
-    depends_on: *a106
+    depends_on:
+      - 08-jsx-and-react-runtime.react-createelement
+      - 03-browser.dom
     dependents:
       - 08-jsx-and-react-runtime.fiber
     advanced: []
@@ -4452,7 +4575,7 @@ topics:
     tags:
       - react
       - interview-frequent
-    status: stub
+    status: published
     order: 178
   - id: 08-jsx-and-react-runtime.fiber
     title: Fiber
@@ -4461,7 +4584,7 @@ topics:
     difficulty: senior
     estimated_reading_minutes: 50
     estimated_implementation_minutes: 0
-    prerequisites: &a107
+    prerequisites:
       - 08-jsx-and-react-runtime.virtual-dom
     recommended_next:
       - 08-jsx-and-react-runtime.reconciliation
@@ -4469,7 +4592,8 @@ topics:
       - 08-jsx-and-react-runtime
     children: []
     related: []
-    depends_on: *a107
+    depends_on:
+      - 08-jsx-and-react-runtime.virtual-dom
     dependents:
       - 08-jsx-and-react-runtime.reconciliation
       - 10-react.concurrent-rendering
@@ -4478,7 +4602,7 @@ topics:
     tags:
       - react
       - react-internals
-    status: stub
+    status: published
     order: 179
   - id: 08-jsx-and-react-runtime.reconciliation
     title: Reconciliation
@@ -4487,7 +4611,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 40
     estimated_implementation_minutes: 0
-    prerequisites: &a108
+    prerequisites:
       - 08-jsx-and-react-runtime.fiber
     recommended_next:
       - 08-jsx-and-react-runtime.diffing-algorithm
@@ -4495,7 +4619,8 @@ topics:
       - 08-jsx-and-react-runtime
     children: []
     related: []
-    depends_on: *a108
+    depends_on:
+      - 08-jsx-and-react-runtime.fiber
     dependents:
       - 08-jsx-and-react-runtime.diffing-algorithm
     advanced: []
@@ -4503,7 +4628,7 @@ topics:
     tags:
       - react
       - interview-frequent
-    status: stub
+    status: published
     order: 180
   - id: 08-jsx-and-react-runtime.diffing-algorithm
     title: Diffing Algorithm
@@ -4512,7 +4637,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 35
     estimated_implementation_minutes: 0
-    prerequisites: &a109
+    prerequisites:
       - 08-jsx-and-react-runtime.reconciliation
     recommended_next:
       - 08-jsx-and-react-runtime.keys
@@ -4520,14 +4645,15 @@ topics:
       - 08-jsx-and-react-runtime
     children: []
     related: []
-    depends_on: *a109
+    depends_on:
+      - 08-jsx-and-react-runtime.reconciliation
     dependents:
       - 08-jsx-and-react-runtime.keys
     advanced: []
     perspective_of: []
     tags:
       - react
-    status: stub
+    status: published
     order: 181
   - id: 08-jsx-and-react-runtime.keys
     title: Keys
@@ -4536,7 +4662,7 @@ topics:
     difficulty: junior
     estimated_reading_minutes: 25
     estimated_implementation_minutes: 0
-    prerequisites: &a110
+    prerequisites:
       - 08-jsx-and-react-runtime.diffing-algorithm
     recommended_next:
       - 08-jsx-and-react-runtime.fragments
@@ -4544,14 +4670,15 @@ topics:
       - 08-jsx-and-react-runtime
     children: []
     related: []
-    depends_on: *a110
+    depends_on:
+      - 08-jsx-and-react-runtime.diffing-algorithm
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - react
       - interview-frequent
-    status: stub
+    status: published
     order: 182
   - id: 08-jsx-and-react-runtime.fragments
     title: Fragments
@@ -4572,7 +4699,7 @@ topics:
     perspective_of: []
     tags:
       - react
-    status: stub
+    status: published
     order: 183
   - id: 09-browser-apis.localstorage
     title: localStorage
@@ -4595,7 +4722,7 @@ topics:
     tags:
       - browser-apis
       - storage
-    status: stub
+    status: published
     order: 184
   - id: 09-browser-apis.sessionstorage
     title: sessionStorage
@@ -4618,7 +4745,7 @@ topics:
     tags:
       - browser-apis
       - storage
-    status: stub
+    status: published
     order: 185
   - id: 09-browser-apis.indexeddb
     title: IndexedDB
@@ -4641,7 +4768,7 @@ topics:
     tags:
       - browser-apis
       - storage
-    status: stub
+    status: published
     order: 186
   - id: 09-browser-apis.cache-storage
     title: Cache Storage
@@ -4665,7 +4792,7 @@ topics:
       - browser-apis
       - storage
       - pwa
-    status: stub
+    status: published
     order: 187
   - id: 09-browser-apis.history-api
     title: History API
@@ -4688,7 +4815,7 @@ topics:
     tags:
       - browser-apis
       - routing
-    status: stub
+    status: published
     order: 188
   - id: 09-browser-apis.clipboard-api
     title: Clipboard API
@@ -4710,7 +4837,7 @@ topics:
     perspective_of: []
     tags:
       - browser-apis
-    status: stub
+    status: published
     order: 189
   - id: 09-browser-apis.intersection-observer
     title: Intersection Observer
@@ -4733,7 +4860,7 @@ topics:
     tags:
       - browser-apis
       - performance
-    status: stub
+    status: published
     order: 190
   - id: 09-browser-apis.mutation-observer
     title: Mutation Observer
@@ -4755,7 +4882,7 @@ topics:
     perspective_of: []
     tags:
       - browser-apis
-    status: stub
+    status: published
     order: 191
   - id: 09-browser-apis.resize-observer
     title: Resize Observer
@@ -4777,7 +4904,7 @@ topics:
     perspective_of: []
     tags:
       - browser-apis
-    status: stub
+    status: published
     order: 192
   - id: 09-browser-apis.broadcast-channel
     title: Broadcast Channel
@@ -4799,7 +4926,7 @@ topics:
     perspective_of: []
     tags:
       - browser-apis
-    status: stub
+    status: published
     order: 193
   - id: 09-browser-apis.web-workers
     title: Web Workers
@@ -4808,7 +4935,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 40
     estimated_implementation_minutes: 0
-    prerequisites: &a111
+    prerequisites:
       - 01-computer-science.thread
     recommended_next:
       - 09-browser-apis.service-workers
@@ -4816,7 +4943,8 @@ topics:
       - 09-browser-apis
     children: []
     related: []
-    depends_on: *a111
+    depends_on:
+      - 01-computer-science.thread
     dependents: []
     advanced: []
     perspective_of: []
@@ -4824,7 +4952,7 @@ topics:
       - browser-apis
       - concurrency
       - performance
-    status: stub
+    status: published
     order: 194
   - id: 09-browser-apis.service-workers
     title: Service Workers
@@ -4849,7 +4977,7 @@ topics:
     tags:
       - browser-apis
       - pwa
-    status: stub
+    status: published
     order: 195
   - id: 09-browser-apis.notifications
     title: Notifications
@@ -4871,7 +4999,7 @@ topics:
     perspective_of: []
     tags:
       - browser-apis
-    status: stub
+    status: published
     order: 196
   - id: 09-browser-apis.geolocation
     title: Geolocation
@@ -4893,7 +5021,7 @@ topics:
     perspective_of: []
     tags:
       - browser-apis
-    status: stub
+    status: published
     order: 197
   - id: 09-browser-apis.web-sockets-api
     title: WebSocket API
@@ -4902,7 +5030,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 25
     estimated_implementation_minutes: 0
-    prerequisites: &a112
+    prerequisites:
       - 02-internet.websocket
     recommended_next:
       - 09-browser-apis.streams-api
@@ -4910,14 +5038,15 @@ topics:
       - 09-browser-apis
     children: []
     related: []
-    depends_on: *a112
+    depends_on:
+      - 02-internet.websocket
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - browser-apis
       - realtime
-    status: stub
+    status: published
     order: 198
   - id: 09-browser-apis.streams-api
     title: Streams API
@@ -4939,7 +5068,7 @@ topics:
     perspective_of: []
     tags:
       - browser-apis
-    status: stub
+    status: published
     order: 199
   - id: 09-browser-apis.file-api
     title: File API
@@ -4961,7 +5090,7 @@ topics:
     perspective_of: []
     tags:
       - browser-apis
-    status: stub
+    status: published
     order: 200
   - id: 09-browser-apis.web-components
     title: Web Components
@@ -4986,7 +5115,7 @@ topics:
     tags:
       - browser-apis
       - web-components
-    status: stub
+    status: published
     order: 201
   - id: 09-browser-apis.custom-elements
     title: Custom Elements
@@ -4995,7 +5124,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 30
     estimated_implementation_minutes: 0
-    prerequisites: &a113
+    prerequisites:
       - 09-browser-apis.web-components
     recommended_next:
       - 09-browser-apis.shadow-dom
@@ -5003,13 +5132,14 @@ topics:
       - 09-browser-apis
     children: []
     related: []
-    depends_on: *a113
+    depends_on:
+      - 09-browser-apis.web-components
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - web-components
-    status: stub
+    status: published
     order: 202
   - id: 09-browser-apis.shadow-dom
     title: Shadow DOM
@@ -5018,20 +5148,21 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 30
     estimated_implementation_minutes: 0
-    prerequisites: &a114
+    prerequisites:
       - 09-browser-apis.web-components
     recommended_next: []
     parents:
       - 09-browser-apis
     children: []
     related: []
-    depends_on: *a114
+    depends_on:
+      - 09-browser-apis.web-components
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - web-components
-    status: stub
+    status: published
     order: 203
   - id: 10-react.philosophy
     title: React Philosophy
@@ -5053,7 +5184,7 @@ topics:
     perspective_of: []
     tags:
       - react
-    status: stub
+    status: published
     order: 204
   - id: 10-react.components
     title: Components
@@ -5062,7 +5193,7 @@ topics:
     difficulty: beginner
     estimated_reading_minutes: 30
     estimated_implementation_minutes: 0
-    prerequisites: &a115
+    prerequisites:
       - 08-jsx-and-react-runtime.jsx
     recommended_next:
       - 10-react.props
@@ -5070,7 +5201,8 @@ topics:
       - 10-react
     children: []
     related: []
-    depends_on: *a115
+    depends_on:
+      - 08-jsx-and-react-runtime.jsx
     dependents:
       - 10-react.props
       - 10-react.state
@@ -5079,7 +5211,7 @@ topics:
     perspective_of: []
     tags:
       - react
-    status: stub
+    status: published
     order: 205
   - id: 10-react.props
     title: Props
@@ -5088,7 +5220,7 @@ topics:
     difficulty: beginner
     estimated_reading_minutes: 25
     estimated_implementation_minutes: 0
-    prerequisites: &a116
+    prerequisites:
       - 10-react.components
     recommended_next:
       - 10-react.state
@@ -5096,13 +5228,14 @@ topics:
       - 10-react
     children: []
     related: []
-    depends_on: *a116
+    depends_on:
+      - 10-react.components
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - react
-    status: stub
+    status: published
     order: 206
   - id: 10-react.state
     title: State
@@ -5111,7 +5244,7 @@ topics:
     difficulty: junior
     estimated_reading_minutes: 35
     estimated_implementation_minutes: 0
-    prerequisites: &a117
+    prerequisites:
       - 10-react.components
     recommended_next:
       - 10-react.hooks
@@ -5119,7 +5252,8 @@ topics:
       - 10-react
     children: []
     related: []
-    depends_on: *a117
+    depends_on:
+      - 10-react.components
     dependents:
       - 10-react.hooks
     advanced: []
@@ -5127,7 +5261,7 @@ topics:
     tags:
       - react
       - interview-frequent
-    status: stub
+    status: published
     order: 207
   - id: 10-react.hooks
     title: Hooks
@@ -5136,7 +5270,7 @@ topics:
     difficulty: junior
     estimated_reading_minutes: 35
     estimated_implementation_minutes: 0
-    prerequisites: &a118
+    prerequisites:
       - 10-react.state
     recommended_next:
       - 10-react.rules-of-hooks
@@ -5144,7 +5278,8 @@ topics:
       - 10-react
     children: []
     related: []
-    depends_on: *a118
+    depends_on:
+      - 10-react.state
     dependents:
       - 10-react.rules-of-hooks
       - 10-react.context
@@ -5155,7 +5290,7 @@ topics:
     perspective_of: []
     tags:
       - react
-    status: stub
+    status: published
     order: 208
   - id: 10-react.rules-of-hooks
     title: Rules of Hooks
@@ -5164,7 +5299,7 @@ topics:
     difficulty: junior
     estimated_reading_minutes: 25
     estimated_implementation_minutes: 0
-    prerequisites: &a119
+    prerequisites:
       - 10-react.hooks
     recommended_next:
       - 10-react.context
@@ -5172,14 +5307,15 @@ topics:
       - 10-react
     children: []
     related: []
-    depends_on: *a119
+    depends_on:
+      - 10-react.hooks
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - react
       - interview-frequent
-    status: stub
+    status: published
     order: 209
   - id: 10-react.context
     title: Context
@@ -5188,7 +5324,7 @@ topics:
     difficulty: junior
     estimated_reading_minutes: 35
     estimated_implementation_minutes: 0
-    prerequisites: &a120
+    prerequisites:
       - 10-react.hooks
     recommended_next:
       - 10-react.reducer
@@ -5196,14 +5332,15 @@ topics:
       - 10-react
     children: []
     related: []
-    depends_on: *a120
+    depends_on:
+      - 10-react.hooks
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - react
       - state
-    status: stub
+    status: published
     order: 210
   - id: 10-react.reducer
     title: Reducer
@@ -5212,7 +5349,7 @@ topics:
     difficulty: junior
     estimated_reading_minutes: 30
     estimated_implementation_minutes: 0
-    prerequisites: &a121
+    prerequisites:
       - 10-react.hooks
     recommended_next:
       - 10-react.memoization
@@ -5220,14 +5357,15 @@ topics:
       - 10-react
     children: []
     related: []
-    depends_on: *a121
+    depends_on:
+      - 10-react.hooks
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - react
       - state
-    status: stub
+    status: published
     order: 211
   - id: 10-react.memoization
     title: Memoization in React
@@ -5253,7 +5391,7 @@ topics:
     tags:
       - react
       - performance
-    status: stub
+    status: published
     order: 212
   - id: 10-react.react-memo
     title: React.memo
@@ -5262,7 +5400,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 25
     estimated_implementation_minutes: 0
-    prerequisites: &a122
+    prerequisites:
       - 10-react.memoization
     recommended_next:
       - 10-react.usememo
@@ -5270,14 +5408,15 @@ topics:
       - 10-react
     children: []
     related: []
-    depends_on: *a122
+    depends_on:
+      - 10-react.memoization
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - react
       - performance
-    status: stub
+    status: published
     order: 213
   - id: 10-react.usememo
     title: useMemo
@@ -5286,7 +5425,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 25
     estimated_implementation_minutes: 0
-    prerequisites: &a123
+    prerequisites:
       - 10-react.memoization
     recommended_next:
       - 10-react.usecallback
@@ -5294,14 +5433,15 @@ topics:
       - 10-react
     children: []
     related: []
-    depends_on: *a123
+    depends_on:
+      - 10-react.memoization
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - react
       - performance
-    status: stub
+    status: published
     order: 214
   - id: 10-react.usecallback
     title: useCallback
@@ -5310,7 +5450,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 25
     estimated_implementation_minutes: 0
-    prerequisites: &a124
+    prerequisites:
       - 10-react.memoization
     recommended_next:
       - 10-react.useref
@@ -5318,14 +5458,15 @@ topics:
       - 10-react
     children: []
     related: []
-    depends_on: *a124
+    depends_on:
+      - 10-react.memoization
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - react
       - performance
-    status: stub
+    status: published
     order: 215
   - id: 10-react.useref
     title: useRef
@@ -5334,7 +5475,7 @@ topics:
     difficulty: junior
     estimated_reading_minutes: 25
     estimated_implementation_minutes: 0
-    prerequisites: &a125
+    prerequisites:
       - 10-react.hooks
     recommended_next:
       - 10-react.useeffect
@@ -5342,14 +5483,15 @@ topics:
       - 10-react
     children: []
     related: []
-    depends_on: *a125
+    depends_on:
+      - 10-react.hooks
     dependents:
       - 10-react.useimperativehandle
     advanced: []
     perspective_of: []
     tags:
       - react
-    status: stub
+    status: published
     order: 216
   - id: 10-react.useeffect
     title: useEffect
@@ -5358,7 +5500,7 @@ topics:
     difficulty: junior
     estimated_reading_minutes: 45
     estimated_implementation_minutes: 0
-    prerequisites: &a126
+    prerequisites:
       - 10-react.hooks
       - 03-browser.event-loop
     recommended_next:
@@ -5367,7 +5509,9 @@ topics:
       - 10-react
     children: []
     related: []
-    depends_on: *a126
+    depends_on:
+      - 10-react.hooks
+      - 03-browser.event-loop
     dependents:
       - 10-react.uselayouteffect
       - 10-react.effects-vs-events
@@ -5376,7 +5520,7 @@ topics:
     tags:
       - react
       - interview-frequent
-    status: stub
+    status: published
     order: 217
   - id: 10-react.uselayouteffect
     title: useLayoutEffect
@@ -5385,7 +5529,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 30
     estimated_implementation_minutes: 0
-    prerequisites: &a127
+    prerequisites:
       - 10-react.useeffect
     recommended_next:
       - 10-react.useimperativehandle
@@ -5393,13 +5537,14 @@ topics:
       - 10-react
     children: []
     related: []
-    depends_on: *a127
+    depends_on:
+      - 10-react.useeffect
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - react
-    status: stub
+    status: published
     order: 218
   - id: 10-react.useimperativehandle
     title: useImperativeHandle
@@ -5408,7 +5553,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 20
     estimated_implementation_minutes: 0
-    prerequisites: &a128
+    prerequisites:
       - 10-react.useref
     recommended_next:
       - 10-react.useid
@@ -5416,13 +5561,14 @@ topics:
       - 10-react
     children: []
     related: []
-    depends_on: *a128
+    depends_on:
+      - 10-react.useref
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - react
-    status: stub
+    status: published
     order: 219
   - id: 10-react.useid
     title: useId
@@ -5445,7 +5591,7 @@ topics:
     tags:
       - react
       - a11y
-    status: stub
+    status: published
     order: 220
   - id: 10-react.use
     title: use
@@ -5467,7 +5613,7 @@ topics:
     perspective_of: []
     tags:
       - react
-    status: stub
+    status: published
     order: 221
   - id: 10-react.suspense
     title: Suspense
@@ -5490,7 +5636,7 @@ topics:
     perspective_of: []
     tags:
       - react
-    status: stub
+    status: published
     order: 222
   - id: 10-react.lazy-loading
     title: Lazy Loading
@@ -5499,7 +5645,7 @@ topics:
     difficulty: junior
     estimated_reading_minutes: 25
     estimated_implementation_minutes: 0
-    prerequisites: &a129
+    prerequisites:
       - 10-react.suspense
     recommended_next:
       - 10-react.error-boundaries
@@ -5507,14 +5653,15 @@ topics:
       - 10-react
     children: []
     related: []
-    depends_on: *a129
+    depends_on:
+      - 10-react.suspense
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - react
       - performance
-    status: stub
+    status: published
     order: 223
   - id: 10-react.error-boundaries
     title: Error Boundaries
@@ -5536,7 +5683,7 @@ topics:
     perspective_of: []
     tags:
       - react
-    status: stub
+    status: published
     order: 224
   - id: 10-react.portals
     title: Portals
@@ -5558,7 +5705,7 @@ topics:
     perspective_of: []
     tags:
       - react
-    status: stub
+    status: published
     order: 225
   - id: 10-react.concurrent-rendering
     title: Concurrent Rendering
@@ -5567,7 +5714,7 @@ topics:
     difficulty: senior
     estimated_reading_minutes: 45
     estimated_implementation_minutes: 0
-    prerequisites: &a130
+    prerequisites:
       - 08-jsx-and-react-runtime.fiber
     recommended_next:
       - 10-react.transitions
@@ -5575,7 +5722,8 @@ topics:
       - 10-react
     children: []
     related: []
-    depends_on: *a130
+    depends_on:
+      - 08-jsx-and-react-runtime.fiber
     dependents:
       - 10-react.transitions
       - 10-react.deferred-value
@@ -5584,7 +5732,7 @@ topics:
     tags:
       - react
       - react-internals
-    status: stub
+    status: published
     order: 226
   - id: 10-react.transitions
     title: Transitions
@@ -5593,7 +5741,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 30
     estimated_implementation_minutes: 0
-    prerequisites: &a131
+    prerequisites:
       - 10-react.concurrent-rendering
     recommended_next:
       - 10-react.deferred-value
@@ -5601,13 +5749,14 @@ topics:
       - 10-react
     children: []
     related: []
-    depends_on: *a131
+    depends_on:
+      - 10-react.concurrent-rendering
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - react
-    status: stub
+    status: published
     order: 227
   - id: 10-react.deferred-value
     title: useDeferredValue
@@ -5616,7 +5765,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 25
     estimated_implementation_minutes: 0
-    prerequisites: &a132
+    prerequisites:
       - 10-react.concurrent-rendering
     recommended_next:
       - 10-react.strict-mode
@@ -5624,13 +5773,14 @@ topics:
       - 10-react
     children: []
     related: []
-    depends_on: *a132
+    depends_on:
+      - 10-react.concurrent-rendering
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - react
-    status: stub
+    status: published
     order: 228
   - id: 10-react.strict-mode
     title: Strict Mode
@@ -5652,7 +5802,7 @@ topics:
     perspective_of: []
     tags:
       - react
-    status: stub
+    status: published
     order: 229
   - id: 10-react.react-compiler
     title: React Compiler
@@ -5676,7 +5826,7 @@ topics:
       - react
       - compilers
       - performance
-    status: stub
+    status: published
     order: 230
   - id: 10-react.server-components-overview
     title: Server Components Overview
@@ -5701,7 +5851,7 @@ topics:
     tags:
       - react
       - rsc
-    status: stub
+    status: published
     order: 231
   - id: 10-react.effects-vs-events
     title: Effects vs Events
@@ -5710,20 +5860,21 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 30
     estimated_implementation_minutes: 0
-    prerequisites: &a133
+    prerequisites:
       - 10-react.useeffect
     recommended_next: []
     parents:
       - 10-react
     children: []
     related: []
-    depends_on: *a133
+    depends_on:
+      - 10-react.useeffect
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - react
-    status: stub
+    status: published
     order: 232
   - id: 11-nextjs.app-router
     title: App Router
@@ -5732,7 +5883,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 40
     estimated_implementation_minutes: 0
-    prerequisites: &a134
+    prerequisites:
       - 10-react.components
     recommended_next:
       - 11-nextjs.pages-router
@@ -5740,7 +5891,8 @@ topics:
       - 11-nextjs
     children: []
     related: []
-    depends_on: *a134
+    depends_on:
+      - 10-react.components
     dependents:
       - 11-nextjs.routing
       - 11-nextjs.layouts
@@ -5748,7 +5900,7 @@ topics:
     perspective_of: []
     tags:
       - nextjs
-    status: stub
+    status: published
     order: 233
   - id: 11-nextjs.pages-router
     title: Pages Router
@@ -5770,7 +5922,7 @@ topics:
     perspective_of: []
     tags:
       - nextjs
-    status: stub
+    status: published
     order: 234
   - id: 11-nextjs.routing
     title: Routing
@@ -5779,7 +5931,7 @@ topics:
     difficulty: junior
     estimated_reading_minutes: 30
     estimated_implementation_minutes: 0
-    prerequisites: &a135
+    prerequisites:
       - 11-nextjs.app-router
     recommended_next:
       - 11-nextjs.layouts
@@ -5787,14 +5939,15 @@ topics:
       - 11-nextjs
     children: []
     related: []
-    depends_on: *a135
+    depends_on:
+      - 11-nextjs.app-router
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - nextjs
       - routing
-    status: stub
+    status: published
     order: 235
   - id: 11-nextjs.layouts
     title: Layouts
@@ -5803,7 +5956,7 @@ topics:
     difficulty: junior
     estimated_reading_minutes: 25
     estimated_implementation_minutes: 0
-    prerequisites: &a136
+    prerequisites:
       - 11-nextjs.app-router
     recommended_next:
       - 11-nextjs.nested-layouts
@@ -5811,7 +5964,8 @@ topics:
       - 11-nextjs
     children: []
     related: []
-    depends_on: *a136
+    depends_on:
+      - 11-nextjs.app-router
     dependents:
       - 11-nextjs.nested-layouts
       - 11-nextjs.templates
@@ -5819,7 +5973,7 @@ topics:
     perspective_of: []
     tags:
       - nextjs
-    status: stub
+    status: published
     order: 236
   - id: 11-nextjs.nested-layouts
     title: Nested Layouts
@@ -5828,7 +5982,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 25
     estimated_implementation_minutes: 0
-    prerequisites: &a137
+    prerequisites:
       - 11-nextjs.layouts
     recommended_next:
       - 11-nextjs.templates
@@ -5836,13 +5990,14 @@ topics:
       - 11-nextjs
     children: []
     related: []
-    depends_on: *a137
+    depends_on:
+      - 11-nextjs.layouts
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - nextjs
-    status: stub
+    status: published
     order: 237
   - id: 11-nextjs.templates
     title: Templates
@@ -5851,7 +6006,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 20
     estimated_implementation_minutes: 0
-    prerequisites: &a138
+    prerequisites:
       - 11-nextjs.layouts
     recommended_next:
       - 11-nextjs.loading-ui
@@ -5859,13 +6014,14 @@ topics:
       - 11-nextjs
     children: []
     related: []
-    depends_on: *a138
+    depends_on:
+      - 11-nextjs.layouts
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - nextjs
-    status: stub
+    status: published
     order: 238
   - id: 11-nextjs.loading-ui
     title: Loading UI
@@ -5887,7 +6043,7 @@ topics:
     perspective_of: []
     tags:
       - nextjs
-    status: stub
+    status: published
     order: 239
   - id: 11-nextjs.error-ui
     title: Error UI
@@ -5909,7 +6065,7 @@ topics:
     perspective_of: []
     tags:
       - nextjs
-    status: stub
+    status: published
     order: 240
   - id: 11-nextjs.metadata
     title: Metadata
@@ -5932,7 +6088,7 @@ topics:
     tags:
       - nextjs
       - seo
-    status: stub
+    status: published
     order: 241
   - id: 11-nextjs.route-handlers
     title: Route Handlers
@@ -5955,7 +6111,7 @@ topics:
     tags:
       - nextjs
       - api
-    status: stub
+    status: published
     order: 242
   - id: 11-nextjs.middleware
     title: Middleware
@@ -5977,7 +6133,7 @@ topics:
     perspective_of: []
     tags:
       - nextjs
-    status: stub
+    status: published
     order: 243
   - id: 11-nextjs.edge-runtime
     title: Edge Runtime
@@ -6000,7 +6156,7 @@ topics:
     tags:
       - nextjs
       - edge
-    status: stub
+    status: published
     order: 244
   - id: 11-nextjs.node-runtime
     title: Node Runtime
@@ -6023,7 +6179,7 @@ topics:
     tags:
       - nextjs
       - nodejs
-    status: stub
+    status: published
     order: 245
   - id: 11-nextjs.image-optimization
     title: Image Optimization
@@ -6046,7 +6202,7 @@ topics:
     tags:
       - nextjs
       - performance
-    status: stub
+    status: published
     order: 246
   - id: 11-nextjs.fonts
     title: Fonts
@@ -6069,7 +6225,7 @@ topics:
     tags:
       - nextjs
       - performance
-    status: stub
+    status: published
     order: 247
   - id: 11-nextjs.server-components
     title: Server Components
@@ -6078,7 +6234,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 45
     estimated_implementation_minutes: 0
-    prerequisites: &a139
+    prerequisites:
       - 10-react.server-components-overview
     recommended_next:
       - 11-nextjs.client-components
@@ -6086,7 +6242,8 @@ topics:
       - 11-nextjs
     children: []
     related: []
-    depends_on: *a139
+    depends_on:
+      - 10-react.server-components-overview
     dependents:
       - 11-nextjs.client-components
     advanced: []
@@ -6095,7 +6252,7 @@ topics:
       - nextjs
       - rsc
       - interview-frequent
-    status: stub
+    status: published
     order: 248
   - id: 11-nextjs.client-components
     title: Client Components
@@ -6104,7 +6261,7 @@ topics:
     difficulty: junior
     estimated_reading_minutes: 30
     estimated_implementation_minutes: 0
-    prerequisites: &a140
+    prerequisites:
       - 11-nextjs.server-components
     recommended_next:
       - 11-nextjs.server-actions
@@ -6112,14 +6269,15 @@ topics:
       - 11-nextjs
     children: []
     related: []
-    depends_on: *a140
+    depends_on:
+      - 11-nextjs.server-components
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - nextjs
       - rsc
-    status: stub
+    status: published
     order: 249
   - id: 11-nextjs.server-actions
     title: Server Actions
@@ -6141,7 +6299,7 @@ topics:
     perspective_of: []
     tags:
       - nextjs
-    status: stub
+    status: published
     order: 250
   - id: 11-nextjs.streaming
     title: Streaming
@@ -6164,7 +6322,7 @@ topics:
     tags:
       - nextjs
       - rendering
-    status: stub
+    status: published
     order: 251
   - id: 11-nextjs.caching
     title: Caching
@@ -6173,7 +6331,7 @@ topics:
     difficulty: senior
     estimated_reading_minutes: 50
     estimated_implementation_minutes: 0
-    prerequisites: &a141
+    prerequisites:
       - 02-internet.http-caching
     recommended_next:
       - 11-nextjs.partial-prerendering
@@ -6181,7 +6339,8 @@ topics:
       - 11-nextjs
     children: []
     related: []
-    depends_on: *a141
+    depends_on:
+      - 02-internet.http-caching
     dependents: []
     advanced: []
     perspective_of: []
@@ -6189,7 +6348,7 @@ topics:
       - nextjs
       - caching
       - interview-frequent
-    status: stub
+    status: published
     order: 252
   - id: 11-nextjs.partial-prerendering
     title: Partial Prerendering
@@ -6212,7 +6371,7 @@ topics:
     tags:
       - nextjs
       - rendering
-    status: stub
+    status: published
     order: 253
   - id: 11-nextjs.data-fetching
     title: Data Fetching
@@ -6234,7 +6393,7 @@ topics:
     perspective_of: []
     tags:
       - nextjs
-    status: stub
+    status: published
     order: 254
   - id: 11-nextjs.route-groups
     title: Route Groups
@@ -6257,7 +6416,7 @@ topics:
     tags:
       - nextjs
       - routing
-    status: stub
+    status: published
     order: 255
   - id: 11-nextjs.intercepting-routes
     title: Intercepting Routes
@@ -6280,7 +6439,7 @@ topics:
     tags:
       - nextjs
       - routing
-    status: stub
+    status: published
     order: 256
   - id: 11-nextjs.parallel-routes
     title: Parallel Routes
@@ -6302,7 +6461,7 @@ topics:
     tags:
       - nextjs
       - routing
-    status: stub
+    status: published
     order: 257
   - id: 12-rendering.csr
     title: Client-Side Rendering
@@ -6324,7 +6483,7 @@ topics:
     perspective_of: []
     tags:
       - rendering
-    status: stub
+    status: published
     order: 258
   - id: 12-rendering.ssr
     title: Server-Side Rendering
@@ -6347,7 +6506,7 @@ topics:
     tags:
       - rendering
       - interview-frequent
-    status: stub
+    status: published
     order: 259
   - id: 12-rendering.ssg
     title: Static Site Generation
@@ -6369,7 +6528,7 @@ topics:
     perspective_of: []
     tags:
       - rendering
-    status: stub
+    status: published
     order: 260
   - id: 12-rendering.isr
     title: Incremental Static Regeneration
@@ -6392,7 +6551,7 @@ topics:
     tags:
       - rendering
       - nextjs
-    status: stub
+    status: published
     order: 261
   - id: 12-rendering.ppr
     title: Partial Prerendering
@@ -6416,7 +6575,7 @@ topics:
     tags:
       - rendering
       - nextjs
-    status: stub
+    status: published
     order: 262
   - id: 12-rendering.streaming
     title: Streaming
@@ -6438,7 +6597,7 @@ topics:
     perspective_of: []
     tags:
       - rendering
-    status: stub
+    status: published
     order: 263
   - id: 12-rendering.hydration
     title: Hydration
@@ -6463,7 +6622,7 @@ topics:
       - rendering
       - react
       - interview-frequent
-    status: stub
+    status: published
     order: 264
   - id: 12-rendering.progressive-hydration
     title: Progressive Hydration
@@ -6472,7 +6631,7 @@ topics:
     difficulty: senior
     estimated_reading_minutes: 30
     estimated_implementation_minutes: 0
-    prerequisites: &a142
+    prerequisites:
       - 12-rendering.hydration
     recommended_next:
       - 12-rendering.resumability
@@ -6480,13 +6639,14 @@ topics:
       - 12-rendering
     children: []
     related: []
-    depends_on: *a142
+    depends_on:
+      - 12-rendering.hydration
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - rendering
-    status: stub
+    status: published
     order: 265
   - id: 12-rendering.resumability
     title: Resumability
@@ -6508,7 +6668,7 @@ topics:
     perspective_of: []
     tags:
       - rendering
-    status: stub
+    status: published
     order: 266
   - id: 12-rendering.edge-rendering
     title: Edge Rendering
@@ -6531,7 +6691,7 @@ topics:
     tags:
       - rendering
       - edge
-    status: stub
+    status: published
     order: 267
   - id: 12-rendering.cdn
     title: CDN
@@ -6555,7 +6715,7 @@ topics:
     tags:
       - caching
       - networking
-    status: stub
+    status: published
     order: 268
   - id: 12-rendering.browser-cache
     title: Browser Cache
@@ -6564,7 +6724,7 @@ topics:
     difficulty: junior
     estimated_reading_minutes: 25
     estimated_implementation_minutes: 0
-    prerequisites: &a143
+    prerequisites:
       - 02-internet.http-caching
     recommended_next:
       - 12-rendering.cache-control
@@ -6572,13 +6732,14 @@ topics:
       - 12-rendering
     children: []
     related: []
-    depends_on: *a143
+    depends_on:
+      - 02-internet.http-caching
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - caching
-    status: stub
+    status: published
     order: 269
   - id: 12-rendering.cache-control
     title: Cache-Control
@@ -6587,7 +6748,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 30
     estimated_implementation_minutes: 0
-    prerequisites: &a144
+    prerequisites:
       - 02-internet.http-caching
     recommended_next:
       - 12-rendering.etag
@@ -6595,14 +6756,15 @@ topics:
       - 12-rendering
     children: []
     related: []
-    depends_on: *a144
+    depends_on:
+      - 02-internet.http-caching
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - caching
       - http
-    status: stub
+    status: published
     order: 270
   - id: 12-rendering.etag
     title: ETag
@@ -6611,7 +6773,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 25
     estimated_implementation_minutes: 0
-    prerequisites: &a145
+    prerequisites:
       - 02-internet.http-caching
     recommended_next:
       - 12-rendering.stale-while-revalidate
@@ -6619,14 +6781,15 @@ topics:
       - 12-rendering
     children: []
     related: []
-    depends_on: *a145
+    depends_on:
+      - 02-internet.http-caching
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - caching
       - http
-    status: stub
+    status: published
     order: 271
   - id: 12-rendering.stale-while-revalidate
     title: Stale While Revalidate
@@ -6635,7 +6798,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 25
     estimated_implementation_minutes: 0
-    prerequisites: &a146
+    prerequisites:
       - 02-internet.http-caching
     recommended_next:
       - 12-rendering.rendering-strategy-decision-tree
@@ -6643,13 +6806,14 @@ topics:
       - 12-rendering
     children: []
     related: []
-    depends_on: *a146
+    depends_on:
+      - 02-internet.http-caching
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - caching
-    status: stub
+    status: published
     order: 272
   - id: 12-rendering.rendering-strategy-decision-tree
     title: Rendering Strategy Decision Tree
@@ -6671,7 +6835,7 @@ topics:
     tags:
       - rendering
       - architecture
-    status: stub
+    status: published
     order: 273
   - id: 13-performance.bundle
     title: Bundle
@@ -6695,7 +6859,7 @@ topics:
     tags:
       - performance
       - bundling
-    status: stub
+    status: published
     order: 274
   - id: 13-performance.chunk
     title: Chunk
@@ -6704,7 +6868,7 @@ topics:
     difficulty: junior
     estimated_reading_minutes: 20
     estimated_implementation_minutes: 0
-    prerequisites: &a147
+    prerequisites:
       - 13-performance.bundle
     recommended_next:
       - 13-performance.bundling
@@ -6712,14 +6876,15 @@ topics:
       - 13-performance
     children: []
     related: []
-    depends_on: *a147
+    depends_on:
+      - 13-performance.bundle
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - performance
       - bundling
-    status: stub
+    status: published
     order: 275
   - id: 13-performance.bundling
     title: Bundling
@@ -6742,7 +6907,7 @@ topics:
     tags:
       - performance
       - bundling
-    status: stub
+    status: published
     order: 276
   - id: 13-performance.code-splitting
     title: Code Splitting
@@ -6765,7 +6930,7 @@ topics:
     tags:
       - performance
       - bundling
-    status: stub
+    status: published
     order: 277
   - id: 13-performance.tree-shaking
     title: Tree Shaking
@@ -6788,7 +6953,7 @@ topics:
     tags:
       - performance
       - bundling
-    status: stub
+    status: published
     order: 278
   - id: 13-performance.dead-code-elimination
     title: Dead Code Elimination
@@ -6811,7 +6976,7 @@ topics:
     tags:
       - performance
       - bundling
-    status: stub
+    status: published
     order: 279
   - id: 13-performance.dynamic-import
     title: Dynamic Import
@@ -6834,7 +6999,7 @@ topics:
     tags:
       - performance
       - javascript
-    status: stub
+    status: published
     order: 280
   - id: 13-performance.lazy-loading
     title: Lazy Loading
@@ -6856,7 +7021,7 @@ topics:
     perspective_of: []
     tags:
       - performance
-    status: stub
+    status: published
     order: 281
   - id: 13-performance.debounce
     title: Debounce
@@ -6879,7 +7044,7 @@ topics:
     tags:
       - performance
       - javascript
-    status: stub
+    status: published
     order: 282
   - id: 13-performance.throttle
     title: Throttle
@@ -6902,7 +7067,7 @@ topics:
     tags:
       - performance
       - javascript
-    status: stub
+    status: published
     order: 283
   - id: 13-performance.memoization-perf
     title: Memoization
@@ -6924,7 +7089,7 @@ topics:
     perspective_of: []
     tags:
       - performance
-    status: stub
+    status: published
     order: 284
   - id: 13-performance.virtualization
     title: Virtualization
@@ -6947,7 +7112,7 @@ topics:
     tags:
       - performance
       - react
-    status: stub
+    status: published
     order: 285
   - id: 13-performance.image-optimization-perf
     title: Image Optimization
@@ -6969,7 +7134,7 @@ topics:
     perspective_of: []
     tags:
       - performance
-    status: stub
+    status: published
     order: 286
   - id: 13-performance.font-performance
     title: Font Performance
@@ -6991,7 +7156,7 @@ topics:
     perspective_of: []
     tags:
       - performance
-    status: stub
+    status: published
     order: 287
   - id: 13-performance.lighthouse
     title: Lighthouse
@@ -7014,7 +7179,7 @@ topics:
     tags:
       - performance
       - devtools
-    status: stub
+    status: published
     order: 288
   - id: 13-performance.core-web-vitals
     title: Core Web Vitals
@@ -7041,7 +7206,7 @@ topics:
     tags:
       - performance
       - interview-frequent
-    status: stub
+    status: published
     order: 289
   - id: 13-performance.lcp
     title: LCP
@@ -7050,7 +7215,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 30
     estimated_implementation_minutes: 0
-    prerequisites: &a148
+    prerequisites:
       - 13-performance.core-web-vitals
     recommended_next:
       - 13-performance.cls
@@ -7058,13 +7223,14 @@ topics:
       - 13-performance
     children: []
     related: []
-    depends_on: *a148
+    depends_on:
+      - 13-performance.core-web-vitals
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - performance
-    status: stub
+    status: published
     order: 290
   - id: 13-performance.cls
     title: CLS
@@ -7073,7 +7239,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 30
     estimated_implementation_minutes: 0
-    prerequisites: &a149
+    prerequisites:
       - 13-performance.core-web-vitals
     recommended_next:
       - 13-performance.inp
@@ -7081,13 +7247,14 @@ topics:
       - 13-performance
     children: []
     related: []
-    depends_on: *a149
+    depends_on:
+      - 13-performance.core-web-vitals
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - performance
-    status: stub
+    status: published
     order: 291
   - id: 13-performance.inp
     title: INP
@@ -7096,7 +7263,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 30
     estimated_implementation_minutes: 0
-    prerequisites: &a150
+    prerequisites:
       - 13-performance.core-web-vitals
     recommended_next:
       - 13-performance.ttfb
@@ -7104,13 +7271,14 @@ topics:
       - 13-performance
     children: []
     related: []
-    depends_on: *a150
+    depends_on:
+      - 13-performance.core-web-vitals
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - performance
-    status: stub
+    status: published
     order: 292
   - id: 13-performance.ttfb
     title: TTFB
@@ -7133,7 +7301,7 @@ topics:
     tags:
       - performance
       - networking
-    status: stub
+    status: published
     order: 293
   - id: 13-performance.tti
     title: TTI
@@ -7155,7 +7323,7 @@ topics:
     perspective_of: []
     tags:
       - performance
-    status: stub
+    status: published
     order: 294
   - id: 13-performance.fcp
     title: FCP
@@ -7177,7 +7345,7 @@ topics:
     perspective_of: []
     tags:
       - performance
-    status: stub
+    status: published
     order: 295
   - id: 13-performance.tbt
     title: TBT
@@ -7199,7 +7367,7 @@ topics:
     perspective_of: []
     tags:
       - performance
-    status: stub
+    status: published
     order: 296
   - id: 13-performance.profiling
     title: Profiling
@@ -7222,7 +7390,7 @@ topics:
     tags:
       - performance
       - devtools
-    status: stub
+    status: published
     order: 297
   - id: 13-performance.long-tasks
     title: Long Tasks
@@ -7244,7 +7412,7 @@ topics:
     perspective_of: []
     tags:
       - performance
-    status: stub
+    status: published
     order: 298
   - id: 13-performance.scheduler-yielding
     title: Scheduler and Yielding
@@ -7265,7 +7433,7 @@ topics:
     perspective_of: []
     tags:
       - performance
-    status: stub
+    status: published
     order: 299
   - id: 14-build-tools.nodejs
     title: Node.js
@@ -7288,7 +7456,7 @@ topics:
     tags:
       - nodejs
       - tooling
-    status: stub
+    status: published
     order: 300
   - id: 14-build-tools.npm
     title: npm
@@ -7310,7 +7478,7 @@ topics:
     perspective_of: []
     tags:
       - tooling
-    status: stub
+    status: published
     order: 301
   - id: 14-build-tools.pnpm
     title: pnpm
@@ -7332,7 +7500,7 @@ topics:
     perspective_of: []
     tags:
       - tooling
-    status: stub
+    status: published
     order: 302
   - id: 14-build-tools.yarn
     title: Yarn
@@ -7354,7 +7522,7 @@ topics:
     perspective_of: []
     tags:
       - tooling
-    status: stub
+    status: published
     order: 303
   - id: 14-build-tools.bun
     title: Bun
@@ -7376,7 +7544,7 @@ topics:
     perspective_of: []
     tags:
       - tooling
-    status: stub
+    status: published
     order: 304
   - id: 14-build-tools.module-resolution
     title: Module Resolution
@@ -7385,7 +7553,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 40
     estimated_implementation_minutes: 0
-    prerequisites: &a151
+    prerequisites:
       - 06-javascript.es-modules
     recommended_next:
       - 14-build-tools.webpack
@@ -7393,14 +7561,15 @@ topics:
       - 14-build-tools
     children: []
     related: []
-    depends_on: *a151
+    depends_on:
+      - 06-javascript.es-modules
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - tooling
       - javascript
-    status: stub
+    status: published
     order: 305
   - id: 14-build-tools.webpack
     title: Webpack
@@ -7423,7 +7592,7 @@ topics:
     tags:
       - bundling
       - tooling
-    status: stub
+    status: published
     order: 306
   - id: 14-build-tools.rollup
     title: Rollup
@@ -7446,7 +7615,7 @@ topics:
     tags:
       - bundling
       - tooling
-    status: stub
+    status: published
     order: 307
   - id: 14-build-tools.vite
     title: Vite
@@ -7469,7 +7638,7 @@ topics:
     tags:
       - bundling
       - tooling
-    status: stub
+    status: published
     order: 308
   - id: 14-build-tools.turbopack
     title: Turbopack
@@ -7493,7 +7662,7 @@ topics:
       - bundling
       - tooling
       - nextjs
-    status: stub
+    status: published
     order: 309
   - id: 14-build-tools.rspack
     title: Rspack
@@ -7516,7 +7685,7 @@ topics:
     tags:
       - bundling
       - tooling
-    status: stub
+    status: published
     order: 310
   - id: 14-build-tools.parcel
     title: Parcel
@@ -7539,7 +7708,7 @@ topics:
     tags:
       - bundling
       - tooling
-    status: stub
+    status: published
     order: 311
   - id: 14-build-tools.babel
     title: Babel
@@ -7563,7 +7732,7 @@ topics:
     tags:
       - compilers
       - tooling
-    status: stub
+    status: published
     order: 312
   - id: 14-build-tools.swc
     title: SWC
@@ -7586,7 +7755,7 @@ topics:
     tags:
       - compilers
       - tooling
-    status: stub
+    status: published
     order: 313
   - id: 14-build-tools.esbuild
     title: esbuild
@@ -7609,7 +7778,7 @@ topics:
     tags:
       - compilers
       - tooling
-    status: stub
+    status: published
     order: 314
   - id: 14-build-tools.postcss
     title: PostCSS
@@ -7632,7 +7801,7 @@ topics:
     tags:
       - css
       - tooling
-    status: stub
+    status: published
     order: 315
   - id: 14-build-tools.source-maps
     title: Source Maps
@@ -7655,7 +7824,7 @@ topics:
     tags:
       - tooling
       - devtools
-    status: stub
+    status: published
     order: 316
   - id: 14-build-tools.monorepo-tooling
     title: Monorepo Tooling
@@ -7678,7 +7847,7 @@ topics:
     tags:
       - tooling
       - architecture
-    status: stub
+    status: published
     order: 317
   - id: 15-architecture.feature-based-architecture
     title: Feature-Based Architecture
@@ -7700,7 +7869,7 @@ topics:
     perspective_of: []
     tags:
       - architecture
-    status: stub
+    status: published
     order: 318
   - id: 15-architecture.atomic-design
     title: Atomic Design
@@ -7723,7 +7892,7 @@ topics:
     tags:
       - architecture
       - design-systems
-    status: stub
+    status: published
     order: 319
   - id: 15-architecture.design-systems
     title: Design Systems
@@ -7746,7 +7915,7 @@ topics:
     tags:
       - architecture
       - design-systems
-    status: stub
+    status: published
     order: 320
   - id: 15-architecture.monorepo
     title: Monorepo
@@ -7768,7 +7937,7 @@ topics:
     perspective_of: []
     tags:
       - architecture
-    status: stub
+    status: published
     order: 321
   - id: 15-architecture.micro-frontends
     title: Micro Frontends
@@ -7791,7 +7960,7 @@ topics:
     perspective_of: []
     tags:
       - architecture
-    status: stub
+    status: published
     order: 322
   - id: 15-architecture.module-federation
     title: Module Federation
@@ -7800,7 +7969,7 @@ topics:
     difficulty: senior
     estimated_reading_minutes: 40
     estimated_implementation_minutes: 0
-    prerequisites: &a152
+    prerequisites:
       - 15-architecture.micro-frontends
     recommended_next:
       - 15-architecture.state-management
@@ -7808,14 +7977,15 @@ topics:
       - 15-architecture
     children: []
     related: []
-    depends_on: *a152
+    depends_on:
+      - 15-architecture.micro-frontends
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - architecture
       - bundling
-    status: stub
+    status: published
     order: 323
   - id: 15-architecture.state-management
     title: State Management
@@ -7841,7 +8011,7 @@ topics:
     tags:
       - architecture
       - state
-    status: stub
+    status: published
     order: 324
   - id: 15-architecture.redux
     title: Redux
@@ -7850,7 +8020,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 40
     estimated_implementation_minutes: 0
-    prerequisites: &a153
+    prerequisites:
       - 15-architecture.state-management
     recommended_next:
       - 15-architecture.zustand
@@ -7858,14 +8028,15 @@ topics:
       - 15-architecture
     children: []
     related: []
-    depends_on: *a153
+    depends_on:
+      - 15-architecture.state-management
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - state
       - react
-    status: stub
+    status: published
     order: 325
   - id: 15-architecture.zustand
     title: Zustand
@@ -7874,7 +8045,7 @@ topics:
     difficulty: junior
     estimated_reading_minutes: 25
     estimated_implementation_minutes: 0
-    prerequisites: &a154
+    prerequisites:
       - 15-architecture.state-management
     recommended_next:
       - 15-architecture.jotai
@@ -7882,14 +8053,15 @@ topics:
       - 15-architecture
     children: []
     related: []
-    depends_on: *a154
+    depends_on:
+      - 15-architecture.state-management
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - state
       - react
-    status: stub
+    status: published
     order: 326
   - id: 15-architecture.jotai
     title: Jotai
@@ -7898,7 +8070,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 25
     estimated_implementation_minutes: 0
-    prerequisites: &a155
+    prerequisites:
       - 15-architecture.state-management
     recommended_next:
       - 15-architecture.tanstack-query
@@ -7906,14 +8078,15 @@ topics:
       - 15-architecture
     children: []
     related: []
-    depends_on: *a155
+    depends_on:
+      - 15-architecture.state-management
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - state
       - react
-    status: stub
+    status: published
     order: 327
   - id: 15-architecture.tanstack-query
     title: TanStack Query
@@ -7937,7 +8110,7 @@ topics:
       - state
       - data-fetching
       - react
-    status: stub
+    status: published
     order: 328
   - id: 15-architecture.react-router
     title: React Router
@@ -7960,7 +8133,7 @@ topics:
     tags:
       - routing
       - react
-    status: stub
+    status: published
     order: 329
   - id: 15-architecture.url-as-state
     title: URL as State
@@ -7983,7 +8156,7 @@ topics:
     tags:
       - routing
       - architecture
-    status: stub
+    status: published
     order: 330
   - id: 15-architecture.component-libraries
     title: Component Libraries
@@ -8006,7 +8179,7 @@ topics:
     tags:
       - architecture
       - design-systems
-    status: stub
+    status: published
     order: 331
   - id: 15-architecture.api-layer-design
     title: API Layer Design
@@ -8029,7 +8202,7 @@ topics:
     tags:
       - architecture
       - api
-    status: stub
+    status: published
     order: 332
   - id: 15-architecture.error-handling-architecture
     title: Error Handling Architecture
@@ -8050,7 +8223,7 @@ topics:
     perspective_of: []
     tags:
       - architecture
-    status: stub
+    status: published
     order: 333
   - id: 16-testing.testing-pyramid
     title: Testing Pyramid
@@ -8072,7 +8245,7 @@ topics:
     perspective_of: []
     tags:
       - testing
-    status: stub
+    status: published
     order: 334
   - id: 16-testing.unit-testing
     title: Unit Testing
@@ -8094,7 +8267,7 @@ topics:
     perspective_of: []
     tags:
       - testing
-    status: stub
+    status: published
     order: 335
   - id: 16-testing.integration-testing
     title: Integration Testing
@@ -8116,7 +8289,7 @@ topics:
     perspective_of: []
     tags:
       - testing
-    status: stub
+    status: published
     order: 336
   - id: 16-testing.e2e-testing
     title: E2E Testing
@@ -8138,7 +8311,7 @@ topics:
     perspective_of: []
     tags:
       - testing
-    status: stub
+    status: published
     order: 337
   - id: 16-testing.jest
     title: Jest
@@ -8160,7 +8333,7 @@ topics:
     perspective_of: []
     tags:
       - testing
-    status: stub
+    status: published
     order: 338
   - id: 16-testing.vitest
     title: Vitest
@@ -8182,7 +8355,7 @@ topics:
     perspective_of: []
     tags:
       - testing
-    status: stub
+    status: published
     order: 339
   - id: 16-testing.react-testing-library
     title: React Testing Library
@@ -8205,7 +8378,7 @@ topics:
     tags:
       - testing
       - react
-    status: stub
+    status: published
     order: 340
   - id: 16-testing.cypress
     title: Cypress
@@ -8228,7 +8401,7 @@ topics:
     tags:
       - testing
       - e2e
-    status: stub
+    status: published
     order: 341
   - id: 16-testing.playwright
     title: Playwright
@@ -8251,7 +8424,7 @@ topics:
     tags:
       - testing
       - e2e
-    status: stub
+    status: published
     order: 342
   - id: 16-testing.mocking
     title: Mocking
@@ -8273,7 +8446,7 @@ topics:
     perspective_of: []
     tags:
       - testing
-    status: stub
+    status: published
     order: 343
   - id: 16-testing.spying
     title: Spying
@@ -8295,7 +8468,7 @@ topics:
     perspective_of: []
     tags:
       - testing
-    status: stub
+    status: published
     order: 344
   - id: 16-testing.msw
     title: MSW
@@ -8318,7 +8491,7 @@ topics:
     tags:
       - testing
       - api
-    status: stub
+    status: published
     order: 345
   - id: 16-testing.visual-regression
     title: Visual Regression
@@ -8340,7 +8513,7 @@ topics:
     perspective_of: []
     tags:
       - testing
-    status: stub
+    status: published
     order: 346
   - id: 16-testing.accessibility-testing
     title: Accessibility Testing
@@ -8364,7 +8537,7 @@ topics:
     tags:
       - testing
       - a11y
-    status: stub
+    status: published
     order: 347
   - id: 16-testing.test-strategy
     title: Test Strategy
@@ -8386,7 +8559,7 @@ topics:
     tags:
       - testing
       - architecture
-    status: stub
+    status: published
     order: 348
   - id: 17-security.threat-model
     title: Threat Model
@@ -8408,7 +8581,7 @@ topics:
     perspective_of: []
     tags:
       - security
-    status: stub
+    status: published
     order: 349
   - id: 17-security.xss
     title: XSS
@@ -8431,7 +8604,7 @@ topics:
     tags:
       - security
       - interview-frequent
-    status: stub
+    status: published
     order: 350
   - id: 17-security.csrf
     title: CSRF
@@ -8454,7 +8627,7 @@ topics:
     tags:
       - security
       - interview-frequent
-    status: stub
+    status: published
     order: 351
   - id: 17-security.cors
     title: CORS
@@ -8463,7 +8636,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 40
     estimated_implementation_minutes: 0
-    prerequisites: &a156
+    prerequisites:
       - 02-internet.http
     recommended_next:
       - 17-security.csp
@@ -8471,7 +8644,8 @@ topics:
       - 17-security
     children: []
     related: []
-    depends_on: *a156
+    depends_on:
+      - 02-internet.http
     dependents: []
     advanced: []
     perspective_of: []
@@ -8479,7 +8653,7 @@ topics:
       - security
       - networking
       - interview-frequent
-    status: stub
+    status: published
     order: 352
   - id: 17-security.csp
     title: Content Security Policy
@@ -8501,7 +8675,7 @@ topics:
     perspective_of: []
     tags:
       - security
-    status: stub
+    status: published
     order: 353
   - id: 17-security.jwt
     title: JWT
@@ -8524,7 +8698,7 @@ topics:
     tags:
       - security
       - auth
-    status: stub
+    status: published
     order: 354
   - id: 17-security.oauth
     title: OAuth
@@ -8548,7 +8722,7 @@ topics:
     tags:
       - security
       - auth
-    status: stub
+    status: published
     order: 355
   - id: 17-security.oidc
     title: OIDC
@@ -8557,7 +8731,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 30
     estimated_implementation_minutes: 0
-    prerequisites: &a157
+    prerequisites:
       - 17-security.oauth
     recommended_next:
       - 17-security.cookies-security
@@ -8565,14 +8739,15 @@ topics:
       - 17-security
     children: []
     related: []
-    depends_on: *a157
+    depends_on:
+      - 17-security.oauth
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - security
       - auth
-    status: stub
+    status: published
     order: 356
   - id: 17-security.cookies-security
     title: Cookies Security
@@ -8581,7 +8756,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 30
     estimated_implementation_minutes: 0
-    prerequisites: &a158
+    prerequisites:
       - 02-internet.cookies
     recommended_next:
       - 17-security.samesite
@@ -8589,7 +8764,8 @@ topics:
       - 17-security
     children: []
     related: []
-    depends_on: *a158
+    depends_on:
+      - 02-internet.cookies
     dependents:
       - 17-security.samesite
       - 17-security.secure-cookies
@@ -8597,7 +8773,7 @@ topics:
     perspective_of: []
     tags:
       - security
-    status: stub
+    status: published
     order: 357
   - id: 17-security.samesite
     title: SameSite
@@ -8606,7 +8782,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 25
     estimated_implementation_minutes: 0
-    prerequisites: &a159
+    prerequisites:
       - 17-security.cookies-security
     recommended_next:
       - 17-security.secure-cookies
@@ -8614,13 +8790,14 @@ topics:
       - 17-security
     children: []
     related: []
-    depends_on: *a159
+    depends_on:
+      - 17-security.cookies-security
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - security
-    status: stub
+    status: published
     order: 358
   - id: 17-security.secure-cookies
     title: Secure Cookies
@@ -8629,7 +8806,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 20
     estimated_implementation_minutes: 0
-    prerequisites: &a160
+    prerequisites:
       - 17-security.cookies-security
     recommended_next:
       - 17-security.https-security
@@ -8637,13 +8814,14 @@ topics:
       - 17-security
     children: []
     related: []
-    depends_on: *a160
+    depends_on:
+      - 17-security.cookies-security
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - security
-    status: stub
+    status: published
     order: 359
   - id: 17-security.https-security
     title: HTTPS Security
@@ -8652,7 +8830,7 @@ topics:
     difficulty: junior
     estimated_reading_minutes: 25
     estimated_implementation_minutes: 0
-    prerequisites: &a161
+    prerequisites:
       - 02-internet.https
     recommended_next:
       - 17-security.clickjacking
@@ -8660,13 +8838,14 @@ topics:
       - 17-security
     children: []
     related: []
-    depends_on: *a161
+    depends_on:
+      - 02-internet.https
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - security
-    status: stub
+    status: published
     order: 360
   - id: 17-security.clickjacking
     title: Clickjacking
@@ -8688,7 +8867,7 @@ topics:
     perspective_of: []
     tags:
       - security
-    status: stub
+    status: published
     order: 361
   - id: 17-security.prototype-pollution
     title: Prototype Pollution
@@ -8697,7 +8876,7 @@ topics:
     difficulty: senior
     estimated_reading_minutes: 30
     estimated_implementation_minutes: 0
-    prerequisites: &a162
+    prerequisites:
       - 06-javascript.prototype
     recommended_next:
       - 17-security.supply-chain-security
@@ -8705,14 +8884,15 @@ topics:
       - 17-security
     children: []
     related: []
-    depends_on: *a162
+    depends_on:
+      - 06-javascript.prototype
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - security
       - javascript
-    status: stub
+    status: published
     order: 362
   - id: 17-security.supply-chain-security
     title: Supply Chain Security
@@ -8735,7 +8915,7 @@ topics:
     tags:
       - security
       - tooling
-    status: stub
+    status: published
     order: 363
   - id: 17-security.secrets-in-frontend
     title: Secrets in the Frontend
@@ -8756,7 +8936,7 @@ topics:
     perspective_of: []
     tags:
       - security
-    status: stub
+    status: published
     order: 364
   - id: 18-accessibility.why-accessibility
     title: Why Accessibility
@@ -8778,7 +8958,7 @@ topics:
     perspective_of: []
     tags:
       - a11y
-    status: stub
+    status: published
     order: 365
   - id: 18-accessibility.wcag
     title: WCAG
@@ -8801,7 +8981,7 @@ topics:
     perspective_of: []
     tags:
       - a11y
-    status: stub
+    status: published
     order: 366
   - id: 18-accessibility.aria
     title: ARIA
@@ -8810,7 +8990,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 40
     estimated_implementation_minutes: 0
-    prerequisites: &a163
+    prerequisites:
       - 18-accessibility.wcag
     recommended_next:
       - 18-accessibility.semantic-html-a11y
@@ -8818,14 +8998,15 @@ topics:
       - 18-accessibility
     children: []
     related: []
-    depends_on: *a163
+    depends_on:
+      - 18-accessibility.wcag
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - a11y
       - interview-frequent
-    status: stub
+    status: published
     order: 367
   - id: 18-accessibility.semantic-html-a11y
     title: Semantic HTML for Accessibility
@@ -8834,7 +9015,7 @@ topics:
     difficulty: beginner
     estimated_reading_minutes: 25
     estimated_implementation_minutes: 0
-    prerequisites: &a164
+    prerequisites:
       - 04-html.semantic-html
     recommended_next:
       - 18-accessibility.keyboard-navigation
@@ -8842,14 +9023,15 @@ topics:
       - 18-accessibility
     children: []
     related: []
-    depends_on: *a164
+    depends_on:
+      - 04-html.semantic-html
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - a11y
       - html
-    status: stub
+    status: published
     order: 368
   - id: 18-accessibility.keyboard-navigation
     title: Keyboard Navigation
@@ -8871,7 +9053,7 @@ topics:
     perspective_of: []
     tags:
       - a11y
-    status: stub
+    status: published
     order: 369
   - id: 18-accessibility.focus-management
     title: Focus Management
@@ -8893,7 +9075,7 @@ topics:
     perspective_of: []
     tags:
       - a11y
-    status: stub
+    status: published
     order: 370
   - id: 18-accessibility.screen-readers
     title: Screen Readers
@@ -8915,7 +9097,7 @@ topics:
     perspective_of: []
     tags:
       - a11y
-    status: stub
+    status: published
     order: 371
   - id: 18-accessibility.color-and-contrast
     title: Color and Contrast
@@ -8938,7 +9120,7 @@ topics:
     tags:
       - a11y
       - css
-    status: stub
+    status: published
     order: 372
   - id: 18-accessibility.forms-a11y
     title: Accessible Forms
@@ -8947,7 +9129,7 @@ topics:
     difficulty: junior
     estimated_reading_minutes: 30
     estimated_implementation_minutes: 0
-    prerequisites: &a165
+    prerequisites:
       - 04-html.forms
     recommended_next:
       - 18-accessibility.live-regions
@@ -8955,14 +9137,15 @@ topics:
       - 18-accessibility
     children: []
     related: []
-    depends_on: *a165
+    depends_on:
+      - 04-html.forms
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - a11y
       - html
-    status: stub
+    status: published
     order: 373
   - id: 18-accessibility.live-regions
     title: Live Regions
@@ -8984,7 +9167,7 @@ topics:
     perspective_of: []
     tags:
       - a11y
-    status: stub
+    status: published
     order: 374
   - id: 18-accessibility.accessible-components
     title: Accessible Components
@@ -9007,7 +9190,7 @@ topics:
     tags:
       - a11y
       - react
-    status: stub
+    status: published
     order: 375
   - id: 18-accessibility.a11y-testing
     title: Accessibility Testing
@@ -9030,7 +9213,7 @@ topics:
     tags:
       - a11y
       - testing
-    status: stub
+    status: published
     order: 376
   - id: 18-accessibility.a11y-in-react
     title: Accessibility in React
@@ -9053,7 +9236,7 @@ topics:
     tags:
       - a11y
       - react
-    status: stub
+    status: published
     order: 377
   - id: 18-accessibility.a11y-in-nextjs
     title: Accessibility in Next.js
@@ -9075,7 +9258,7 @@ topics:
     tags:
       - a11y
       - nextjs
-    status: stub
+    status: published
     order: 378
   - id: 19-deployment.docker
     title: Docker
@@ -9097,7 +9280,7 @@ topics:
     perspective_of: []
     tags:
       - deployment
-    status: stub
+    status: published
     order: 379
   - id: 19-deployment.nginx
     title: Nginx
@@ -9120,7 +9303,7 @@ topics:
     tags:
       - deployment
       - networking
-    status: stub
+    status: published
     order: 380
   - id: 19-deployment.reverse-proxy
     title: Reverse Proxy
@@ -9143,7 +9326,7 @@ topics:
     tags:
       - deployment
       - networking
-    status: stub
+    status: published
     order: 381
   - id: 19-deployment.cdn-deployment
     title: CDN Deployment
@@ -9166,7 +9349,7 @@ topics:
     tags:
       - deployment
       - caching
-    status: stub
+    status: published
     order: 382
   - id: 19-deployment.ci-cd
     title: CI/CD
@@ -9189,7 +9372,7 @@ topics:
     perspective_of: []
     tags:
       - deployment
-    status: stub
+    status: published
     order: 383
   - id: 19-deployment.github-actions
     title: GitHub Actions
@@ -9198,7 +9381,7 @@ topics:
     difficulty: junior
     estimated_reading_minutes: 35
     estimated_implementation_minutes: 0
-    prerequisites: &a166
+    prerequisites:
       - 19-deployment.ci-cd
     recommended_next:
       - 19-deployment.vercel
@@ -9206,13 +9389,14 @@ topics:
       - 19-deployment
     children: []
     related: []
-    depends_on: *a166
+    depends_on:
+      - 19-deployment.ci-cd
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - deployment
-    status: stub
+    status: published
     order: 384
   - id: 19-deployment.vercel
     title: Vercel
@@ -9235,7 +9419,7 @@ topics:
     tags:
       - deployment
       - nextjs
-    status: stub
+    status: published
     order: 385
   - id: 19-deployment.netlify
     title: Netlify
@@ -9257,7 +9441,7 @@ topics:
     perspective_of: []
     tags:
       - deployment
-    status: stub
+    status: published
     order: 386
   - id: 19-deployment.aws-frontend
     title: AWS for Frontend
@@ -9279,7 +9463,7 @@ topics:
     perspective_of: []
     tags:
       - deployment
-    status: stub
+    status: published
     order: 387
   - id: 19-deployment.cloudflare
     title: Cloudflare
@@ -9302,7 +9486,7 @@ topics:
     tags:
       - deployment
       - edge
-    status: stub
+    status: published
     order: 388
   - id: 19-deployment.environment-config
     title: Environment Config
@@ -9325,7 +9509,7 @@ topics:
     tags:
       - deployment
       - security
-    status: stub
+    status: published
     order: 389
   - id: 19-deployment.preview-deployments
     title: Preview Deployments
@@ -9347,7 +9531,7 @@ topics:
     perspective_of: []
     tags:
       - deployment
-    status: stub
+    status: published
     order: 390
   - id: 19-deployment.rollback-strategies
     title: Rollback Strategies
@@ -9368,7 +9552,7 @@ topics:
     perspective_of: []
     tags:
       - deployment
-    status: stub
+    status: published
     order: 391
   - id: 20-observability.chrome-devtools
     title: Chrome DevTools
@@ -9391,7 +9575,7 @@ topics:
     tags:
       - devtools
       - observability
-    status: stub
+    status: published
     order: 392
   - id: 20-observability.debugging-javascript
     title: Debugging JavaScript
@@ -9414,7 +9598,7 @@ topics:
     tags:
       - devtools
       - javascript
-    status: stub
+    status: published
     order: 393
   - id: 20-observability.debugging-network
     title: Debugging Network
@@ -9437,7 +9621,7 @@ topics:
     tags:
       - devtools
       - networking
-    status: stub
+    status: published
     order: 394
   - id: 20-observability.debugging-performance
     title: Debugging Performance
@@ -9460,7 +9644,7 @@ topics:
     tags:
       - devtools
       - performance
-    status: stub
+    status: published
     order: 395
   - id: 20-observability.source-maps-debugging
     title: Source Maps Debugging
@@ -9483,7 +9667,7 @@ topics:
     perspective_of: []
     tags:
       - devtools
-    status: stub
+    status: published
     order: 396
   - id: 20-observability.logging
     title: Logging
@@ -9505,7 +9689,7 @@ topics:
     perspective_of: []
     tags:
       - observability
-    status: stub
+    status: published
     order: 397
   - id: 20-observability.error-tracking
     title: Error Tracking
@@ -9527,7 +9711,7 @@ topics:
     perspective_of: []
     tags:
       - observability
-    status: stub
+    status: published
     order: 398
   - id: 20-observability.rum
     title: Real User Monitoring
@@ -9550,7 +9734,7 @@ topics:
     tags:
       - observability
       - performance
-    status: stub
+    status: published
     order: 399
   - id: 20-observability.web-vitals-monitoring
     title: Web Vitals Monitoring
@@ -9559,7 +9743,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 25
     estimated_implementation_minutes: 0
-    prerequisites: &a167
+    prerequisites:
       - 13-performance.core-web-vitals
     recommended_next:
       - 20-observability.tracing-frontend
@@ -9567,14 +9751,15 @@ topics:
       - 20-observability
     children: []
     related: []
-    depends_on: *a167
+    depends_on:
+      - 13-performance.core-web-vitals
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - observability
       - performance
-    status: stub
+    status: published
     order: 400
   - id: 20-observability.tracing-frontend
     title: Frontend Tracing
@@ -9596,7 +9781,7 @@ topics:
     perspective_of: []
     tags:
       - observability
-    status: stub
+    status: published
     order: 401
   - id: 20-observability.feature-telemetry
     title: Feature Telemetry
@@ -9617,7 +9802,7 @@ topics:
     perspective_of: []
     tags:
       - observability
-    status: stub
+    status: published
     order: 402
   - id: 21-frontend-system-design.scaling-react-applications
     title: Scaling React Applications
@@ -9640,7 +9825,7 @@ topics:
     tags:
       - system-design
       - react
-    status: stub
+    status: published
     order: 403
   - id: 21-frontend-system-design.caching-strategies
     title: Caching Strategies
@@ -9663,7 +9848,7 @@ topics:
     tags:
       - system-design
       - caching
-    status: stub
+    status: published
     order: 404
   - id: 21-frontend-system-design.optimistic-ui
     title: Optimistic UI
@@ -9686,7 +9871,7 @@ topics:
     tags:
       - system-design
       - ux
-    status: stub
+    status: published
     order: 405
   - id: 21-frontend-system-design.offline-first
     title: Offline First
@@ -9710,7 +9895,7 @@ topics:
     tags:
       - system-design
       - pwa
-    status: stub
+    status: published
     order: 406
   - id: 21-frontend-system-design.infinite-scroll
     title: Infinite Scroll
@@ -9733,7 +9918,7 @@ topics:
     tags:
       - system-design
       - ux
-    status: stub
+    status: published
     order: 407
   - id: 21-frontend-system-design.pagination
     title: Pagination
@@ -9756,7 +9941,7 @@ topics:
     tags:
       - system-design
       - api
-    status: stub
+    status: published
     order: 408
   - id: 21-frontend-system-design.feature-flags
     title: Feature Flags
@@ -9778,7 +9963,7 @@ topics:
     perspective_of: []
     tags:
       - system-design
-    status: stub
+    status: published
     order: 409
   - id: 21-frontend-system-design.realtime-applications
     title: Realtime Applications
@@ -9787,7 +9972,7 @@ topics:
     difficulty: senior
     estimated_reading_minutes: 40
     estimated_implementation_minutes: 0
-    prerequisites: &a168
+    prerequisites:
       - 02-internet.websocket
     recommended_next:
       - 21-frontend-system-design.search-ui
@@ -9795,14 +9980,15 @@ topics:
       - 21-frontend-system-design
     children: []
     related: []
-    depends_on: *a168
+    depends_on:
+      - 02-internet.websocket
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - system-design
       - realtime
-    status: stub
+    status: published
     order: 410
   - id: 21-frontend-system-design.search-ui
     title: Search UI
@@ -9824,7 +10010,7 @@ topics:
     perspective_of: []
     tags:
       - system-design
-    status: stub
+    status: published
     order: 411
   - id: 21-frontend-system-design.upload-pipelines
     title: Upload Pipelines
@@ -9846,7 +10032,7 @@ topics:
     perspective_of: []
     tags:
       - system-design
-    status: stub
+    status: published
     order: 412
   - id: 21-frontend-system-design.multi-tenant-ui
     title: Multi-Tenant UI
@@ -9868,7 +10054,7 @@ topics:
     perspective_of: []
     tags:
       - system-design
-    status: stub
+    status: published
     order: 413
   - id: 21-frontend-system-design.internationalized-apps
     title: Internationalized Apps
@@ -9891,7 +10077,7 @@ topics:
     tags:
       - system-design
       - i18n
-    status: stub
+    status: published
     order: 414
   - id: 21-frontend-system-design.designing-design-systems
     title: Designing Design Systems
@@ -9914,7 +10100,7 @@ topics:
     tags:
       - system-design
       - design-systems
-    status: stub
+    status: published
     order: 415
   - id: 22-design-patterns.mvc-mvp-mvvm
     title: MVC, MVP, MVVM
@@ -9936,7 +10122,7 @@ topics:
     perspective_of: []
     tags:
       - patterns
-    status: stub
+    status: published
     order: 416
   - id: 22-design-patterns.container-presentational
     title: Container / Presentational
@@ -9959,7 +10145,7 @@ topics:
     tags:
       - patterns
       - react
-    status: stub
+    status: published
     order: 417
   - id: 22-design-patterns.hooks-patterns
     title: Hooks Patterns
@@ -9982,7 +10168,7 @@ topics:
     tags:
       - patterns
       - react
-    status: stub
+    status: published
     order: 418
   - id: 22-design-patterns.compound-components
     title: Compound Components
@@ -10005,7 +10191,7 @@ topics:
     tags:
       - patterns
       - react
-    status: stub
+    status: published
     order: 419
   - id: 22-design-patterns.render-props
     title: Render Props
@@ -10028,7 +10214,7 @@ topics:
     tags:
       - patterns
       - react
-    status: stub
+    status: published
     order: 420
   - id: 22-design-patterns.hoc
     title: Higher-Order Components
@@ -10051,7 +10237,7 @@ topics:
     tags:
       - patterns
       - react
-    status: stub
+    status: published
     order: 421
   - id: 22-design-patterns.provider-pattern
     title: Provider Pattern
@@ -10074,7 +10260,7 @@ topics:
     tags:
       - patterns
       - react
-    status: stub
+    status: published
     order: 422
   - id: 22-design-patterns.observer-pattern
     title: Observer Pattern
@@ -10096,7 +10282,7 @@ topics:
     perspective_of: []
     tags:
       - patterns
-    status: stub
+    status: published
     order: 423
   - id: 22-design-patterns.module-pattern
     title: Module Pattern
@@ -10119,7 +10305,7 @@ topics:
     tags:
       - patterns
       - javascript
-    status: stub
+    status: published
     order: 424
   - id: 22-design-patterns.factory-and-builder
     title: Factory and Builder
@@ -10141,7 +10327,7 @@ topics:
     perspective_of: []
     tags:
       - patterns
-    status: stub
+    status: published
     order: 425
   - id: 22-design-patterns.when-patterns-hurt
     title: When Patterns Hurt
@@ -10163,7 +10349,7 @@ topics:
     tags:
       - patterns
       - architecture
-    status: stub
+    status: published
     order: 426
   - id: 23-pwa-and-offline.pwa-overview
     title: PWA Overview
@@ -10185,7 +10371,7 @@ topics:
     perspective_of: []
     tags:
       - pwa
-    status: stub
+    status: published
     order: 427
   - id: 23-pwa-and-offline.service-worker-lifecycle
     title: Service Worker Lifecycle
@@ -10194,7 +10380,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 40
     estimated_implementation_minutes: 0
-    prerequisites: &a169
+    prerequisites:
       - 09-browser-apis.service-workers
     recommended_next:
       - 23-pwa-and-offline.caching-strategies-sw
@@ -10202,14 +10388,15 @@ topics:
       - 23-pwa-and-offline
     children: []
     related: []
-    depends_on: *a169
+    depends_on:
+      - 09-browser-apis.service-workers
     dependents:
       - 23-pwa-and-offline.caching-strategies-sw
     advanced: []
     perspective_of: []
     tags:
       - pwa
-    status: stub
+    status: published
     order: 428
   - id: 23-pwa-and-offline.caching-strategies-sw
     title: Service Worker Caching Strategies
@@ -10218,7 +10405,7 @@ topics:
     difficulty: mid
     estimated_reading_minutes: 40
     estimated_implementation_minutes: 0
-    prerequisites: &a170
+    prerequisites:
       - 23-pwa-and-offline.service-worker-lifecycle
     recommended_next:
       - 23-pwa-and-offline.background-sync
@@ -10226,14 +10413,15 @@ topics:
       - 23-pwa-and-offline
     children: []
     related: []
-    depends_on: *a170
+    depends_on:
+      - 23-pwa-and-offline.service-worker-lifecycle
     dependents: []
     advanced: []
     perspective_of: []
     tags:
       - pwa
       - caching
-    status: stub
+    status: published
     order: 429
   - id: 23-pwa-and-offline.background-sync
     title: Background Sync
@@ -10255,7 +10443,7 @@ topics:
     perspective_of: []
     tags:
       - pwa
-    status: stub
+    status: published
     order: 430
   - id: 23-pwa-and-offline.web-app-manifest
     title: Web App Manifest
@@ -10277,7 +10465,7 @@ topics:
     perspective_of: []
     tags:
       - pwa
-    status: stub
+    status: published
     order: 431
   - id: 23-pwa-and-offline.installability
     title: Installability
@@ -10299,7 +10487,7 @@ topics:
     perspective_of: []
     tags:
       - pwa
-    status: stub
+    status: published
     order: 432
   - id: 23-pwa-and-offline.push-notifications
     title: Push Notifications
@@ -10321,7 +10509,7 @@ topics:
     perspective_of: []
     tags:
       - pwa
-    status: stub
+    status: published
     order: 433
   - id: 23-pwa-and-offline.offline-ux
     title: Offline UX
@@ -10343,7 +10531,7 @@ topics:
     tags:
       - pwa
       - ux
-    status: stub
+    status: published
     order: 434
   - id: 24-interview-preparation.how-to-answer
     title: How to Answer
@@ -10365,7 +10553,7 @@ topics:
     perspective_of: []
     tags:
       - interview
-    status: stub
+    status: published
     order: 435
   - id: 24-interview-preparation.javascript-interview-questions
     title: JavaScript Interview Questions
@@ -10388,7 +10576,7 @@ topics:
     tags:
       - interview
       - javascript
-    status: stub
+    status: published
     order: 436
   - id: 24-interview-preparation.browser-interview-questions
     title: Browser Interview Questions
@@ -10411,7 +10599,7 @@ topics:
     tags:
       - interview
       - browser-internals
-    status: stub
+    status: published
     order: 437
   - id: 24-interview-preparation.react-interview-questions
     title: React Interview Questions
@@ -10434,7 +10622,7 @@ topics:
     tags:
       - interview
       - react
-    status: stub
+    status: published
     order: 438
   - id: 24-interview-preparation.nextjs-interview-questions
     title: Next.js Interview Questions
@@ -10457,7 +10645,7 @@ topics:
     tags:
       - interview
       - nextjs
-    status: stub
+    status: published
     order: 439
   - id: 24-interview-preparation.network-interview-questions
     title: Network Interview Questions
@@ -10480,7 +10668,7 @@ topics:
     tags:
       - interview
       - networking
-    status: stub
+    status: published
     order: 440
   - id: 24-interview-preparation.css-interview-questions
     title: CSS Interview Questions
@@ -10503,7 +10691,7 @@ topics:
     tags:
       - interview
       - css
-    status: stub
+    status: published
     order: 441
   - id: 24-interview-preparation.typescript-interview-questions
     title: TypeScript Interview Questions
@@ -10526,7 +10714,7 @@ topics:
     tags:
       - interview
       - typescript
-    status: stub
+    status: published
     order: 442
   - id: 24-interview-preparation.performance-interview-questions
     title: Performance Interview Questions
@@ -10549,7 +10737,7 @@ topics:
     tags:
       - interview
       - performance
-    status: stub
+    status: published
     order: 443
   - id: 24-interview-preparation.security-interview-questions
     title: Security Interview Questions
@@ -10572,7 +10760,7 @@ topics:
     tags:
       - interview
       - security
-    status: stub
+    status: published
     order: 444
   - id: 24-interview-preparation.system-design-interview-questions
     title: System Design Interview Questions
@@ -10594,7 +10782,7 @@ topics:
     tags:
       - interview
       - system-design
-    status: stub
+    status: published
     order: 445
   - id: 25-appendix.browser-compatibility
     title: Browser Compatibility
@@ -10616,7 +10804,7 @@ topics:
     perspective_of: []
     tags:
       - appendix
-    status: stub
+    status: published
     order: 446
   - id: 25-appendix.http-status-codes
     title: HTTP Status Codes
@@ -10639,7 +10827,7 @@ topics:
     tags:
       - appendix
       - http
-    status: stub
+    status: published
     order: 447
   - id: 25-appendix.mime-types
     title: MIME Types
@@ -10661,7 +10849,7 @@ topics:
     perspective_of: []
     tags:
       - appendix
-    status: stub
+    status: published
     order: 448
   - id: 25-appendix.priority-hints-cheatsheet
     title: Priority Hints Cheatsheet
@@ -10684,7 +10872,7 @@ topics:
     tags:
       - appendix
       - performance
-    status: stub
+    status: published
     order: 449
   - id: 25-appendix.glossary-export
     title: Glossary Export
@@ -10706,7 +10894,7 @@ topics:
     perspective_of: []
     tags:
       - appendix
-    status: stub
+    status: published
     order: 450
   - id: 25-appendix.curriculum-changelog
     title: Curriculum Changelog
@@ -10728,7 +10916,7 @@ topics:
     perspective_of: []
     tags:
       - appendix
-    status: stub
+    status: published
     order: 451
   - id: 25-appendix.further-reading-policy
     title: Further Reading Policy
@@ -10749,5 +10937,5 @@ topics:
     perspective_of: []
     tags:
       - appendix
-    status: stub
+    status: published
     order: 452

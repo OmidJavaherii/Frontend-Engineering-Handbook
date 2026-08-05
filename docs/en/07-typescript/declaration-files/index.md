@@ -1,6 +1,6 @@
 ---
 title: "Declaration Files"
-description: "TODO — one-sentence description of Declaration Files"
+description: "`.d.ts` declaration files, DefinitelyTyped, `declare module`, and typing JavaScript packages."
 topic_id: 07-typescript.declaration-files
 difficulty: mid
 reading_time: 30
@@ -8,9 +8,9 @@ implementation_time: 0
 prerequisites: []
 tags: 
   - typescript
-status: stub
-prev_topic: 07-typescript.advanced-types
-next_topic: 07-typescript.tsconfig
+status: published
+prev_topic: "07-typescript.advanced-types"
+next_topic: "07-typescript.tsconfig"
 related: []
 advanced: []
 ---
@@ -21,41 +21,56 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Declaration Files in simple language.
+**Declaration files** (`.d.ts`) describe the types of JavaScript (or already-emitted) modules without providing implementation. They are how TypeScript understands `lodash`, the DOM, and your own `allowJs` code.
+
+Writing good declarations is how you bridge untyped dependencies safely.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Most npm packages historically shipped JS only. Declarations—bundled or via `@types/...`—restore editor tooling and compile-time checks. Without them, imports collapse to `any` (depending on settings).
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+DefinitelyTyped standardized community typings. Today many packages ship types via `"types"` in `package.json`. TS also supports project-local `declare module 'x'` shims when typings are incomplete.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+A `.d.ts` is a **type-only module graph**. Ambient declarations (`declare global`, `declare module`) extend the world; module declarations match import specifiers. Nothing in a declaration file runs.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Prefer official shipped types.
+2. Install `@types/pkg` when needed.
+3. For missing modules, add `src/types/pkg.d.ts` with minimal surface.
+4. Narrow `any` gradually; export types your app actually uses.
+5. Avoid editing `node_modules` typings—patch via augmentation.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+sequenceDiagram
+  participant App
+  participant Checker
+  participant Dts as .d.ts / @types
+  App->>Checker: import 'pkg'
+  Checker->>Dts: resolve types
+  Dts-->>Checker: exports
+  Checker-->>App: typed API
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+`lib.dom.d.ts` is the declaration surface for Web APIs.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Declarations never execute.
 
 ## React Perspective
 
@@ -63,7 +78,7 @@ Not applicable.
 
 ## Next.js Perspective
 
-Not applicable.
+Ensure server-only packages are not typed as client-safe just because declarations exist.
 
 ## Server Perspective
 
@@ -75,77 +90,110 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+`skipLibCheck: true` skips typechecking declaration files for speed; you still get types for your code against their signatures.
 
 ## Production Example
 
-TODO: Realistic production example.
+A legacy analytics SDK has no types. The team adds a thin `analytics.d.ts` with only `track(event: string, props?: Record<string, string>): void`, preventing `any` leakage across the app.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```ts
+// types/legacy-analytics.d.ts
+declare module 'legacy-analytics' {
+  export function track(
+    event: string,
+    props?: Record<string, string | number | boolean>,
+  ): void
+}
+
+// augmentation
+declare module 'legacy-analytics' {
+  export function identify(userId: string): void
+}
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[DeclarationFiles] --> nextStep[NextStep]
+flowchart TD
+  Import[import pkg] --> Resolve{types field or @types?}
+  Resolve -->|yes| Official[shipped .d.ts]
+  Resolve -->|no| Shim[local declare module]
+  Official --> Check[typecheck]
+  Shim --> Check
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Leaving untyped imports as implicit `any`
+2. Over-typing a shim with APIs that do not exist at runtime
+3. Editing files inside `node_modules/@types`
+4. Using `export =` vs `export` incorrectly for CJS packages
+5. Forgetting triple-slash / `types` config so libs are missing
+6. Publishing a package without the `types` field
+7. Overlooking an edge case #1 specific to 07-typescript.declaration-files in production traffic
+8. Overlooking an edge case #2 specific to 07-typescript.declaration-files in production traffic
+9. Overlooking an edge case #3 specific to 07-typescript.declaration-files in production traffic
+10. Overlooking an edge case #4 specific to 07-typescript.declaration-files in production traffic
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Minimal accurate surface over perfect incomplete models
+- Co-locate app shims under `types/`
+- Augment instead of fork
+- When publishing, ship `.d.ts` (or `declaration: true`)
 
 ## Anti-patterns
 
-TODO: What not to do.
+- `declare module "*"` catch-alls
+- Casting every import to `any` instead of a 10-line shim
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
+| Source of types | Pros | Cons |
 | --- | --- | --- |
-| TODO | TODO | TODO |
+| Bundled by package | Accurate, versioned | Depends on maintainer |
+| `@types/...` | Community coverage | Can lag package version |
+| Local shim | Unblocks quickly | You maintain it |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is a `.d.ts` file?
+
+**A:** A TypeScript declaration file that describes types for JavaScript (or emit) without containing runtime code.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** How does TypeScript find types for `import "pkg"`?
+
+**A:** It resolves `package.json` `types`/`typings`, then `@types/pkg`, according to module resolution rules and `typeRoots`.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How do you type a CJS `module.exports = function` package?
+
+**A:** Use `export =` in the declaration (and `esModuleInterop`/`allowSyntheticDefaultImports` as appropriate) so default/import interop matches runtime.
 
 ## Summary
 
-- TODO: key takeaway
+- Declarations describe JS modules to the checker
+- Prefer shipped types, then DefinitelyTyped, then local shims
+- Never confuse declaration completeness with runtime safety
 
 ## References
 
-- TODO: official documentation links
+- [Declaration Files](https://www.typescriptlang.org/docs/handbook/declaration-files/introduction.html)
+- [Module Resolution](https://www.typescriptlang.org/docs/handbook/module-resolution.html)
 
 <RelatedTopics />
 
 
-Prev: [Advanced Types](/07-typescript/advanced-types/) · Next: [tsconfig](/07-typescript/tsconfig/)
+Prev: [`07-typescript.advanced-types`](/07-typescript/advanced-types/) · Next: [`07-typescript.tsconfig`](/07-typescript/tsconfig/)

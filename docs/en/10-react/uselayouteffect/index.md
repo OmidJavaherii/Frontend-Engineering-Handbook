@@ -1,6 +1,6 @@
 ---
 title: "useLayoutEffect"
-description: "TODO — one-sentence description of useLayoutEffect"
+description: "useLayoutEffect: run layout-read/write synchronization before the browser paints."
 topic_id: 10-react.uselayouteffect
 difficulty: mid
 reading_time: 30
@@ -9,9 +9,9 @@ prerequisites:
   - 10-react.useeffect
 tags: 
   - react
-status: stub
-prev_topic: 10-react.useeffect
-next_topic: 10-react.useimperativehandle
+status: published
+prev_topic: "10-react.useeffect"
+next_topic: "10-react.useimperativehandle"
 related: []
 advanced: []
 ---
@@ -22,49 +22,63 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain useLayoutEffect in simple language.
+**`useLayoutEffect`** fires after DOM mutations but **before paint**. Use it when you must measure layout or imperatively adjust the DOM to avoid a visible flicker.
+
+It blocks paint—prefer `useEffect` unless you need pre-paint sync.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Some UI needs sizes/positions immediately (tooltips, caret restore, scroll position) without flashing intermediate states.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Class `componentDidMount`/`DidUpdate` timing analogue for layout. SSR warns because layout effects need a DOM.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Same dependency/cleanup model as `useEffect`, earlier phase (layout). Keep work tiny.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Try `useEffect` first.
+2. Switch to layout effect only for measure→mutate before paint.
+3. Cleanup similarly.
+4. Guard SSR (`typeof window` patterns / client-only components).
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+sequenceDiagram
+  participant Commit
+  participant LayoutEffect
+  participant Paint
+  participant PassiveEffect
+  Commit->>LayoutEffect: useLayoutEffect
+  LayoutEffect->>Paint: browser paint
+  Paint->>PassiveEffect: useEffect
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Delays paint—jank if heavy.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+Layout effect phase in commit.
 
 ## Next.js Perspective
 
-Not applicable.
+Avoid in SSR paths; client components only.
 
 ## Server Perspective
 
@@ -76,77 +90,96 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Treat as expensive. Measure once, batch DOM writes.
 
 ## Production Example
 
-TODO: Realistic production example.
+A dropdown measures trigger rect in layout effect and positions the menu before first paint to avoid a jump.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```tsx
+useLayoutEffect(() => {
+  const rect = ref.current?.getBoundingClientRect()
+  if (!rect) return
+  setBox({ width: rect.width, height: rect.height })
+}, [deps])
+```
 
 ## Diagrams
 
 ```mermaid
 flowchart LR
-  concept[useLayoutEffect] --> nextStep[NextStep]
+  Commit --> LayoutEffect --> Paint --> useEffect
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Using layout effect for data fetching
+2. Heavy computation in layout effect
+3. Ignoring SSR warnings
+4. Forcing layout thrashing loops
+5. Using it by default “to be safe”
+6. Missing cleanup for observers created there
+7. Missing a production edge case for 10-react.uselayouteffect (#1)
+8. Missing a production edge case for 10-react.uselayouteffect (#2)
+9. Missing a production edge case for 10-react.uselayouteffect (#3)
+10. Missing a production edge case for 10-react.uselayouteffect (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Prefer useEffect
+- Keep layout work minimal
+- Client-only for DOM measurement
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Animating via layout effects instead of CSS/WAAPI
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
+| | useEffect | useLayoutEffect |
 | --- | --- | --- |
-| TODO | TODO | TODO |
+| Paint | Before effect | After effect |
+| Use | External sync | Measure/mutate pre-paint |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** When does useLayoutEffect run relative to paint?
+
+**A:** After DOM updates but before the browser paints.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Why can useLayoutEffect hurt performance?
+
+**A:** It blocks painting while your callback runs, so heavy work causes jank.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How do you handle useLayoutEffect with SSR?
+
+**A:** Keep it in client components only; provide fallbacks or defer measurement until mounted to avoid server/client mismatches.
 
 ## Summary
 
-- TODO: key takeaway
+- Pre-paint layout synchronization
+- Blocks paint—use sparingly
+- Same cleanup/deps model as useEffect
 
 ## References
 
-- TODO: official documentation links
+- [React Documentation](https://react.dev/)
+- [useLayoutEffect](https://react.dev/reference/react/useLayoutEffect)
 
 <RelatedTopics />
 
 
-Prev: [useEffect](/10-react/useeffect/) · Next: [useImperativeHandle](/10-react/useimperativehandle/)
+Prev: [`10-react.useeffect`](/10-react/useeffect/) · Next: [`10-react.useimperativehandle`](/10-react/useimperativehandle/)

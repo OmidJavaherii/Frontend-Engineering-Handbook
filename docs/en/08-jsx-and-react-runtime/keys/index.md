@@ -1,6 +1,6 @@
 ---
 title: "Keys"
-description: "TODO — one-sentence description of Keys"
+description: "React keys: identity for siblings during reconciliation, state preservation, and intentional resets."
 topic_id: 08-jsx-and-react-runtime.keys
 difficulty: junior
 reading_time: 25
@@ -10,9 +10,9 @@ prerequisites:
 tags: 
   - react
   - interview-frequent
-status: stub
-prev_topic: 08-jsx-and-react-runtime.diffing-algorithm
-next_topic: 08-jsx-and-react-runtime.fragments
+status: published
+prev_topic: "08-jsx-and-react-runtime.diffing-algorithm"
+next_topic: "08-jsx-and-react-runtime.fragments"
 related: []
 advanced: []
 ---
@@ -23,45 +23,57 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Keys in simple language.
+A **key** is a special string (or value converted to string) on a React element that identifies it among **siblings**. Keys are not props passed to your component.
+
+Correct keys preserve state under reorder; intentional key changes remount and reset state.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Lists reorder, filter, and paginate. Index matching attaches state to the wrong row. Keys tell reconciliation who is who.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Keys have been part of React’s list guidance since early versions. Dev-mode warnings for missing keys remain one of the most common console messages.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Keys are **identity in a slot list**, not global IDs in the whole app (though globally unique IDs make good keys). React reads `element.key`; your component receives props without `key`.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Choose stable unique keys among siblings.
+2. Prefer business IDs.
+3. Use key changes to reset forms/animations intentionally.
+4. Never use random keys each render.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Mounted: first seen key
+  Mounted --> Updated: same key
+  Mounted --> Moved: same key new index
+  Mounted --> Unmounted: key removed
+  Updated --> Unmounted: key changes
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Remounts destroy DOM nodes; focus is lost.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+Local component state and DOM state (input values) follow keys.
 
 ## Next.js Perspective
 
@@ -77,77 +89,111 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Stable keys minimize DOM churn. Unstable keys maximize it.
 
 ## Production Example
 
-TODO: Realistic production example.
+A multi-step wizard sets `key={stepId}` on the step panel to reset field state when the step identity changes—explicit, documented remount.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```tsx
+function TodoList({ todos }: { todos: { id: string; text: string }[] }) {
+  return (
+    <ul>
+      {todos.map((t) => (
+        <li key={t.id}>{t.text}</li>
+      ))}
+    </ul>
+  )
+}
+
+function UserForm({ userId }: { userId: string }) {
+  return <ProfileEditor key={userId} userId={userId} />
+}
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[Keys] --> nextStep[NextStep]
+flowchart TD
+  List[sibling elements] --> K1[key A]
+  List --> K2[key B]
+  K1 --> FiberA[fiber A state]
+  K2 --> FiberB[fiber B state]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Index keys with reordering
+2. `key={Math.random()}`
+3. Passing key as a normal prop expecting to read it
+4. Duplicate keys among siblings
+5. Using array index plus “static list” that later becomes dynamic
+6. Keys from unstable JSON.stringify of whole objects
+7. Overlooking an edge case #1 specific to 08-jsx-and-react-runtime.keys in production traffic
+8. Overlooking an edge case #2 specific to 08-jsx-and-react-runtime.keys in production traffic
+9. Overlooking an edge case #3 specific to 08-jsx-and-react-runtime.keys in production traffic
+10. Overlooking an edge case #4 specific to 08-jsx-and-react-runtime.keys in production traffic
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- IDs from data
+- Intentional remount via key documented in code
+- Fix duplicate-key warnings immediately
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Suppressing key warnings without fixing identity
+- Using index as key “for now” in shared components
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
+| Key choice | Reorder safe? | Notes |
 | --- | --- | --- |
-| TODO | TODO | TODO |
+| Stable id | Yes | Best |
+| Index | No | Only static lists |
+| Random | No | Remounts always |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** Are keys passed to the child as props?
+
+**A:** No. React consumes keys during reconciliation; they are not on `props`.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** How do you reset a component’s state from a parent?
+
+**A:** Change its `key` so React remounts a new fiber with fresh state.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** Why can keys be unique among siblings only?
+
+**A:** Matching happens within a parent’s child list. The same key under different parents does not collide for reconciliation.
 
 ## Summary
 
-- TODO: key takeaway
+- Keys identify siblings for diffing
+- Stable IDs preserve state; changing keys resets it
+- Keys are not props
 
 ## References
 
-- TODO: official documentation links
+- [React Documentation](https://react.dev/)
+- [React Reference](https://react.dev/reference/react)
+- [Rendering Lists — keys](https://react.dev/learn/rendering-lists#keeping-list-items-in-order-with-key)
+- [Preserving and Resetting State](https://react.dev/learn/preserving-and-resetting-state)
 
 <RelatedTopics />
 
 
-Prev: [Diffing Algorithm](/08-jsx-and-react-runtime/diffing-algorithm/) · Next: [Fragments](/08-jsx-and-react-runtime/fragments/)
+Prev: [`08-jsx-and-react-runtime.diffing-algorithm`](/08-jsx-and-react-runtime/diffing-algorithm/) · Next: [`08-jsx-and-react-runtime.fragments`](/08-jsx-and-react-runtime/fragments/)

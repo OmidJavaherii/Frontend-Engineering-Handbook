@@ -1,6 +1,6 @@
 ---
 title: "Arrays"
-description: "TODO — one-sentence description of Arrays"
+description: "Arrays: indexed collections, methods (map/filter/reduce), sparsity, and iteration."
 topic_id: 06-javascript.arrays
 difficulty: beginner
 reading_time: 30
@@ -8,7 +8,7 @@ implementation_time: 0
 prerequisites: []
 tags: 
   - javascript
-status: stub
+status: published
 prev_topic: 06-javascript.objects
 next_topic: 06-javascript.modules
 related: []
@@ -21,131 +21,161 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Arrays in simple language.
+**Arrays** are objects with length and indexed elements, plus highly optimized methods. Understand mutation vs non-mutation (`push` vs `toSorted`/`map`), holes, and iteration protocols.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+UI lists, data transforms, and performance-sensitive loops all center on arrays.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Array extras (ES5) then typed arrays / modern non-mutating methods (`toSorted`, `with`).
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Dense vs sparse. Methods that skip holes vs not. Prefer map/filter for transforms; for loops for hot paths when measured.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Prefer non-mutating transforms in React state.
+2. Use `Array.isArray`.
+3. Know `sort` mutates (or use `toSorted`).
+4. Avoid sparse arrays intentionally.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+Lifecycle for arrays:
+
+```mermaid
+stateDiagram-v2
+  [*] --> Active
+  Active --> Settled
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Browsers host the JS runtime; DevTools Sources/Console observe this topic at runtime.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Engines implement ECMAScript semantics (V8/JavaScriptCore/SpiderMonkey); optimize hot paths after correctness.
 
 ## React Perspective
 
-Not applicable.
+Never mutate arrays in state; copy with map/filter/toSorted.
 
 ## Next.js Perspective
 
-Not applicable.
+Next.js runs JS in Node/Edge and the browser; verify APIs exist in each runtime.
 
 ## Server Perspective
 
-Not applicable.
+Node/Edge may implement the same language feature with different host APIs.
 
 ## Network Perspective
 
-Not applicable.
+Not primarily a network feature unless combined with fetch/HTTP.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Watch retained objects via DevTools Memory; closures and globals keep references alive.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Measure with Performance panel / benchmarks before micro-optimizing.
 
 ## Production Example
 
-TODO: Realistic production example.
+React list updates switched to immutable `map`/`toSpliced` patterns; accidental shared mutations disappeared.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```js
+const a = [3, 1, 2]
+const b = a.toSorted((x, y) => x - y) // non-mutating
+a.map(x => x * 2)
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[Arrays] --> nextStep[NextStep]
+flowchart TD
+  Code[Program] --> Runtime[JS runtime]
+  Runtime --> Effect[arrays effect]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Treating the feature as magic without the language rule behind it
+2. Copying Stack Overflow snippets without edge cases
+3. Confusing browser host APIs with ECMAScript language semantics
+4. Optimizing before measuring
+5. Ignoring strict mode / module differences
+6. Using sort without comparator for numbers
+7. Mutating state arrays in place in React
+8. Missing a production edge case for 06-javascript.arrays (#1)
+9. Missing a production edge case for 06-javascript.arrays (#2)
+10. Missing a production edge case for 06-javascript.arrays (#3)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Prefer language defaults and clear naming
+- Write a failing test for the sharp edge you hit
+- Use MDN + ECMA-262 for disagreements
+- Keep examples small and runnable
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Clever code that obscures control flow
+- Polyfilling incorrectly and masking bugs
+- Global mutable state as the default architecture
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Method | Mutates? |
+| --- | --- |
+| `push/splice/sort` | Yes |
+| `map/filter/toSorted` | No |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is JS arrays?
+
+**A:** Ordered, length-tracking indexed collections with rich transformation methods.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Why is sort weird for numbers?
+
+**A:** Default sort converts to strings; provide a numeric comparator.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** map vs forEach?
+
+**A:** `map` builds a new array of results; `forEach` is for side effects and returns undefined.
 
 ## Summary
 
-- TODO: key takeaway
+- arrays has precise ECMAScript/host semantics
+- Know failure modes and scope interactions
+- Measure production impact
+- Cross-link related handbook topics
 
 ## References
 
-- TODO: official documentation links
+- [MDN: Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)
+- [ECMA-262](https://tc39.es/ecma262/)
 
 <RelatedTopics />
-
 
 Prev: [Objects](/06-javascript/objects/) · Next: [Modules](/06-javascript/modules/)

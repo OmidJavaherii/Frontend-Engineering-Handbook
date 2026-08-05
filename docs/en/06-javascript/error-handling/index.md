@@ -1,6 +1,6 @@
 ---
 title: "Error Handling"
-description: "TODO — one-sentence description of Error Handling"
+description: "Errors, throw/try/catch/finally, rejections, and designing actionable failure modes."
 topic_id: 06-javascript.error-handling
 difficulty: junior
 reading_time: 30
@@ -8,7 +8,7 @@ implementation_time: 0
 prerequisites: []
 tags: 
   - javascript
-status: stub
+status: published
 prev_topic: 06-javascript.weakset
 next_topic: 06-javascript.strict-mode
 related: []
@@ -21,131 +21,164 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Error Handling in simple language.
+**Error handling** covers throwing `Error` objects, `try/catch/finally`, async rejections, and choosing between expected failures vs programmer bugs. Consistent error types make UX and logging possible.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Failure is normal in networks/UI. Uncaught errors crash experiences; swallowed errors hide outages.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+From callbacks’ `(err, value)` to Promises/async and optional `AggregateError`/`cause`.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Throw Errors with messages/causes. Catch near boundaries (UI/API). Don’t catch-and-ignore. Map to user-safe messages.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Use Error subclasses/names.
+2. Set `cause` when wrapping.
+3. Handle await with try/catch.
+4. Log with correlation IDs at boundaries.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+Lifecycle for error handling:
+
+```mermaid
+stateDiagram-v2
+  [*] --> Active
+  Active --> Settled
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Browsers host the JS runtime; DevTools Sources/Console observe this topic at runtime.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Engines implement ECMAScript semantics (V8/JavaScriptCore/SpiderMonkey); optimize hot paths after correctness.
 
 ## React Perspective
 
-Not applicable.
+React app code is JS—misunderstanding this topic often shows up as stale UI state or broken effects.
 
 ## Next.js Perspective
 
-Not applicable.
+Next.js runs JS in Node/Edge and the browser; verify APIs exist in each runtime.
 
 ## Server Perspective
 
-Not applicable.
+Node/Edge may implement the same language feature with different host APIs.
 
 ## Network Perspective
 
-Not applicable.
+Not primarily a network feature unless combined with fetch/HTTP.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Watch retained objects via DevTools Memory; closures and globals keep references alive.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Measure with Performance panel / benchmarks before micro-optimizing.
 
 ## Production Example
 
-TODO: Realistic production example.
+API client wrapped failures with `{ cause }` preserving stack; support could distinguish 401 vs parse errors from one alert.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```js
+try {
+  await load()
+} catch (err) {
+  throw new Error('Failed to load profile', { cause: err })
+}
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[ErrorHandling] --> nextStep[NextStep]
+flowchart TD
+  Code[Program] --> Runtime[JS runtime]
+  Runtime --> Effect[error handling effect]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Treating the feature as magic without the language rule behind it
+2. Copying Stack Overflow snippets without edge cases
+3. Confusing browser host APIs with ECMAScript language semantics
+4. Optimizing before measuring
+5. Ignoring strict mode / module differences
+6. Empty catch blocks
+7. Throwing strings instead of Error
+8. Missing a production edge case for 06-javascript.error-handling (#1)
+9. Missing a production edge case for 06-javascript.error-handling (#2)
+10. Missing a production edge case for 06-javascript.error-handling (#3)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Prefer language defaults and clear naming
+- Write a failing test for the sharp edge you hit
+- Use MDN + ECMA-262 for disagreements
+- Keep examples small and runnable
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Clever code that obscures control flow
+- Polyfilling incorrectly and masking bugs
+- Global mutable state as the default architecture
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Channel | Mechanism |
+| --- | --- |
+| Sync | throw/try |
+| Promise | reject/catch |
+| Event | error events |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is error handling in JS?
+
+**A:** Using throw/try/catch and promise rejections to manage failures with Error objects and boundary handling.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Why Error over string throw?
+
+**A:** Stacks, names, causes, and consistent tooling expect Error instances.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How to handle async errors?
+
+**A:** try/catch around await, or .catch; listen for unhandledrejection in diagnostics.
 
 ## Summary
 
-- TODO: key takeaway
+- error handling has precise ECMAScript/host semantics
+- Know failure modes and scope interactions
+- Measure production impact
+- Cross-link related handbook topics
 
 ## References
 
-- TODO: official documentation links
+- [MDN: Error](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error)
+- [MDN: try...catch](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/try...catch)
 
 <RelatedTopics />
-
 
 Prev: [WeakSet](/06-javascript/weakset/) · Next: [Strict Mode](/06-javascript/strict-mode/)

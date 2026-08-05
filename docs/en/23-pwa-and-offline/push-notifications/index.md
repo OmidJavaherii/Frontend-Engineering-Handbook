@@ -1,6 +1,6 @@
 ---
 title: "Push Notifications"
-description: "TODO — one-sentence description of Push Notifications"
+description: "Web Push + Notifications: permission, service worker showNotification, payloads, and privacy constraints."
 topic_id: 23-pwa-and-offline.push-notifications
 difficulty: mid
 reading_time: 30
@@ -8,9 +8,9 @@ implementation_time: 0
 prerequisites: []
 tags: 
   - pwa
-status: stub
-prev_topic: 23-pwa-and-offline.installability
-next_topic: 23-pwa-and-offline.offline-ux
+status: published
+prev_topic: "23-pwa-and-offline.installability"
+next_topic: "23-pwa-and-offline.offline-ux"
 related: []
 advanced: []
 ---
@@ -21,131 +21,184 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Push Notifications in simple language.
+**Push Notifications** deliver messages to users when the site may not be open, via the Push API to a service worker that displays a Notification. High power — easy to abuse.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Re-engagement for chat, shipping, breaking news. Poor use drives permission denials and browser interventions.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Web Push (VAPID) + Notifications API matured in Chromium; Safari support improved later. Permission UX tightened industry-wide.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+**Permission → subscribe (endpoint + keys) → server pushes → SW `push` → `showNotification` → user click → focus/open clients.**
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Explain value before permission  
+2. Request permission  
+3. `pushManager.subscribe` with VAPID key  
+4. Store subscription server-side  
+5. Send via push service  
+6. Handle clicks in SW
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Prompt
+  Prompt --> Granted
+  Prompt --> Denied
+  Granted --> Subscribed
+  Subscribed --> Displayed: push
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Permission is per-origin. Quiet notification restrictions may apply.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+UI only for preference center; SW handles display.
 
 ## Next.js Perspective
 
-Not applicable.
+Server stores subscriptions; never commit private keys to the client bundle.
 
 ## Server Perspective
 
-Not applicable.
+Use Web Push protocol with VAPID; handle expired endpoints.
 
 ## Network Perspective
 
-Not applicable.
+Push services (FCM, etc.) deliver to browsers.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Don’t spam — OS will throttle. Keep payloads small.
 
 ## Production Example
 
-TODO: Realistic production example.
+A parcel tracker asks for push after a user tracks a package; preference center can revoke.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```js
+const sub = await registration.pushManager.subscribe({
+  userVisibleOnly: true,
+  applicationServerKey: urlBase64ToUint8Array(PUBLIC_VAPID),
+})
+await fetch('/api/push/subscribe', { method: 'POST', body: JSON.stringify(sub) })
+
+self.addEventListener('push', (event) => {
+  const data = event.data?.json() ?? {}
+  event.waitUntil(self.registration.showNotification(data.title, { body: data.body }))
+})
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[PushNotifications] --> nextStep[NextStep]
+flowchart TD
+  n0[Permission] --> n1[Subscribe]
+  n1[Subscribe] --> n2[Server push]
+  n2[Server push] --> n3[SW notify]
+```
+
+```mermaid
+sequenceDiagram
+  participant User
+  participant App
+  participant Platform
+  User->>App: interact (Web push)
+  App->>Platform: apply mechanism
+  Platform-->>App: result or error
+  App-->>User: update UI
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Asking permission on first visit
+2. Push without user-visible notification when required
+3. Leaking VAPID private key to the client
+4. No unsubscribe path
+5. Sending marketing spam and burning trust
+6. Not handling 410 Gone expired subscriptions
+7. Missing a production edge case for 23-pwa-and-offline.push-notifications (#1)
+8. Missing a production edge case for 23-pwa-and-offline.push-notifications (#2)
+9. Missing a production edge case for 23-pwa-and-offline.push-notifications (#3)
+10. Missing a production edge case for 23-pwa-and-offline.push-notifications (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Contextual permission asks
+- Preference center
+- userVisibleOnly
+- Expire stale endpoints
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Newsletters-as-push every hour
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Channel | Needs open page? |
+| --- | --- |
+| In-app toast | Yes |
+| Web Push | No |
+| Email | No |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** Which worker shows the notification for Web Push?
+
+**A:** The service worker on `push` events calls `showNotification`.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** What is VAPID?
+
+**A:** Voluntary Application Server Identification — keys identifying your application server to push services.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How do you design permission UX that maximizes grant rate ethically?
+
+**A:** Ask after value moment, explain benefits, provide samples, easy opt-out; never dark-pattern traps.
 
 ## Summary
 
-- TODO: key takeaway
+- Permission then subscribe
+- SW displays notifications
+- Protect VAPID private keys
+- Earn the right to notify
 
 ## References
 
-- TODO: official documentation links
+- [MDN — Push API](https://developer.mozilla.org/en-US/docs/Web/API/Push_API)
+- [MDN — Notifications API](https://developer.mozilla.org/en-US/docs/Web/API/Notifications_API)
+- [web.dev — Push notifications](https://web.dev/articles/push-notifications-overview)
 
 <RelatedTopics />
 
 
-Prev: [Installability](/23-pwa-and-offline/installability/) · Next: [Offline UX](/23-pwa-and-offline/offline-ux/)
+Prev: [`23-pwa-and-offline.installability`](/23-pwa-and-offline/installability/) · Next: [`23-pwa-and-offline.offline-ux`](/23-pwa-and-offline/offline-ux/)

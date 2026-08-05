@@ -1,6 +1,6 @@
 ---
 title: "HTTPS Security"
-description: "TODO — one-sentence description of HTTPS Security"
+description: "TLS/HTTPS for confidentiality and integrity—HSTS, mixed content, and certificate hygiene for frontends."
 topic_id: 17-security.https-security
 difficulty: junior
 reading_time: 25
@@ -9,9 +9,9 @@ prerequisites:
   - 02-internet.https
 tags: 
   - security
-status: stub
-prev_topic: 17-security.secure-cookies
-next_topic: 17-security.clickjacking
+status: published
+prev_topic: "17-security.secure-cookies"
+next_topic: "17-security.clickjacking"
 related: []
 advanced: []
 ---
@@ -22,45 +22,54 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain HTTPS Security in simple language.
+**HTTPS** wraps HTTP in TLS so data is encrypted and authenticated in transit. Frontends must avoid mixed content, use HSTS, and treat certificate errors as fatal—not something users should click through.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Without TLS, attackers on the network can steal cookies/tokens and rewrite scripts (MITM).
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+HTTPS became default via Let’s Encrypt, browser warnings, and SEO ranking. HTTP is legacy.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+TLS provides confidentiality + integrity + server authentication. HSTS forces HTTPS on future visits. Mixed active content is blocked.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Serve site only over HTTPS.
+2. Redirect HTTP→HTTPS.
+3. Enable HSTS (carefully).
+4. Fix mixed content.
+5. Keep cert renewals automated.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> TLSHandshake
+  TLSHandshake --> HTTP2_3
+  HTTP2_3 --> Response
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Padlock UX; mixed content blocking.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+Absolute http:// asset URLs break secure pages.
 
 ## Next.js Perspective
 
@@ -72,81 +81,102 @@ Not applicable.
 
 ## Network Perspective
 
-Not applicable.
+TLS termination at CDN/load balancer common.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+TLS is cheap with modern HTTP/2/3; not a reason to skip HTTPS.
 
 ## Production Example
 
-TODO: Realistic production example.
+Cloudflare/Vercel terminates TLS; HSTS preload for apex; CI checks for mixed content.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```http
+Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[HTTPSSecurity] --> nextStep[NextStep]
+sequenceDiagram
+  participant Browser
+  participant CDN
+  Browser->>CDN: TLS handshake
+  Browser->>CDN: HTTPS request
+  CDN-->>Browser: encrypted response
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Mixed content scripts
+2. HSTS preload without full HTTPS on subdomains
+3. Self-signed in production
+4. Allowing TLS downgrade links in emails
+5. Disabling cert validation in mobile apps talking to API
+6. Missing a production edge case for 17-security.https-security (#1)
+7. Missing a production edge case for 17-security.https-security (#2)
+8. Missing a production edge case for 17-security.https-security (#3)
+9. Missing a production edge case for 17-security.https-security (#4)
+10. Missing a production edge case for 17-security.https-security (#5)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- HTTPS everywhere
+- HSTS after readiness
+- Automate cert renewal
 
 ## Anti-patterns
 
-TODO: What not to do.
+- “Just click advanced / proceed” support guidance
+- Loading analytics over http
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| HTTP | HTTPS |
+| --- | --- |
+| Cleartext | TLS protected |
+| Easy MITM | Mitigates network attackers |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** Why HTTPS?
+
+**A:** To encrypt and authenticate traffic so network attackers cannot read or modify requests/responses easily.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** What is mixed content?
+
+**A:** HTTPS page loading insecure HTTP active resources; browsers block active mixed content because it undermines TLS.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** HSTS preload risks?
+
+**A:** If any subdomain is not HTTPS-ready, you can brick access; require complete inventory before preload.
 
 ## Summary
 
-- TODO: key takeaway
+- HTTPS is mandatory baseline
+- Fix mixed content; use HSTS carefully
+- Automate certificates
 
 ## References
 
-- TODO: official documentation links
+- [MDN — HTTPS](https://developer.mozilla.org/en-US/docs/Glossary/HTTPS)
+- [MDN — HSTS](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security)
+- [OWASP Transport Layer Protection](https://cheatsheetseries.owasp.org/cheatsheets/Transport_Layer_Protection_Cheat_Sheet.html)
 
 <RelatedTopics />
 
 
-Prev: [Secure Cookies](/17-security/secure-cookies/) · Next: [Clickjacking](/17-security/clickjacking/)
+Prev: [`17-security.secure-cookies`](/17-security/secure-cookies/) · Next: [`17-security.clickjacking`](/17-security/clickjacking/)

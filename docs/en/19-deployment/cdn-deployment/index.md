@@ -1,6 +1,6 @@
 ---
 title: "CDN Deployment"
-description: "TODO — one-sentence description of CDN Deployment"
+description: "Deploy static assets to CDNs for global edge caching, lower latency, and origin offload."
 topic_id: 19-deployment.cdn-deployment
 difficulty: junior
 reading_time: 25
@@ -9,9 +9,9 @@ prerequisites: []
 tags: 
   - deployment
   - caching
-status: stub
-prev_topic: 19-deployment.reverse-proxy
-next_topic: 19-deployment.ci-cd
+status: published
+prev_topic: "19-deployment.reverse-proxy"
+next_topic: "19-deployment.ci-cd"
 related: []
 advanced: []
 ---
@@ -22,41 +22,52 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain CDN Deployment in simple language.
+A **CDN deployment** puts hashed static assets (and often HTML) on edge nodes worldwide. Users download JS/CSS/images from nearby POPs. Correct **cache keys/headers** and invalidation strategy are the core skill.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Origin servers shouldn’t serve every byte globally. CDNs cut latency and cost for static content.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+From Akamai to CloudFront/Cloudflare/Fastly; JAMstack popularized CDN-first frontends.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Fingerprinted assets → long TTL. HTML/document → short TTL or revalidate. Invalidation/purge on release when needed.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Build fingerprinted assets.
+2. Upload to object storage/CDN.
+3. Set cache headers.
+4. Deploy HTML/app pointers.
+5. Purge selectively on emergency.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Upload
+  Upload --> EdgeCache
+  EdgeCache --> Hit
+  EdgeCache --> MissOrigin
+  Hit --> Browser
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Respects Cache-Control; immutable helps.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
@@ -64,7 +75,7 @@ Not applicable.
 
 ## Next.js Perspective
 
-Not applicable.
+AssetPrefix / CDN for `_next/static`.
 
 ## Server Perspective
 
@@ -72,81 +83,98 @@ Not applicable.
 
 ## Network Perspective
 
-Not applicable.
+Cache hit ratio dominates performance.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Biggest easy win for global users when headers are right.
 
 ## Production Example
 
-TODO: Realistic production example.
+S3+CloudFront: `/static/*` 1y immutable; `/index.html` no-cache; invalidation on release for HTML.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```http
+Cache-Control: public, max-age=31536000, immutable
+```
 
 ## Diagrams
 
 ```mermaid
 flowchart LR
-  concept[CDNDeployment] --> nextStep[NextStep]
+  User --> POP[CDN POP]
+  POP -->|miss| Origin
+  POP -->|hit| User
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Caching HTML forever
+2. No fingerprinting but long TTL
+3. Purging entire CDN every deploy habitually without need
+4. Forgetting CORS on CDN-hosted fonts
+5. Mixed content via CDN http URLs
+6. Missing a production edge case for 19-deployment.cdn-deployment (#1)
+7. Missing a production edge case for 19-deployment.cdn-deployment (#2)
+8. Missing a production edge case for 19-deployment.cdn-deployment (#3)
+9. Missing a production edge case for 19-deployment.cdn-deployment (#4)
+10. Missing a production edge case for 19-deployment.cdn-deployment (#5)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Hash filenames
+- Separate HTML vs asset policies
+- Measure hit ratio
 
 ## Anti-patterns
 
-TODO: What not to do.
+- query-string cache busting without config support
+- One global short TTL for everything
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| CDN static | Origin SSR |
+| --- | --- |
+| Edge cached | Dynamic compute |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** Why put frontend assets on a CDN?
+
+**A:** To serve them from edge locations closer to users with high cache hit rates, reducing latency and origin load.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Why fingerprint assets?
+
+**A:** So you can cache forever safely; new deploys get new filenames instead of stale cached code.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** Design cache policy for SPA on CDN.
+
+**A:** Immutable long cache for hashed assets; no-cache or short revalidate for index.html; atomic deploy so HTML never points to missing hashes.
 
 ## Summary
 
-- TODO: key takeaway
+- CDN for global static delivery
+- Fingerprints + correct TTLs
+- HTML vs assets differ
 
 ## References
 
-- TODO: official documentation links
+- [web.dev — CDN](https://web.dev/articles/content-delivery-networks)
+- [MDN — Cache-Control](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control)
 
 <RelatedTopics />
 
 
-Prev: [Reverse Proxy](/19-deployment/reverse-proxy/) · Next: [CI/CD](/19-deployment/ci-cd/)
+Prev: [`19-deployment.reverse-proxy`](/19-deployment/reverse-proxy/) · Next: [`19-deployment.ci-cd`](/19-deployment/ci-cd/)

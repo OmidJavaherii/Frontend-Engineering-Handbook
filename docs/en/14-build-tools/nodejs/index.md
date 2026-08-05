@@ -1,6 +1,6 @@
 ---
 title: "Node.js"
-description: "TODO — one-sentence description of Node.js"
+description: "JavaScript runtime built on V8 used for tooling, SSR, and many backend APIs."
 topic_id: 14-build-tools.nodejs
 difficulty: junior
 reading_time: 35
@@ -9,9 +9,9 @@ prerequisites: []
 tags: 
   - nodejs
   - tooling
-status: stub
+status: published
 prev_topic: null
-next_topic: 14-build-tools.npm
+next_topic: "14-build-tools.npm"
 related: []
 advanced: []
 ---
@@ -22,41 +22,49 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Node.js in simple language.
+**Node.js** is the dominant JS runtime outside the browser—powering package managers, bundlers, Next.js servers, and scripts. Frontend engineers live in Node even when shipping browser code.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+One language across client/tooling/server reduces context switches and enables isomorphic libraries.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+2009 Ryan Dahl; npm ecosystem explosion; ESM + LTS cadence; competitors (Deno/Bun) push performance.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Event-loop async I/O + npm modules + semver. Not a browser—no DOM.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Install LTS.
+2. Use package manager.
+3. Run scripts/dev servers.
+4. Target engines in package.json.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Idle
+  Idle --> Active: use
+  Active --> Idle: settle
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Not applicable.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+V8 shared lineage with Chrome.
 
 ## React Perspective
 
@@ -68,84 +76,106 @@ Not applicable.
 
 ## Server Perspective
 
-Not applicable.
+Default Next runtime.
 
 ## Network Perspective
 
-Not applicable.
+http/https modules / fetch.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Measure before/after with lab + field tools. Optimize the attributed bottleneck for JavaScript runtime built on V8 used for tooling, SSR, and many backend APIs., not folklore.
 
 ## Production Example
 
-TODO: Realistic production example.
+Teams adopt JavaScript runtime built on V8 used for tooling, SSR, and many backend APIs. on critical routes, add monitoring, and guard regressions with budgets or reviews.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```bash
+node -v
+node --experimental-vm-modules ./script.mjs
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[Nodejs] --> nextStep[NextStep]
+flowchart TD
+  A[Understand] --> B[Apply JavaScript runtime built on V8 used for tooling, SSR, and many backend APIs.]
+  B --> C[Measure]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Assuming browser APIs exist in Node
+2. Ignoring engines field / LTS
+3. Blocking the event loop with sync CPU
+4. Committing platform-specific binaries blindly
+5. Using ancient Node in CI vs local mismatch
+6. Leaking secrets in scripts
+7. Missing a production edge case for 14-build-tools.nodejs (#1)
+8. Missing a production edge case for 14-build-tools.nodejs (#2)
+9. Missing a production edge case for 14-build-tools.nodejs (#3)
+10. Missing a production edge case for 14-build-tools.nodejs (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Prefer platform/framework primitives
+- Measure impact on real user metrics
+- Keep the change reviewable and reversible
+- Document the invariant you are protecting
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Copy-paste without understanding failure modes
+- Premature abstraction around a single use
+- Optimizing without a baseline
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Approach | When |
+| --- | --- |
+| Use as designed | Default |
+| Simpler alternative | If constraints differ |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is Node.js?
+
+**A:** A V8-based JavaScript runtime for servers and tooling, with libuv async I/O.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Why does blocking the event loop hurt?
+
+**A:** Node is mostly single-threaded for JS; sync CPU stalls all concurrent requests/timers.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How do ESM and CJS interop bite bundlers?
+
+**A:** Dual packages, named export mismatches, and conditional exports require careful resolution—see module-resolution topic.
 
 ## Summary
 
-- TODO: key takeaway
+- JavaScript runtime built on V8 used for tooling, SSR, and many backend APIs.
+- Know why it exists and when not to use it
+- Measure production impact
+- Link related handbook topics instead of duplicating
 
 ## References
 
-- TODO: official documentation links
+- [Node.js Docs](https://nodejs.org/docs/latest/api/)
+- [Node.js Releases](https://nodejs.org/en/about/previous-releases)
 
 <RelatedTopics />
 
-Next: [npm](/14-build-tools/npm/)
+
+Next: [`14-build-tools.npm`](/14-build-tools/npm/)

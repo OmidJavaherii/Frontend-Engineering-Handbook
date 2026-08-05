@@ -1,6 +1,6 @@
 ---
 title: "useEffect"
-description: "TODO — one-sentence description of useEffect"
+description: "useEffect: synchronize with external systems after paint; dependencies, cleanup, and Strict Mode double-invoke."
 topic_id: 10-react.useeffect
 difficulty: junior
 reading_time: 45
@@ -11,9 +11,9 @@ prerequisites:
 tags: 
   - react
   - interview-frequent
-status: stub
-prev_topic: 10-react.useref
-next_topic: 10-react.uselayouteffect
+status: published
+prev_topic: "10-react.useref"
+next_topic: "10-react.uselayouteffect"
 related: []
 advanced: []
 ---
@@ -24,49 +24,67 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain useEffect in simple language.
+**`useEffect(setup, deps?)`** runs `setup` after commit/paint to synchronize React with **external systems** (network, subscriptions, non-React widgets). It returns an optional cleanup.
+
+It is not for computing render output or handling pure user events.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Render must stay pure. The world outside React (DOM APIs, servers, buses) needs lifecycle-aware sync with cleanup.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Replaced many class lifecycles. React 18 Strict Mode double-invokes effects in dev to surface missing cleanups. Docs emphasize “You Might Not Need an Effect.”
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Effects are **reactive synchronization**: when deps change, cleanup previous then run setup. Empty deps ≈ mount/unmount sync. Missing deps ≈ stale sync. After paint by default (non-blocking).
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Ask if it should be an event handler or derived value instead.
+2. Write setup + cleanup.
+3. List reactive deps honestly.
+4. Use AbortController for fetches.
+5. Avoid chaining effects to mimic props→state.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+sequenceDiagram
+  participant Render
+  participant Commit
+  participant Paint
+  participant Effect
+  Render->>Commit: DOM update
+  Commit->>Paint: browser paint
+  Paint->>Effect: run setup
+  Note over Effect: deps change / unmount → cleanup then setup
+```
+
+Fiber stores effect lists; passive effects flush after paint.
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Runs on main thread after paint; heavy work still janks—defer/web workers.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Closures capture render snapshots—deps keep them fresh.
 
 ## React Perspective
 
-Not applicable.
+Passive effect phase distinct from layout effects.
 
 ## Next.js Perspective
 
-Not applicable.
+Client-only; do not expect effects on the server.
 
 ## Server Perspective
 
@@ -78,77 +96,121 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Leaks = forgotten subscriptions/timers without cleanup.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Too many effects waterfalls. Prefer rendering data you already have; batch server work higher (RSC/loaders).
 
 ## Production Example
 
-TODO: Realistic production example.
+A chart library mounts in an effect, updates on data deps, and destroys the instance on cleanup—Strict Mode proves cleanup works locally.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```tsx
+useEffect(() => {
+  const ac = new AbortController()
+  fetch('/api/items/' + id, { signal: ac.signal })
+    .then((r) => r.json())
+    .then(setData)
+    .catch((e) => {
+      if (e.name !== 'AbortError') setError(e)
+    })
+  return () => ac.abort()
+}, [id])
+```
+
+```tsx
+// NOT an effect — derive
+const fullName = first + ' ' + last
+```
 
 ## Diagrams
 
 ```mermaid
+flowchart TD
+  Need{Need effect?} -->|derive in render| NoEffect[no effect]
+  Need -->|user event| Handler[event handler]
+  Need -->|sync external| Effect[useEffect]
+```
+
+```mermaid
 flowchart LR
-  concept[useEffect] --> nextStep[NextStep]
+  setup --> external[External system]
+  external --> cleanup
+  cleanup --> setup
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Using effects to compute derived state
+2. Fetching without abort/ignore flag
+3. Empty deps with stale closures accidentally
+4. Omitting deps / disabling exhaustive-deps blindly
+5. setState loops from bad deps
+6. Treating effects as lifecycle componentDidMount-only mindset without cleanup
+7. Implementing event logic in effects (somethingHappen flags)
+8. Using effects to transform data for render instead of calculating during render
+9. Omitting cleanup for subscriptions/timers
+10. Empty dependency arrays “to run once” while closing over changing props
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Effects for external sync only
+- Cleanup subscriptions/fetches
+- Honest dependency arrays
+- Read “You Might Not Need an Effect”
+- Prefer events for user-triggered logic
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Props → state sync effects by default
+- Effect chains that should be one data flow
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
+| API | Timing | Use |
 | --- | --- | --- |
-| TODO | TODO | TODO |
+| useEffect | After paint | External sync |
+| useLayoutEffect | Before paint | Measure/mutate DOM before paint |
+| Event handler | Sync with user | User intent |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** When should you use useEffect?
+
+**A:** To synchronize with an external system after render—subscriptions, non-React widgets, imperative APIs—not to calculate UI.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Why return a cleanup function?
+
+**A:** To undo the previous setup (unsubscribe, abort, destroy) when deps change or the component unmounts, preventing leaks/races.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** Why does Strict Mode run effects twice in development?
+
+**A:** To surface missing cleanups and non-idempotent setups by mounting, cleaning up, and mounting again—so production behaves more reliably.
 
 ## Summary
 
-- TODO: key takeaway
+- After-paint sync with externals
+- Setup + cleanup; deps define reactivity
+- Most “effect smells” should be events or derived render values
 
 ## References
 
-- TODO: official documentation links
+- [React Documentation](https://react.dev/)
+- [useEffect](https://react.dev/reference/react/useEffect)
+- [Synchronizing with Effects](https://react.dev/learn/synchronizing-with-effects)
+- [You Might Not Need an Effect](https://react.dev/learn/you-might-not-need-an-effect)
 
 <RelatedTopics />
 
 
-Prev: [useRef](/10-react/useref/) · Next: [useLayoutEffect](/10-react/uselayouteffect/)
+Prev: [`10-react.useref`](/10-react/useref/) · Next: [`10-react.uselayouteffect`](/10-react/uselayouteffect/)

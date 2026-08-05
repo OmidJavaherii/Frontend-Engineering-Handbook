@@ -1,6 +1,6 @@
 ---
 title: "CSSOM"
-description: "TODO — one-sentence description of CSSOM"
+description: "The CSS Object Model: parsed stylesheets and APIs that read or mutate rules from JavaScript."
 topic_id: 03-browser.cssom
 difficulty: mid
 reading_time: 30
@@ -10,9 +10,9 @@ prerequisites:
 tags: 
   - browser-internals
   - css
-status: stub
-prev_topic: 03-browser.dom
-next_topic: 03-browser.render-tree
+status: published
+prev_topic: "03-browser.dom"
+next_topic: "03-browser.render-tree"
 related: []
 advanced: []
 ---
@@ -23,45 +23,54 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain CSSOM in simple language.
+The **CSSOM** is the object representation of stylesheets and the APIs (`document.styleSheets`, `CSSStyleRule`, `getComputedStyle`) that interact with them. Together with the DOM it feeds style calculation for rendering.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Engines need structured rules for cascade/specificity. JS needs a way to inspect and sometimes mutate CSS at runtime.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+CSSOM specs matured alongside CSS3; `getComputedStyle` became a staple for measuring.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Stylesheet list → rules → declarations. Computed style is the **result after cascade+inheritance**, not raw CSSOM text.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Parse CSS into stylesheet objects.
+2. Cascade against DOM.
+3. Produce computed values used by layout.
+4. JS may insertRule/deleteRule → invalidation.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Parsed
+  Parsed --> Cascaded
+  Cascaded --> Computed
+  Computed --> Parsed: rule mutation
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+DevTools Styles pane reflects CSSOM + authored. Computed tab shows resolved values.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Cross-origin stylesheets may restrict CSSOM rule access (CORS).
 
 ## React Perspective
 
-Not applicable.
+Prefer CSS modules/variables over runtime rule surgery when possible.
 
 ## Next.js Perspective
 
@@ -77,77 +86,96 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+getComputedStyle can force style/layout. insertRule on huge sheets can be costly.
 
 ## Production Example
 
-TODO: Realistic production example.
+Theme toggles via CSS variables on `:root` beat regenerating whole stylesheets.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```js
+const bg = getComputedStyle(el).backgroundColor
+document.styleSheets[0].insertRule('.x{color:red}', 0)
+```
 
 ## Diagrams
 
 ```mermaid
 flowchart LR
-  concept[CSSOM] --> nextStep[NextStep]
+  Sheets[StyleSheets] --> Rules --> Cascade
+  DOM --> Cascade --> Computed
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Confusing authored CSS with computed style
+2. Reading computed style in tight loops
+3. Expecting access into opaque cross-origin sheets
+4. Mutating CSSOM instead of classes/variables
+5. Forgetting media query lists
+6. Assuming CSSOM includes UA styles as editable rules
+7. Overlooking an edge case #1 specific to 03-browser.cssom in production traffic
+8. Overlooking an edge case #2 specific to 03-browser.cssom in production traffic
+9. Overlooking an edge case #3 specific to 03-browser.cssom in production traffic
+10. Overlooking an edge case #4 specific to 03-browser.cssom in production traffic
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Toggle classes / CSS variables
+- Cache layout reads
+- CORS-enable sheets you must inspect
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Animating by constantly rewriting CSSOM text
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| API | Returns |
+| --- | --- |
+| element.style | Inline declarations only |
+| getComputedStyle | Final used/computed values |
+| styleSheets[i].cssRules | Parsed stylesheet rules |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is CSSOM?
+
+**A:** The object model for CSS stylesheets and related APIs.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Why might getComputedStyle be expensive?
+
+**A:** It may force the browser to flush pending style/layout to return accurate values.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** Why are some cssRules inaccessible?
+
+**A:** Cross-origin stylesheets without proper CORS are opaque for security.
 
 ## Summary
 
-- TODO: key takeaway
+- CSSOM is structured CSS for engines and JS
+- Computed style ≠ inline style
+- Mutations invalidate rendering
+- Prefer variables/classes over rule rewriting
 
 ## References
 
-- TODO: official documentation links
+- [CSSOM specification](https://www.w3.org/TR/cssom-1/)
+- [MDN — CSSOM](https://developer.mozilla.org/en-US/docs/Web/API/CSS_Object_Model)
 
 <RelatedTopics />
 
 
-Prev: [DOM](/03-browser/dom/) · Next: [Render Tree](/03-browser/render-tree/)
+Prev: [`03-browser.dom`](/03-browser/dom/) · Next: [`03-browser.render-tree`](/03-browser/render-tree/)

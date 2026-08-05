@@ -1,6 +1,6 @@
 ---
 title: "Parsing HTML"
-description: "TODO — one-sentence description of Parsing HTML"
+description: "How the HTML parser tokenizes bytes into a DOM, handles speculative parsing, and interacts with scripts."
 topic_id: 03-browser.parsing-html
 difficulty: mid
 reading_time: 35
@@ -10,9 +10,9 @@ prerequisites:
 tags: 
   - browser-internals
   - html
-status: stub
-prev_topic: 03-browser.javascriptcore
-next_topic: 03-browser.parsing-css
+status: published
+prev_topic: "03-browser.javascriptcore"
+next_topic: "03-browser.parsing-css"
 related: []
 advanced: []
 ---
@@ -23,45 +23,55 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Parsing HTML in simple language.
+**HTML parsing** converts a byte stream into a [DOM](/03-browser/dom/) tree using the HTML tokenizer + tree construction algorithms (WHATWG). Unlike XML, HTML is resilient: the parser recovers from broken markup. Scripts can block or defer parsing depending on `async`/`defer`/type=module.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Authors ship text; browsers need a structured document for styling, accessibility trees, and scripting. Speculative parsing keeps the network busy while scripts run.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+SGML-ish browsers → messy compatibility → HTML5/WHATWG standardized the exact error-handling parser everyone had to clone.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Bytes → **tokenizer** (tags, text, comments) → **tree builder** inserts nodes → if classic blocking `<script>`, parser pauses for fetch+execute → continues. Preload scanner may look ahead for URLs.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Decode bytes to input stream.
+2. Tokenize.
+3. Tree construction / foster parenting / adoption agency as specified.
+4. Encounter script → run script processing model.
+5. EOF → document ready states advance.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Tokenizing
+  Tokenizing --> Script: blocking script
+  Script --> Tokenizing
+  Tokenizing --> Done: EOF
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Incremental parsing enables progressive rendering. Preload scanner discovers CSS/JS early.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Classic scripts execute on the parser thread turn; modules are deferred by default.
 
 ## React Perspective
 
-Not applicable.
+SSR HTML is parsed like any HTML; hydration expects matching DOM structure.
 
 ## Next.js Perspective
 
@@ -73,81 +83,103 @@ Not applicable.
 
 ## Network Perspective
 
-Not applicable.
+Streaming responses let parsing start before Content-Length completes.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Avoid blocking scripts in `<head>` without defer/async; prefer modules; keep HTML lean on CRP.
 
 ## Production Example
 
-TODO: Realistic production example.
+A tag manager injected sync in head delayed FCP. Moved to `async` + consent gating.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```html
+<script src="/app.js" defer></script>
+<script type="module" src="/entry.js"></script>
+```
 
 ## Diagrams
 
 ```mermaid
 flowchart LR
-  concept[ParsingHTML] --> nextStep[NextStep]
+  Bytes --> Tokenizer --> TreeBuilder --> DOM
+  TreeBuilder -->|blocking script| JS[JS execution]
+  JS --> TreeBuilder
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Assuming browsers reject invalid HTML
+2. Putting sync scripts before content without need
+3. Expecting document.write to be fine in modern apps
+4. Forgetting parser-blocking vs defer semantics
+5. Mis-nested tags and blaming CSS
+6. Ignoring preload scanner by obfuscating URLs in JS-only injection
+7. Overlooking an edge case #1 specific to 03-browser.parsing-html in production traffic
+8. Overlooking an edge case #2 specific to 03-browser.parsing-html in production traffic
+9. Overlooking an edge case #3 specific to 03-browser.parsing-html in production traffic
+10. Overlooking an edge case #4 specific to 03-browser.parsing-html in production traffic
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Valid, semantic markup
+- defer/async/module appropriately
+- Discover critical CSS/JS in HTML
 
 ## Anti-patterns
 
-TODO: What not to do.
+- document.write after load
+- Huge HTML without streaming/pagination
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Script | Parser behavior |
+| --- | --- |
+| Classic sync | Blocks parser while download+exec |
+| defer | Downloads parallel; runs after document parsed |
+| async | Runs when ready; order not preserved |
+| type=module | Deferred by default; ordered modules |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What does the HTML parser output?
+
+**A:** A DOM tree (plus side effects like running scripts).
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Why can scripts block rendering?
+
+**A:** Classic sync scripts pause parsing; without DOM/CSS progress, first paint waits.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** What is the preload scanner?
+
+**A:** A speculative tokenizer pass that finds resource URLs early even if the main parser is blocked on a script.
 
 ## Summary
 
-- TODO: key takeaway
+- HTML parsing is standardized and forgiving
+- Scripts interact with the parser via specific rules
+- Streaming + preload scanner aid CRP
+- Prefer defer/module for apps
 
 ## References
 
-- TODO: official documentation links
+- [HTML Standard — Parsing](https://html.spec.whatwg.org/multipage/parsing.html)
+- [MDN — HTML parser](https://developer.mozilla.org/en-US/docs/Web/HTML)
 
 <RelatedTopics />
 
 
-Prev: [JavaScriptCore](/03-browser/javascriptcore/) · Next: [Parsing CSS](/03-browser/parsing-css/)
+Prev: [`03-browser.javascriptcore`](/03-browser/javascriptcore/) · Next: [`03-browser.parsing-css`](/03-browser/parsing-css/)

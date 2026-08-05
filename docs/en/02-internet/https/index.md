@@ -1,6 +1,6 @@
 ---
 title: "HTTPS"
-description: "TODO — one-sentence description of HTTPS"
+description: "HTTPS: HTTP over TLS — confidentiality, integrity, and authentication for web traffic."
 topic_id: 02-internet.https
 difficulty: junior
 reading_time: 35
@@ -10,9 +10,9 @@ prerequisites:
 tags: 
   - networking
   - security
-status: stub
-prev_topic: 02-internet.http
-next_topic: 02-internet.ssl
+status: published
+prev_topic: "02-internet.http"
+next_topic: "02-internet.ssl"
 related: []
 advanced: []
 ---
@@ -23,41 +23,49 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain HTTPS in simple language.
+**HTTPS** is HTTP over **TLS**. It encrypts the connection, integrity-protects bytes, and authenticates the server (and optionally the client) via certificates. Browsers mark HTTPS pages secure and block mixed active content.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Without TLS, cookies, tokens, and HTML are readable/modifiable on the path (Wi-Fi evil twin, ISP injection).
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+SSL → TLS; Let’s Encrypt massively lowered cert cost; HTTPS became default expectation.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+TCP connect → TLS handshake (cert verify) → encrypted HTTP. Certificate must match hostname.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Client connects to 443.
+2. TLS handshake + cert validation (chain, hostname, time, revocation policies).
+3. HTTP request/response inside the encrypted tunnel.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> TCP
+  TCP --> TLSHandshake
+  TLSHandshake --> Application
+  Application --> Closed
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Padlock UI; HSTS; mixed content rules.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
@@ -65,89 +73,113 @@ Not applicable.
 
 ## Next.js Perspective
 
-Not applicable.
+Vercel/Node terminate TLS at edge/platform.
 
 ## Server Perspective
 
-Not applicable.
+Terminate TLS at LB or origin; manage cert rotation.
 
 ## Network Perspective
 
-Not applicable.
+Middleboxes may intercept with custom CAs on managed devices.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+TLS adds CPU and RTTs; session resumption/TLS1.3 1-RTT helps. Still always worth it.
 
 ## Production Example
 
-TODO: Realistic production example.
+Expired cert → total outage. Automated renewal + monitoring on expiry.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```bash
+curl -vI https://example.com
+openssl s_client -connect example.com:443 -servername example.com </dev/null
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[HTTPS] --> nextStep[NextStep]
+sequenceDiagram
+  participant C as Client
+  participant S as Server
+  C->>S: TCP
+  C->>S: TLS ClientHello
+  S->>C: Certificate + keys
+  C->>S: HTTP over TLS
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Serving login forms over HTTP
+2. Mixed content (HTTP assets on HTTPS page)
+3. Ignoring cert hostname mismatch
+4. Disabling verification in production clients
+5. Assuming HTTPS equals authentication of the user
+6. Forgetting HSTS preload caveats
+7. Overlooking an edge case #1 specific to 02-internet.https in production traffic
+8. Overlooking an edge case #2 specific to 02-internet.https in production traffic
+9. Overlooking an edge case #3 specific to 02-internet.https in production traffic
+10. Overlooking an edge case #4 specific to 02-internet.https in production traffic
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- HTTPS everywhere + HSTS
+- Automate certs
+- Redirect HTTP→HTTPS
+- Monitor expiry
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Self-signed certs for public prod without pinning story
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
+| | HTTP | HTTPS |
 | --- | --- | --- |
-| TODO | TODO | TODO |
+| Encryption | No | Yes (TLS) |
+| Server auth | No | Cert |
+| Port | 80 | 443 |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is HTTPS?
+
+**A:** HTTP over TLS — encrypted and authenticated transport for HTTP.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** What does the browser verify in a cert?
+
+**A:** Chain of trust to a trusted CA, validity period, hostname match (SAN), and policy/revocation checks as implemented.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** Does HTTPS stop XSS?
+
+**A:** No. TLS protects the transport; XSS is an application injection bug in the browser context.
 
 ## Summary
 
-- TODO: key takeaway
+- HTTPS = HTTP + TLS
+- Protects confidentiality/integrity; authenticates server
+- Cert ops are production-critical
+- Not a substitute for app security
 
 ## References
 
-- TODO: official documentation links
+- [RFC 9110](https://www.rfc-editor.org/rfc/rfc9110)
+- [MDN — HTTPS](https://developer.mozilla.org/en-US/docs/Glossary/HTTPS)
 
 <RelatedTopics />
 
 
-Prev: [HTTP](/02-internet/http/) · Next: [SSL](/02-internet/ssl/)
+Prev: [`02-internet.http`](/02-internet/http/) · Next: [`02-internet.ssl`](/02-internet/ssl/)

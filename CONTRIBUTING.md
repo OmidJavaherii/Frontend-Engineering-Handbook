@@ -19,25 +19,24 @@ npx pnpm@9.15.0 dev
 
 ## Adding or changing topics
 
-1. Update `scripts/lib/curriculum-data.ts` (inventory) **or** edit `meta/topic-registry.yaml` carefully
+1. Update `scripts/lib/curriculum-data.ts` **or** edit `meta/topic-registry.yaml`
 2. If you changed curriculum-data: `pnpm registry:seed`
 3. `pnpm registry:all`
-4. `pnpm scaffold:topic --id {topic_id}` (or `pnpm scaffold:stubs`)
-5. Write content toward `published` using the standard template
+4. `pnpm scaffold:topic --id {topic_id}`
+5. Write content using the standard template (`status: published` when it meets the bar)
 6. Run `pnpm verify` before opening a PR
 
-## Status workflow
+Published bar: required H2 order, Mermaid, code when relevant, ≥10 common mistakes, Easy/Medium/Hard interview answers, official references. See [`standards/REVIEW_CHECKLIST.md`](standards/REVIEW_CHECKLIST.md).
 
-`stub` → `outline` → `draft` → `reviewed` → `published`
-
-Use [`standards/REVIEW_CHECKLIST.md`](standards/REVIEW_CHECKLIST.md) for `reviewed` / `published`.
+```bash
+pnpm content:publish --id 03-browser.event-loop   # or --module / --all
+```
 
 ## PR expectations
 
 - Prefer **one topic per PR** for content
 - Tooling / registry changes can be grouped when cohesive
 - Describe *why* the change exists in the PR body
-- Link related issues
 
 ## Code of conduct
 

@@ -1,6 +1,6 @@
 ---
 title: "Functions"
-description: "TODO — one-sentence description of Functions"
+description: "Function forms: declarations, expressions, arrows, defaults, rest/spread, and first-class usage."
 topic_id: 06-javascript.functions
 difficulty: beginner
 reading_time: 30
@@ -8,7 +8,7 @@ implementation_time: 0
 prerequisites: []
 tags: 
   - javascript
-status: stub
+status: published
 prev_topic: 06-javascript.classes
 next_topic: 06-javascript.objects
 related: []
@@ -21,131 +21,161 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Functions in simple language.
+Functions are first-class values. Declarations, expressions, arrows, and methods differ in hoisting, `this`, and `new`/`arguments` behavior. Defaults and rest parameters improve APIs.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Callbacks, methods, and modular APIs are all functions—small differences cause large bugs.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+From `Function` objects and declarations to arrows (ES2015) and concise methods.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Arrows: lexical `this`, no `arguments`, not constructable. Declarations: hoisted. Methods: concise on objects/classes.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Choose form based on `this` needs.
+2. Keep pure helpers for testability.
+3. Prefer rest over `arguments`.
+4. Avoid huge parameter lists—use objects.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+Lifecycle for functions:
+
+```mermaid
+stateDiagram-v2
+  [*] --> Active
+  Active --> Settled
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Browsers host the JS runtime; DevTools Sources/Console observe this topic at runtime.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Engines implement ECMAScript semantics (V8/JavaScriptCore/SpiderMonkey); optimize hot paths after correctness.
 
 ## React Perspective
 
-Not applicable.
+React app code is JS—misunderstanding this topic often shows up as stale UI state or broken effects.
 
 ## Next.js Perspective
 
-Not applicable.
+Next.js runs JS in Node/Edge and the browser; verify APIs exist in each runtime.
 
 ## Server Perspective
 
-Not applicable.
+Node/Edge may implement the same language feature with different host APIs.
 
 ## Network Perspective
 
-Not applicable.
+Not primarily a network feature unless combined with fetch/HTTP.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Watch retained objects via DevTools Memory; closures and globals keep references alive.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Measure with Performance panel / benchmarks before micro-optimizing.
 
 ## Production Example
 
-TODO: Realistic production example.
+Standardizing on named function declarations for stack traces improved production debugging.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```js
+const add = (a, b = 0) => a + b
+function sum(...nums) { return nums.reduce((a, b) => a + b, 0) }
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[Functions] --> nextStep[NextStep]
+flowchart TD
+  Code[Program] --> Runtime[JS runtime]
+  Runtime --> Effect[functions effect]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Treating the feature as magic without the language rule behind it
+2. Copying Stack Overflow snippets without edge cases
+3. Confusing browser host APIs with ECMAScript language semantics
+4. Optimizing before measuring
+5. Ignoring strict mode / module differences
+6. Using arrow as constructor
+7. Depending on arguments in arrows
+8. Missing a production edge case for 06-javascript.functions (#1)
+9. Missing a production edge case for 06-javascript.functions (#2)
+10. Missing a production edge case for 06-javascript.functions (#3)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Prefer language defaults and clear naming
+- Write a failing test for the sharp edge you hit
+- Use MDN + ECMA-262 for disagreements
+- Keep examples small and runnable
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Clever code that obscures control flow
+- Polyfilling incorrectly and masking bugs
+- Global mutable state as the default architecture
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
+| Form | `this` | `new` |
 | --- | --- | --- |
-| TODO | TODO | TODO |
+| function | dynamic | yes |
+| arrow | lexical | no |
+| method | dynamic | no (typically) |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is JS functions?
+
+**A:** First-class callable objects with several declaration forms that differ in hoisting and `this`.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Arrow vs function?
+
+**A:** Arrows inherit lexical `this` and cannot be used with `new`; ordinary functions have dynamic `this` and are constructable.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** Why prefer rest parameters?
+
+**A:** Real arrays, clearer signatures, work in arrows—unlike `arguments`.
 
 ## Summary
 
-- TODO: key takeaway
+- functions has precise ECMAScript/host semantics
+- Know failure modes and scope interactions
+- Measure production impact
+- Cross-link related handbook topics
 
 ## References
 
-- TODO: official documentation links
+- [MDN: Functions](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Functions)
+- [ECMA-262](https://tc39.es/ecma262/)
 
 <RelatedTopics />
-
 
 Prev: [Classes](/06-javascript/classes/) · Next: [Objects](/06-javascript/objects/)

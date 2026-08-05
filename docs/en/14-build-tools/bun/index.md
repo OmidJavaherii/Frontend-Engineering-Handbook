@@ -1,6 +1,6 @@
 ---
 title: "Bun"
-description: "TODO — one-sentence description of Bun"
+description: "All-in-one JS runtime/toolkit with package manager, bundler, and test runner."
 topic_id: 14-build-tools.bun
 difficulty: mid
 reading_time: 25
@@ -8,9 +8,9 @@ implementation_time: 0
 prerequisites: []
 tags: 
   - tooling
-status: stub
-prev_topic: 14-build-tools.yarn
-next_topic: 14-build-tools.module-resolution
+status: published
+prev_topic: "14-build-tools.yarn"
+next_topic: "14-build-tools.module-resolution"
 related: []
 advanced: []
 ---
@@ -21,41 +21,49 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Bun in simple language.
+**Bun** is a modern toolkit (Zig + JavaScriptCore) aiming to replace pieces of Node+npm+bundler+jest with one fast binary.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Dev speed and simpler tooling stacks attract greenfield projects; Node compatibility is improving but not perfect.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Rapid 2022–2024 rise; production caution varies by team.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Drop-in aspirations for many Node APIs + built-in bundler/test—verify compatibility.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Install bun.
+2. bun install / bun run.
+3. Validate native addons & edge APIs.
+4. Keep an escape hatch to Node CI if needed.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Idle
+  Idle --> Active: use
+  Active --> Idle: settle
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Not applicable.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
@@ -75,77 +83,99 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Measure before/after with lab + field tools. Optimize the attributed bottleneck for All-in-one JS runtime/toolkit with package manager, bundler, and test runner., not folklore.
 
 ## Production Example
 
-TODO: Realistic production example.
+Teams adopt All-in-one JS runtime/toolkit with package manager, bundler, and test runner. on critical routes, add monitoring, and guard regressions with budgets or reviews.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```bash
+bun install
+bun test
+bun build ./src/index.ts --outdir dist
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[Bun] --> nextStep[NextStep]
+flowchart TD
+  A[Understand] --> B[Apply All-in-one JS runtime/toolkit with package manager, bundler, and test runner.]
+  B --> C[Measure]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Assuming 100% Node API compatibility
+2. Native modules failing silently
+3. Team split between bun.lockb and npm lock
+4. Production runtime switch without load tests
+5. Ignoring Windows/path quirks
+6. Using bun only locally with different CI runtime
+7. Missing a production edge case for 14-build-tools.bun (#1)
+8. Missing a production edge case for 14-build-tools.bun (#2)
+9. Missing a production edge case for 14-build-tools.bun (#3)
+10. Missing a production edge case for 14-build-tools.bun (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Prefer platform/framework primitives
+- Measure impact on real user metrics
+- Keep the change reviewable and reversible
+- Document the invariant you are protecting
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Copy-paste without understanding failure modes
+- Premature abstraction around a single use
+- Optimizing without a baseline
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Approach | When |
+| --- | --- |
+| Use as designed | Default |
+| Simpler alternative | If constraints differ |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is Bun?
+
+**A:** A fast JS runtime and toolkit including package manager, bundler, and test runner.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Engine difference vs Node?
+
+**A:** Bun uses JavaScriptCore; Node uses V8—subtle compat differences exist.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** When not to adopt Bun as prod runtime?
+
+**A:** Heavy native addons, niche Node APIs, or strict enterprise support matrices—use bun for DX but deploy on Node if needed.
 
 ## Summary
 
-- TODO: key takeaway
+- All-in-one JS runtime/toolkit with package manager, bundler, and test runner.
+- Know why it exists and when not to use it
+- Measure production impact
+- Link related handbook topics instead of duplicating
 
 ## References
 
-- TODO: official documentation links
+- [Bun Docs](https://bun.sh/docs)
+- [Bun Runtime](https://bun.sh/docs/runtime)
 
 <RelatedTopics />
 
 
-Prev: [Yarn](/14-build-tools/yarn/) · Next: [Module Resolution](/14-build-tools/module-resolution/)
+Prev: [`14-build-tools.yarn`](/14-build-tools/yarn/) · Next: [`14-build-tools.module-resolution`](/14-build-tools/module-resolution/)

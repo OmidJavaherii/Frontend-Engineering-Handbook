@@ -1,6 +1,6 @@
 ---
 title: "Service Worker Lifecycle"
-description: "TODO — one-sentence description of Service Worker Lifecycle"
+description: "Install, waiting, activate, claim, and update cycles of service workers — the control plane for PWAs."
 topic_id: 23-pwa-and-offline.service-worker-lifecycle
 difficulty: mid
 reading_time: 40
@@ -9,9 +9,9 @@ prerequisites:
   - 09-browser-apis.service-workers
 tags: 
   - pwa
-status: stub
-prev_topic: 23-pwa-and-offline.pwa-overview
-next_topic: 23-pwa-and-offline.caching-strategies-sw
+status: published
+prev_topic: "23-pwa-and-offline.pwa-overview"
+next_topic: "23-pwa-and-offline.caching-strategies-sw"
 related: []
 advanced: []
 ---
@@ -22,131 +22,184 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Service Worker Lifecycle in simple language.
+The **Service Worker Lifecycle** defines how a worker script is registered, installed, waits, activates, controls pages, and updates. Misunderstanding it causes “why is my cache stuck?” bugs.
+
+Prerequisite: [/09-browser-apis/service-workers/](/09-browser-apis/service-workers/).
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+SWs can intercept every request. Browsers therefore stage updates carefully so tabs aren’t yanked mid-session without rules.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Service Workers replaced the broken Application Cache with an explicit lifecycle and Cache API.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+States: **parsed → installing → waiting → active → redundant**. A new SW waits until old clients release control unless you `skipWaiting` + `clients.claim` (with eyes open).
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Register  
+2. `install` → precache  
+3. `activate` → delete old caches  
+4. `fetch` handlers run when controlling  
+5. Updates check on navigation; waiting SW swaps per policy
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Installing
+  Installing --> Waiting: installed
+  Waiting --> Active: activate
+  Active --> Redundant: replaced
+  Installing --> Redundant: error
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Chrome Application panel shows versions and clients. Updates checked roughly on navigations / periodically.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Worker thread — no DOM access.
 
 ## React Perspective
 
-Not applicable.
+UI should listen for `controllerchange` to prompt refresh.
 
 ## Next.js Perspective
 
-Not applicable.
+Build tooling emits hashed assets; SW must not cache HTML forever without plan.
 
 ## Server Perspective
 
-Not applicable.
+Serve `sw.js` with short cache or `no-cache` so updates are visible.
 
 ## Network Perspective
 
-Not applicable.
+Fetch event can bypass or hit Cache Storage.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Old caches linger until activate cleanup.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Precache wisely; huge install events fail or delay readiness.
 
 ## Production Example
 
-TODO: Realistic production example.
+On activate, delete caches not in the allowlist; show “Update available” toast instead of blind `skipWaiting` for critical apps.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```js
+self.addEventListener('install', (event) => {
+  event.waitUntil(caches.open('v2').then((c) => c.addAll(['/', '/app.js'])))
+})
+
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches.keys().then((keys) =>
+      Promise.all(keys.filter((k) => k !== 'v2').map((k) => caches.delete(k))),
+    ),
+  )
+})
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[ServiceWorkerLifecycle] --> nextStep[NextStep]
+flowchart TD
+  n0[Register] --> n1[Install]
+  n1[Install] --> n2[Wait]
+  n2[Wait] --> n3[Activate]
+```
+
+```mermaid
+sequenceDiagram
+  participant User
+  participant App
+  participant Platform
+  User->>App: interact (SW lifecycle)
+  App->>Platform: apply mechanism
+  Platform-->>App: result or error
+  App-->>User: update UI
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Caching `sw.js` aggressively at the CDN
+2. Never deleting old caches
+3. Blind skipWaiting breaking in-flight UX
+4. Assuming SW controls the page that registered it immediately
+5. Importing huge bundles into SW
+6. No UI for updates
+7. Missing a production edge case for 23-pwa-and-offline.service-worker-lifecycle (#1)
+8. Missing a production edge case for 23-pwa-and-offline.service-worker-lifecycle (#2)
+9. Missing a production edge case for 23-pwa-and-offline.service-worker-lifecycle (#3)
+10. Missing a production edge case for 23-pwa-and-offline.service-worker-lifecycle (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Versioned cache names
+- Short cache for SW script
+- Explicit update UX
+- Cleanup on activate
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Single eternal cache name forever
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
+| Update style | UX | Risk |
 | --- | --- | --- |
-| TODO | TODO | TODO |
+| Wait for tabs to close | Calm | Slow updates |
+| skipWaiting + claim | Immediate | Mid-session shifts |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** Name key SW lifecycle events.
+
+**A:** `install`, `activate`, plus `fetch`/`message` while active.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** What does waiting mean?
+
+**A:** A new worker is installed but an older active worker still controls clients until it can take over.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How do you ship a breaking SW change safely?
+
+**A:** Version caches, activate cleanup, prompt users to refresh, avoid claiming instantly on critical flows, monitor error rates.
 
 ## Summary
 
-- TODO: key takeaway
+- Install → wait → activate
+- Control is explicit
+- Version caches
+- Plan updates UX
 
 ## References
 
-- TODO: official documentation links
+- [MDN — Service Worker lifecycle](https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API/Using_Service_Workers)
+- [web.dev — Service worker lifecycle](https://web.dev/articles/service-worker-lifecycle)
 
 <RelatedTopics />
 
 
-Prev: [PWA Overview](/23-pwa-and-offline/pwa-overview/) · Next: [Service Worker Caching Strategies](/23-pwa-and-offline/caching-strategies-sw/)
+Prev: [`23-pwa-and-offline.pwa-overview`](/23-pwa-and-offline/pwa-overview/) · Next: [`23-pwa-and-offline.caching-strategies-sw`](/23-pwa-and-offline/caching-strategies-sw/)

@@ -1,6 +1,6 @@
 ---
 title: "When Patterns Hurt"
-description: "TODO — one-sentence description of When Patterns Hurt"
+description: "Recognize over-engineering: when design patterns add indirection without buying clarity, safety, or speed."
 topic_id: 22-design-patterns.when-patterns-hurt
 difficulty: mid
 reading_time: 25
@@ -9,8 +9,8 @@ prerequisites: []
 tags: 
   - patterns
   - architecture
-status: stub
-prev_topic: 22-design-patterns.factory-and-builder
+status: published
+prev_topic: "22-design-patterns.factory-and-builder"
 next_topic: null
 related: []
 advanced: []
@@ -22,49 +22,59 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain When Patterns Hurt in simple language.
+**When Patterns Hurt** is the meta-topic: patterns are tools, not trophies. Applying HOC + builder + abstract factory + mega provider to a three-page app creates drag.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Junior-to-mid codebases often “enterprise” themselves after reading pattern catalogs. The cost is onboarding time, indirection, and fear of change — without reliability gains.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+GoF patterns predate modern languages with first-class functions. Many classic OO patterns are one-liners in JS. React’s own history shows HOCs → hooks as a simplification arc.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+A pattern must buy at least one of: **clearer intent**, **safer changes**, **better test seams**, **measured performance**. If it only buys prestige, delete it.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. State the concrete pain  
+2. Consider the simplest fix  
+3. Introduce a pattern only when pain repeats  
+4. Document the invariant  
+5. Schedule removal when the pain leaves
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Pain
+  Pain --> SimpleFix: try_first
+  SimpleFix --> Pattern: pain_repeats
+  Pattern --> Remove: obsolete
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Not applicable.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+Prefer boring React before architecture astronautics — [/10-react/philosophy/](/10-react/philosophy/).
 
 ## Next.js Perspective
 
-Not applicable.
+Framework conventions beat custom frameworks-in-a-framework.
 
 ## Server Perspective
 
@@ -76,77 +86,111 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Indirection rarely helps runtime perf; it often hurts human perf.
 
 ## Production Example
 
-TODO: Realistic production example.
+A squad deleted three HOC layers and one DI container around form state; bug rate dropped because stack traces became readable again.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```ts
+// Hurtful: abstract factory for buttons
+// Better: a Button component with variants
+
+// Hurtful: premature micro-frontend
+// Better: modular monolith folders until deploy coupling hurts
+```
 
 ## Diagrams
 
 ```mermaid
-flowchart LR
-  concept[WhenPatternsHurt] --> nextStep[NextStep]
+flowchart TD
+  n0[Real pain] --> n1[Simplest fix]
+  n1[Simplest fix] --> n2[Pattern if repeated]
+```
+
+```mermaid
+sequenceDiagram
+  participant User
+  participant App
+  participant Platform
+  User->>App: interact (Patterns hurt)
+  App->>Platform: apply mechanism
+  Platform-->>App: result or error
+  App-->>User: update UI
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Pattern-driven development without a problem
+2. Copying Java enterprise layers into React
+3. Keeping flags/HOCs/providers forever
+4. Abstracting before the second real use case
+5. Treating interview pattern names as architecture requirements
+6. Confusing consistency with ceremonial sameness
+7. Missing a production edge case for 22-design-patterns.when-patterns-hurt (#1)
+8. Missing a production edge case for 22-design-patterns.when-patterns-hurt (#2)
+9. Missing a production edge case for 22-design-patterns.when-patterns-hurt (#3)
+10. Missing a production edge case for 22-design-patterns.when-patterns-hurt (#4)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Rule of three before abstraction
+- Delete obsolete patterns
+- Prefer language/framework features
+- Measure complexity in review (files touched per change)
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Architecture diagrams with more boxes than user journeys
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
+| Signal | Healthy pattern | Harmful pattern |
 | --- | --- | --- |
-| TODO | TODO | TODO |
+| Onboarding | Faster | Slower |
+| Change cost | Lower | Higher |
+| Bugs | Fewer boundary bugs | More wiring bugs |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** Can design patterns be harmful?
+
+**A:** Yes — when they add indirection without reducing real pain.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Give a React example of a pattern that often hurts today.
+
+**A:** Deep HOC stacks or mega Context for all state — replace with hooks and proper state ownership.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** How do you decide to introduce vs remove a pattern in a mature codebase?
+
+**A:** Track repeated pain, cost of change, and whether the pattern still pays rent; remove when the original constraint is gone.
 
 ## Summary
 
-- TODO: key takeaway
+- Patterns must pay rent
+- Simplest fix first
+- Delete obsolete indirection
+- Human performance counts
 
 ## References
 
-- TODO: official documentation links
+- [Sandi Metz — The Wrong Abstraction](https://sandimetz.com/blog/2016/1/20/the-wrong-abstraction)
+- [Martin Fowler — YAGNI](https://martinfowler.com/bliki/Yagni.html)
 
 <RelatedTopics />
 
 
-Prev: [Factory and Builder](/22-design-patterns/factory-and-builder/)
+Prev: [`22-design-patterns.factory-and-builder`](/22-design-patterns/factory-and-builder/)

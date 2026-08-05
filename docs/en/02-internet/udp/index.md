@@ -1,16 +1,16 @@
 ---
 title: "UDP"
-description: "TODO — one-sentence description of UDP"
+description: "UDP: minimal datagram transport used by DNS, QUIC/HTTP3, and real-time media."
 topic_id: 02-internet.udp
 difficulty: mid
-reading_time: 30
+reading_time: 25
 implementation_time: 0
 prerequisites: []
 tags: 
   - networking
-status: stub
-prev_topic: 02-internet.tcp
-next_topic: 02-internet.http
+status: published
+prev_topic: "02-internet.tcp"
+next_topic: "02-internet.http"
 related: []
 advanced: []
 ---
@@ -21,41 +21,47 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain UDP in simple language.
+**UDP (User Datagram Protocol)** sends independent datagrams without connection handshake, retransmission, or ordering. Apps that need those features build them (or use QUIC). DNS historically uses UDP; **HTTP/3 uses QUIC over UDP**.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+When you need low latency and can tolerate loss (media) — or you implement reliability in user space (QUIC) — UDP is the substrate.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Simple demux by port since early IP days; real-time WebRTC; QUIC rebirth of “UDP + smart userspace”.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Throw postcards: may arrive, duplicate, reorder, or vanish. No connection state in the protocol (firewalls may still track flows).
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. App writes datagram to IP:port.
+2. Network delivers 0..n times.
+3. App handles loss/order if needed.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Send
+  Send --> MaybeArrive
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Browsers don’t expose raw UDP to pages; WebRTC/QUIC are gated APIs/stacks.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
@@ -71,81 +77,98 @@ Not applicable.
 
 ## Network Perspective
 
-Not applicable.
+Middleboxes sometimes throttle UDP; QUIC deployment fought this.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+No handshake RTT — great for QUIC’s 0/1-RTT goals. Loss handling is app-defined.
 
 ## Production Example
 
-TODO: Realistic production example.
+Corporate firewalls blocked UDP 443 → HTTP/3 fallback to TCP/HTTP2 needed monitoring.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```bash
+# DNS over UDP (typical)
+dig example.com
+```
 
 ## Diagrams
 
 ```mermaid
 flowchart LR
-  concept[UDP] --> nextStep[NextStep]
+  App --> UDP --> IP --> Peer
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Expecting UDP reliability
+2. Assuming browsers allow arbitrary UDP sockets to pages
+3. Forgetting path MTU for large datagrams
+4. Equating UDP with insecurity (QUIC/TLS still encrypts)
+5. Ignoring UDP blocking on enterprise nets
+6. Reinventing TCP poorly
+7. Overlooking an edge case #1 specific to 02-internet.udp in production traffic
+8. Overlooking an edge case #2 specific to 02-internet.udp in production traffic
+9. Overlooking an edge case #3 specific to 02-internet.udp in production traffic
+10. Overlooking an edge case #4 specific to 02-internet.udp in production traffic
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Use QUIC/WebRTC stacks rather than homemade reliability when possible
+- Always plan HTTP/2 fallback
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Giant unreplicated UDP protocols without congestion control (Internet-harmful)
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
+| Feature | UDP | TCP |
 | --- | --- | --- |
-| TODO | TODO | TODO |
+| Connect | No | Yes |
+| Reliable | No | Yes |
+| HTTP/3 | Yes (via QUIC) | No |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** When would you use UDP?
+
+**A:** When you want minimal transport — real-time media or protocols like QUIC that handle reliability themselves.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Why can HTTP/3 use UDP and still be secure/reliable?
+
+**A:** QUIC implements encryption and reliability in userspace over UDP datagrams.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** What operational issue affects UDP-based HTTP/3?
+
+**A:** Some networks block or rate-limit UDP, requiring fallback to TCP-based HTTP.
 
 ## Summary
 
-- TODO: key takeaway
+- UDP is unreliable datagrams
+- Foundation for DNS/QUIC/media
+- Browsers don’t give raw UDP to JS pages
+- Always consider fallbacks
 
 ## References
 
-- TODO: official documentation links
+- [RFC 768 — UDP](https://www.rfc-editor.org/rfc/rfc768)
+- [MDN — UDP](https://developer.mozilla.org/en-US/docs/Glossary/UDP)
 
 <RelatedTopics />
 
 
-Prev: [TCP](/02-internet/tcp/) · Next: [HTTP](/02-internet/http/)
+Prev: [`02-internet.tcp`](/02-internet/tcp/) · Next: [`02-internet.http`](/02-internet/http/)

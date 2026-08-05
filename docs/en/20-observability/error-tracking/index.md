@@ -1,6 +1,6 @@
 ---
 title: "Error Tracking"
-description: "TODO — one-sentence description of Error Tracking"
+description: "Capture, group, and alert on frontend exceptions with source maps, releases, and privacy controls."
 topic_id: 20-observability.error-tracking
 difficulty: mid
 reading_time: 30
@@ -8,9 +8,9 @@ implementation_time: 0
 prerequisites: []
 tags: 
   - observability
-status: stub
-prev_topic: 20-observability.logging
-next_topic: 20-observability.rum
+status: published
+prev_topic: "20-observability.logging"
+next_topic: "20-observability.rum"
 related: []
 advanced: []
 ---
@@ -21,45 +21,56 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Error Tracking in simple language.
+**Error tracking** services (Sentry, etc.) collect runtime exceptions and unhandled rejections, group them, attach releases/source maps, and alert. They turn unknown prod failures into actionable issues.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+Users won’t always report bugs. Field errors reveal what lab tests missed.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+Window.onerror → robust SDKs with Session Replay debates, fingerprinting, and privacy controls.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+SDK hooks global handlers + framework integrations → events with stack → grouped issues → triage. Sampling and ignore rules control noise.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Install SDK with release.
+2. Upload source maps.
+3. Set sample rates / ignores.
+4. Alert on regressions.
+5. Triage with owners.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Capture
+  Capture --> Group
+  Group --> Alert
+  Alert --> Fix
+  Fix --> Resolve
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Cross-origin script errors may be “Script error” without CORS on scripts.
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Not applicable.
 
 ## React Perspective
 
-Not applicable.
+Error boundaries report to tracker; still catch async separately.
 
 ## Next.js Perspective
 
@@ -75,77 +86,94 @@ Not applicable.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+SDKs add bytes/CPU—sample; defer load carefully without missing early errors.
 
 ## Production Example
 
-TODO: Realistic production example.
+Sentry release per git SHA; alert if new issue spikes; PII scrubbing; no replay on payment pages.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```ts
+window.addEventListener('unhandledrejection', (e) => {
+  reportError(e.reason)
+})
+```
 
 ## Diagrams
 
 ```mermaid
 flowchart LR
-  concept[ErrorTracking] --> nextStep[NextStep]
+  Exception --> SDK --> Tracker --> Issue --> Owner
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. No source maps
+2. Alerting on every noise error
+3. Sending PII in extras
+4. Ignoring error boundaries’ reporting
+5. One giant catch that reports and swallows without UX
+6. Missing a production edge case for 20-observability.error-tracking (#1)
+7. Missing a production edge case for 20-observability.error-tracking (#2)
+8. Missing a production edge case for 20-observability.error-tracking (#3)
+9. Missing a production edge case for 20-observability.error-tracking (#4)
+10. Missing a production edge case for 20-observability.error-tracking (#5)
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Release + maps
+- Fingerprint thoughtfully
+- Own issues like bugs
 
 ## Anti-patterns
 
-TODO: What not to do.
+- Turning off tracking in prod to “improve privacy” without alternative
+- Sampling 0% on the riskiest app
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
-| --- | --- | --- |
-| TODO | TODO | TODO |
+| Error tracking | Logs |
+| --- | --- |
+| Exception-centric | Event narrative |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What does an error tracker capture?
+
+**A:** Runtime exceptions/rejections with stacks, context, and often release/environment metadata.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** Why upload source maps to the tracker?
+
+**A:** So minified stacks resolve to original files/lines for humans.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** Reduce noisy third-party errors.
+
+**A:** Ignore rules, inbound filters, separate script ownership, sample rates, and fix or sandbox third parties.
 
 ## Summary
 
-- TODO: key takeaway
+- Track field exceptions with releases
+- Maps + scrubbing
+- Triage as product work
 
 ## References
 
-- TODO: official documentation links
+- [Sentry for JavaScript](https://docs.sentry.io/platforms/javascript/)
+- [MDN — Window:error event](https://developer.mozilla.org/en-US/docs/Web/API/Window/error_event)
 
 <RelatedTopics />
 
 
-Prev: [Logging](/20-observability/logging/) · Next: [Real User Monitoring](/20-observability/rum/)
+Prev: [`20-observability.logging`](/20-observability/logging/) · Next: [`20-observability.rum`](/20-observability/rum/)

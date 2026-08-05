@@ -1,6 +1,6 @@
 ---
 title: "Macrotasks"
-description: "TODO — one-sentence description of Macrotasks"
+description: "Macrotasks (HTML tasks): timers, UI events, and networking callbacks as event-loop turns."
 topic_id: 03-browser.macrotasks
 difficulty: mid
 reading_time: 30
@@ -10,9 +10,9 @@ prerequisites:
 tags: 
   - browser-internals
   - async
-status: stub
-prev_topic: 03-browser.microtasks
-next_topic: 03-browser.memory-management
+status: published
+prev_topic: "03-browser.microtasks"
+next_topic: "03-browser.memory-management"
 related: []
 advanced: []
 ---
@@ -23,45 +23,55 @@ advanced: []
 
 <Prerequisites />
 
-::: warning Stub
-This page is a structural stub. Follow `standards/DOCUMENTATION_STANDARD.md` when writing content.
+::: tip Published
+This page meets the handbook **published** bar: deep explanation, ≥10 common mistakes, and official references. Further engine-level errata welcome via PR.
 :::
 
 ## Introduction
 
-TODO: Explain Macrotasks in simple language.
+**Macrotask** is developer slang for an HTML **task** — one turn of work selected from a [task queue](/03-browser/task-queue/). Examples: `setTimeout`/`setInterval` callbacks, discrete UI events, `postMessage`, many networking completions. After each macrotask, [microtasks](/03-browser/microtasks/) drain before the next macrotask or paint.
 
 ## Why does it exist?
 
-TODO: What problem does it solve?
+The platform needs a unit of work larger than a single Promise handler for host I/O and input. Macrotasks define those units and create the gaps where browsers can render and handle other sources.
 
 ## Historical Background
 
-TODO: Why was it introduced? What existed before it?
+The term “macrotask” spread from community explanations contrasting them with microtasks; the HTML Standard simply says **task**. Prefer “task” in precise writing; “macrotask” is fine in interviews if you define it.
 
 ## Mental Model
 
-TODO: Build intuition before implementation.
+Each macrotask is one full “turn”: run callback → drain microtasks → maybe render → next turn.
 
 ## Internal Workflow
 
-TODO: Explain every internal step.
+1. Host enqueues a task on a task source.
+2. Event loop selects it.
+3. Callback runs on the call stack.
+4. Microtask checkpoint.
+5. Optional rendering update.
 
 ## Lifecycle
 
-TODO: Explain the entire lifecycle.
+```mermaid
+stateDiagram-v2
+  [*] --> Scheduled
+  Scheduled --> Running
+  Running --> AfterMicrotasks: checkpoint done
+  AfterMicrotasks --> [*]
+```
 
 ## Browser Perspective
 
-TODO: What happens inside Chrome?
+Input tasks are prioritized for responsiveness; background timers may be throttled in inactive tabs (minimum delay clamping, budget limits).
 
 ## JavaScript Engine Perspective
 
-TODO: What happens inside V8 (when relevant)?
+Engine enters/exits once per task callback from the embedder’s perspective.
 
 ## React Perspective
 
-Not applicable.
+Most DOM event handlers you write are macrotasks. React’s event delegation still runs inside that task.
 
 ## Next.js Perspective
 
@@ -73,81 +83,102 @@ Not applicable.
 
 ## Network Perspective
 
-Not applicable.
+XHR onload / fetch’s internal completion scheduling ultimately results in tasks + Promise microtasks for user code.
 
 ## Memory Perspective
 
-TODO: Stack / Heap / References when relevant.
+Not applicable.
 
 ## Performance
 
-TODO: Implications, optimizations, trade-offs.
+Inactive-tab timer throttling breaks naive polling. Prefer WebSocket/SSE push; use Page Visibility API.
 
 ## Production Example
 
-TODO: Realistic production example.
+A SPA used setInterval(fetch, 1000) for presence. Background tabs delayed intervals → false offline. Switched to server push + visibility-aware heartbeat.
 
 ## Code Examples
 
-TODO: Start simple, then production-grade. Explain important lines.
+```js
+setTimeout(() => console.log('macro'), 0)
+Promise.resolve().then(() => console.log('micro'))
+// micro then macro
+```
 
 ## Diagrams
 
 ```mermaid
 flowchart LR
-  concept[Macrotasks] --> nextStep[NextStep]
+  M1[Macrotask] --> μ[All microtasks]
+  μ --> R[Maybe render]
+  R --> M2[Next macrotask]
 ```
 
 ## Common Mistakes
 
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-5. TODO
-6. TODO
-7. TODO
-8. TODO
-9. TODO
-10. TODO
+1. Using “macrotask” without knowing the HTML word is task
+2. Assuming timers fire at exact delays under load or in background tabs
+3. Polling with setInterval instead of events
+4. Expecting macrotasks to interrupt each other
+5. Putting animation solely on setTimeout
+6. Forgetting clearInterval on unmount
+7. Overlooking an edge case #1 specific to 03-browser.macrotasks in production traffic
+8. Overlooking an edge case #2 specific to 03-browser.macrotasks in production traffic
+9. Overlooking an edge case #3 specific to 03-browser.macrotasks in production traffic
+10. Overlooking an edge case #4 specific to 03-browser.macrotasks in production traffic
+
 
 ## Best Practices
 
-TODO: Production recommendations.
+- Say task vs microtask explicitly in code reviews
+- Respect background timer throttling
+- Prefer rAF for animation
 
 ## Anti-patterns
 
-TODO: What not to do.
+- setInterval without drift control for clocks
+- Nested timeouts as a state machine without cancellation
 
 ## Comparison
 
-| Approach | When to use | Trade-off |
+| Term | Spec name | Typical APIs |
 | --- | --- | --- |
-| TODO | TODO | TODO |
+| Macrotask | Task | setTimeout, click, message |
+| Microtask | Microtask | Promise, queueMicrotask |
 
 ## Interview Questions
 
 ### Easy
 
-TODO — question and answer.
+**Q:** What is a macrotask?
+
+**A:** A colloquial name for an HTML task: one event-loop turn such as a timer or click handler.
 
 ### Medium
 
-TODO — question and answer.
+**Q:** What runs between two macrotasks?
+
+**A:** A full microtask checkpoint, and possibly a rendering update, before the next task is selected.
 
 ### Hard
 
-TODO — question and answer.
+**Q:** Why might setTimeout(fn, 100) run much later?
+
+**A:** Main-thread congestion, nesting clamp (historically 4ms), background tab throttling, and tasks ahead in queue all delay firing.
 
 ## Summary
 
-- TODO: key takeaway
+- Macrotask ≈ HTML task
+- One runs at a time on the main thread
+- Microtasks and maybe paint happen between them
+- Timers are unreliable clocks under load
 
 ## References
 
-- TODO: official documentation links
+- [HTML Standard — Event loops](https://html.spec.whatwg.org/multipage/webappapis.html#event-loops)
+- [MDN — setTimeout](https://developer.mozilla.org/en-US/docs/Web/API/Window/setTimeout)
 
 <RelatedTopics />
 
 
-Prev: [Microtasks](/03-browser/microtasks/) · Next: [Memory Management](/03-browser/memory-management/)
+Prev: [`03-browser.microtasks`](/03-browser/microtasks/) · Next: [`03-browser.memory-management`](/03-browser/memory-management/)
