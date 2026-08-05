@@ -14,10 +14,13 @@ const base =
 const siteOrigin = 'https://omidjavaherii.github.io'
 const siteUrl = `${siteOrigin}${base}`
 const ogImage = `${siteUrl}og/banner.png`
+const description =
+  enConfig.description ??
+  'A first-principles handbook for modern frontend engineering — from bits and packets to pixels and production systems.'
 
 export default withMermaid({
   title: 'Frontend Engineering Handbook',
-  description: enConfig.description,
+  description,
   // Project Pages: https://omidjavaherii.github.io/Frontend-Engineering-Handbook/
   base,
   srcDir: 'en',
@@ -30,13 +33,13 @@ export default withMermaid({
     ['meta', { property: 'og:type', content: 'website' }],
     ['meta', { property: 'og:site_name', content: 'Frontend Engineering Handbook' }],
     ['meta', { property: 'og:title', content: 'Frontend Engineering Handbook' }],
-    ['meta', { property: 'og:description', content: enConfig.description }],
+    ['meta', { property: 'og:description', content: description }],
     ['meta', { property: 'og:image', content: ogImage }],
     ['meta', { property: 'og:image:alt', content: 'Frontend Engineering Handbook banner' }],
     ['meta', { property: 'og:url', content: siteUrl }],
     ['meta', { name: 'twitter:card', content: 'summary_large_image' }],
     ['meta', { name: 'twitter:title', content: 'Frontend Engineering Handbook' }],
-    ['meta', { name: 'twitter:description', content: enConfig.description }],
+    ['meta', { name: 'twitter:description', content: description }],
     ['meta', { name: 'twitter:image', content: ogImage }],
   ],
   themeConfig: {
