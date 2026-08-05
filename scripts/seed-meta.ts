@@ -1,0 +1,196 @@
+/**
+ * Seeds meta/*.yaml from curriculum-data.ts (run when curriculum inventory changes).
+ */
+import fs from 'node:fs'
+import path from 'node:path'
+import YAML from 'yaml'
+import { buildRegistry, collectTags } from './lib/build-registry.js'
+import {
+  KNOWLEDGE_GRAPH_PATH,
+  LEARNING_PATHS_PATH,
+  META_DIR,
+  REGISTRY_PATH,
+  TAGS_PATH,
+} from './lib/paths.js'
+
+const LEARNING_PATHS = {
+  paths: [
+    {
+      id: 'beginner',
+      title: 'Beginner Path',
+      description: 'First principles through HTML, CSS, and core JavaScript',
+      audience: 'Beginners and career changers',
+      topic_ids: [
+        '00-foundations.start-here',
+        '00-foundations.how-the-web-works-map',
+        '01-computer-science.binary',
+        '01-computer-science.bits-and-bytes',
+        '01-computer-science.memory',
+        '02-internet.what-is-the-internet',
+        '02-internet.dns',
+        '02-internet.http',
+        '03-browser.browser-architecture',
+        '03-browser.critical-rendering-path',
+        '04-html.semantic-html',
+        '04-html.document-structure',
+        '05-css.box-model',
+        '05-css.flexbox',
+        '06-javascript.variables',
+        '06-javascript.types-and-values',
+        '06-javascript.scope',
+        '06-javascript.functions',
+        '09-browser-apis.localstorage',
+      ],
+    },
+    {
+      id: 'junior',
+      title: 'Junior Developer Path',
+      description: 'Beginner path plus async JS, TypeScript basics, React fundamentals, and tooling',
+      audience: 'Junior frontend developers',
+      topic_ids: [
+        '06-javascript.closures',
+        '06-javascript.promise',
+        '06-javascript.async-await',
+        '06-javascript.fetch-api',
+        '07-typescript.types',
+        '07-typescript.interfaces',
+        '08-jsx-and-react-runtime.jsx',
+        '08-jsx-and-react-runtime.virtual-dom',
+        '10-react.components',
+        '10-react.props',
+        '10-react.state',
+        '10-react.hooks',
+        '10-react.useeffect',
+        '14-build-tools.npm',
+        '14-build-tools.vite',
+        '16-testing.react-testing-library',
+        '18-accessibility.why-accessibility',
+        '18-accessibility.wcag',
+      ],
+    },
+    {
+      id: 'mid-level',
+      title: 'Mid-Level Engineer Path',
+      description: 'Browser internals, Fiber, Next.js App Router, rendering strategies, and security',
+      audience: 'Mid-level engineers',
+      topic_ids: [
+        '03-browser.event-loop',
+        '03-browser.microtasks',
+        '08-jsx-and-react-runtime.fiber',
+        '08-jsx-and-react-runtime.reconciliation',
+        '10-react.concurrent-rendering',
+        '11-nextjs.app-router',
+        '11-nextjs.server-components',
+        '11-nextjs.caching',
+        '12-rendering.ssr',
+        '12-rendering.hydration',
+        '12-rendering.rendering-strategy-decision-tree',
+        '13-performance.core-web-vitals',
+        '15-architecture.state-management',
+        '15-architecture.tanstack-query',
+        '17-security.xss',
+        '17-security.cors',
+        '20-observability.chrome-devtools',
+      ],
+    },
+    {
+      id: 'senior',
+      title: 'Senior Frontend Path',
+      description: 'Engines, advanced Next.js, system design, deployment, and PWAs',
+      audience: 'Senior frontend engineers',
+      topic_ids: [
+        '03-browser.v8',
+        '03-browser.garbage-collection-browser',
+        '11-nextjs.partial-prerendering',
+        '13-performance.profiling',
+        '13-performance.long-tasks',
+        '15-architecture.monorepo',
+        '15-architecture.micro-frontends',
+        '19-deployment.cdn-deployment',
+        '19-deployment.ci-cd',
+        '21-frontend-system-design.scaling-react-applications',
+        '21-frontend-system-design.realtime-applications',
+        '22-design-patterns.when-patterns-hurt',
+        '23-pwa-and-offline.service-worker-lifecycle',
+        '23-pwa-and-offline.caching-strategies-sw',
+      ],
+    },
+    {
+      id: 'backend-to-frontend',
+      title: 'Backend to Frontend Path',
+      description: 'Network and browser mental models, JS crash course, SSR, and Next.js',
+      audience: 'Backend developers learning frontend',
+      topic_ids: [
+        '02-internet.http',
+        '02-internet.tls',
+        '02-internet.http-caching',
+        '03-browser.browser-architecture',
+        '03-browser.critical-rendering-path',
+        '03-browser.event-loop',
+        '06-javascript.execution-context',
+        '06-javascript.closures',
+        '06-javascript.promise',
+        '12-rendering.ssr',
+        '12-rendering.hydration',
+        '11-nextjs.app-router',
+        '11-nextjs.server-components',
+        '17-security.cors',
+        '17-security.xss',
+        '19-deployment.reverse-proxy',
+      ],
+    },
+    {
+      id: 'interview-prep',
+      title: 'Interview Preparation Path',
+      description: 'Canonical interview banks with links back into deep topic pages',
+      audience: 'Engineers preparing for technical interviews',
+      topic_ids: [
+        '24-interview-preparation.how-to-answer',
+        '24-interview-preparation.javascript-interview-questions',
+        '24-interview-preparation.browser-interview-questions',
+        '24-interview-preparation.react-interview-questions',
+        '24-interview-preparation.nextjs-interview-questions',
+        '24-interview-preparation.network-interview-questions',
+        '24-interview-preparation.css-interview-questions',
+        '24-interview-preparation.typescript-interview-questions',
+        '24-interview-preparation.performance-interview-questions',
+        '24-interview-preparation.security-interview-questions',
+        '24-interview-preparation.system-design-interview-questions',
+      ],
+    },
+  ],
+}
+
+function writeYaml(filePath: string, data: unknown) {
+  fs.mkdirSync(path.dirname(filePath), { recursive: true })
+  const body = YAML.stringify(data, { lineWidth: 120, sortMapEntries: false })
+  fs.writeFileSync(filePath, body, 'utf8')
+}
+
+const registry = buildRegistry()
+fs.mkdirSync(META_DIR, { recursive: true })
+writeYaml(REGISTRY_PATH, registry)
+writeYaml(TAGS_PATH, { tags: collectTags(registry) })
+writeYaml(LEARNING_PATHS_PATH, LEARNING_PATHS)
+
+const edges = registry.topics.flatMap((topic) => {
+  const out: { from: string; to: string; type: string }[] = []
+  for (const to of topic.depends_on) out.push({ from: topic.id, to, type: 'depends_on' })
+  for (const to of topic.related) out.push({ from: topic.id, to, type: 'related_to' })
+  for (const to of topic.children) out.push({ from: topic.id, to, type: 'child_of' })
+  for (const to of topic.perspective_of) out.push({ from: topic.id, to, type: 'perspective_of' })
+  for (const to of topic.advanced) out.push({ from: topic.id, to, type: 'deepens' })
+  return out
+})
+
+writeYaml(KNOWLEDGE_GRAPH_PATH, {
+  version: 1,
+  edge_types: ['depends_on', 'child_of', 'related_to', 'deepens', 'perspective_of'],
+  edges,
+})
+
+console.log(`Seeded registry with ${registry.topics.length} topics across ${registry.modules.length} modules`)
+console.log(`Wrote ${REGISTRY_PATH}`)
+console.log(`Wrote ${TAGS_PATH}`)
+console.log(`Wrote ${LEARNING_PATHS_PATH}`)
+console.log(`Wrote ${KNOWLEDGE_GRAPH_PATH}`)

@@ -1,0 +1,15 @@
+content:
+  - changed-files:
+      - any-glob-to-any-file: docs/en/**/*
+tooling:
+  - changed-files:
+      - any-glob-to-any-file: scripts/**/*
+registry:
+  - changed-files:
+      - any-glob-to-any-file: meta/**/*
+site:
+  - changed-files:
+      - any-glob-to-any-file: docs/.vitepress/**/*
+standards:
+  - changed-files:
+      - any-glob-to-any-file: standards/**/*

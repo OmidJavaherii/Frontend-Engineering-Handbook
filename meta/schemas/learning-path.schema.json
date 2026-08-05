@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://frontend-engineering-handbook.local/schemas/learning-path.schema.json",
+  "title": "LearningPath",
+  "type": "object",
+  "required": ["id", "title", "description", "audience", "topic_ids"],
+  "properties": {
+    "id": { "type": "string" },
+    "title": { "type": "string" },
+    "description": { "type": "string" },
+    "audience": { "type": "string" },
+    "topic_ids": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string" }
+    }
+  },
+  "additionalProperties": false
+}

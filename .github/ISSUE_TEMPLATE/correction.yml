@@ -1,0 +1,25 @@
+name: Correction
+description: Factual error or outdated explanation in a topic
+title: "[correction]: "
+labels: ["correction"]
+body:
+  - type: input
+    id: topic_id
+    attributes:
+      label: Topic id
+      placeholder: 03-browser.event-loop
+    validations:
+      required: true
+  - type: textarea
+    id: issue
+    attributes:
+      label: What is incorrect?
+    validations:
+      required: true
+  - type: textarea
+    id: sources
+    attributes:
+      label: Authoritative sources
+      description: Prefer official documentation links
+    validations:
+      required: true

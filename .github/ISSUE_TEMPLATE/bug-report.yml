@@ -1,0 +1,25 @@
+name: Bug report
+description: Site, tooling, or broken navigation
+title: "[bug]: "
+labels: ["bug"]
+body:
+  - type: textarea
+    id: describe
+    attributes:
+      label: What happened?
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: input
+    id: page
+    attributes:
+      label: Page URL or file path
+  - type: textarea
+    id: repro
+    attributes:
+      label: Reproduction steps

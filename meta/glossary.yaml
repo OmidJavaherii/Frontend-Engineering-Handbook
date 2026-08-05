@@ -1,0 +1,21 @@
+terms:
+  - id: critical-rendering-path
+    term: Critical Rendering Path
+    definition: The sequence of steps the browser takes to convert HTML, CSS, and JavaScript into pixels on the screen.
+    topic_id: 03-browser.critical-rendering-path
+  - id: event-loop
+    term: Event Loop
+    definition: The scheduling mechanism that coordinates the call stack, task queues, and rendering in browsers and JavaScript runtimes.
+    topic_id: 03-browser.event-loop
+  - id: hydration
+    term: Hydration
+    definition: The process of attaching client-side interactivity to server-rendered HTML.
+    topic_id: 12-rendering.hydration
+  - id: fiber
+    term: Fiber
+    definition: React's internal unit of work and reconciliation architecture.
+    topic_id: 08-jsx-and-react-runtime.fiber
+  - id: tls
+    term: TLS
+    definition: Transport Layer Security — the cryptographic protocol behind HTTPS.
+    topic_id: 02-internet.tls

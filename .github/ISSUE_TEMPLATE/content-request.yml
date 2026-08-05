@@ -1,0 +1,54 @@
+name: Content request
+description: Request a new topic or expansion of an existing one
+title: "[content]: "
+labels: ["content"]
+body:
+  - type: input
+    id: topic_id
+    attributes:
+      label: Topic id (if known)
+      placeholder: 03-browser.event-loop
+  - type: dropdown
+    id: module
+    attributes:
+      label: Module
+      options:
+        - 00-foundations
+        - 01-computer-science
+        - 02-internet
+        - 03-browser
+        - 04-html
+        - 05-css
+        - 06-javascript
+        - 07-typescript
+        - 08-jsx-and-react-runtime
+        - 09-browser-apis
+        - 10-react
+        - 11-nextjs
+        - 12-rendering
+        - 13-performance
+        - 14-build-tools
+        - 15-architecture
+        - 16-testing
+        - 17-security
+        - 18-accessibility
+        - 19-deployment
+        - 20-observability
+        - 21-frontend-system-design
+        - 22-design-patterns
+        - 23-pwa-and-offline
+        - 24-interview-preparation
+        - 25-appendix
+        - new-module-proposal
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why does this belong in the handbook?
+    validations:
+      required: true
+  - type: textarea
+    id: prerequisites
+    attributes:
+      label: Suggested prerequisites

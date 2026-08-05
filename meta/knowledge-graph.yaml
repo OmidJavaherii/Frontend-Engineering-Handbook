@@ -1,0 +1,671 @@
+version: 1
+edge_types:
+  - depends_on
+  - child_of
+  - related_to
+  - deepens
+  - perspective_of
+edges:
+  - from: 00-foundations.how-the-web-works-map
+    to: 00-foundations.start-here
+    type: depends_on
+  - from: 01-computer-science.bits-and-bytes
+    to: 01-computer-science.binary
+    type: depends_on
+  - from: 01-computer-science.cpu
+    to: 01-computer-science.bits-and-bytes
+    type: depends_on
+  - from: 01-computer-science.memory
+    to: 01-computer-science.cpu
+    type: depends_on
+  - from: 01-computer-science.stack
+    to: 01-computer-science.memory
+    type: depends_on
+  - from: 01-computer-science.heap
+    to: 01-computer-science.memory
+    type: depends_on
+  - from: 01-computer-science.process
+    to: 01-computer-science.memory
+    type: depends_on
+  - from: 01-computer-science.thread
+    to: 01-computer-science.process
+    type: depends_on
+  - from: 01-computer-science.event-loop-cs
+    to: 01-computer-science.thread
+    type: depends_on
+  - from: 01-computer-science.event-loop-cs
+    to: 03-browser.event-loop
+    type: related_to
+  - from: 01-computer-science.event-loop-cs
+    to: 06-javascript.event-loop-js
+    type: related_to
+  - from: 01-computer-science.compiler
+    to: 01-computer-science.cpu
+    type: depends_on
+  - from: 01-computer-science.interpreter
+    to: 01-computer-science.compiler
+    type: depends_on
+  - from: 01-computer-science.runtime
+    to: 01-computer-science.interpreter
+    type: depends_on
+  - from: 01-computer-science.garbage-collection
+    to: 01-computer-science.heap
+    type: depends_on
+  - from: 01-computer-science.garbage-collection
+    to: 01-computer-science.runtime
+    type: depends_on
+  - from: 01-computer-science.space-complexity
+    to: 01-computer-science.time-complexity
+    type: depends_on
+  - from: 01-computer-science.big-o
+    to: 01-computer-science.time-complexity
+    type: depends_on
+  - from: 01-computer-science.big-o
+    to: 01-computer-science.space-complexity
+    type: depends_on
+  - from: 01-computer-science.data-structures
+    to: 01-computer-science.big-o
+    type: depends_on
+  - from: 01-computer-science.data-structures
+    to: 01-computer-science.data-structures-array
+    type: child_of
+  - from: 01-computer-science.data-structures
+    to: 01-computer-science.data-structures-linked-list
+    type: child_of
+  - from: 01-computer-science.data-structures
+    to: 01-computer-science.data-structures-stack-ds
+    type: child_of
+  - from: 01-computer-science.data-structures
+    to: 01-computer-science.data-structures-queue
+    type: child_of
+  - from: 01-computer-science.data-structures
+    to: 01-computer-science.data-structures-hash-table
+    type: child_of
+  - from: 01-computer-science.data-structures
+    to: 01-computer-science.data-structures-tree
+    type: child_of
+  - from: 01-computer-science.data-structures
+    to: 01-computer-science.data-structures-graph
+    type: child_of
+  - from: 01-computer-science.data-structures-array
+    to: 01-computer-science.data-structures
+    type: depends_on
+  - from: 01-computer-science.data-structures-linked-list
+    to: 01-computer-science.data-structures
+    type: depends_on
+  - from: 01-computer-science.data-structures-stack-ds
+    to: 01-computer-science.data-structures
+    type: depends_on
+  - from: 01-computer-science.data-structures-queue
+    to: 01-computer-science.data-structures
+    type: depends_on
+  - from: 01-computer-science.data-structures-hash-table
+    to: 01-computer-science.data-structures
+    type: depends_on
+  - from: 01-computer-science.data-structures-tree
+    to: 01-computer-science.data-structures
+    type: depends_on
+  - from: 01-computer-science.data-structures-graph
+    to: 01-computer-science.data-structures
+    type: depends_on
+  - from: 01-computer-science.algorithms
+    to: 01-computer-science.data-structures
+    type: depends_on
+  - from: 01-computer-science.algorithms
+    to: 01-computer-science.algorithms-searching
+    type: child_of
+  - from: 01-computer-science.algorithms
+    to: 01-computer-science.algorithms-sorting
+    type: child_of
+  - from: 01-computer-science.algorithms
+    to: 01-computer-science.algorithms-recursion
+    type: child_of
+  - from: 01-computer-science.algorithms
+    to: 01-computer-science.algorithms-dynamic-programming-intro
+    type: child_of
+  - from: 01-computer-science.algorithms-searching
+    to: 01-computer-science.algorithms
+    type: depends_on
+  - from: 01-computer-science.algorithms-sorting
+    to: 01-computer-science.algorithms
+    type: depends_on
+  - from: 01-computer-science.algorithms-recursion
+    to: 01-computer-science.algorithms
+    type: depends_on
+  - from: 01-computer-science.algorithms-dynamic-programming-intro
+    to: 01-computer-science.algorithms
+    type: depends_on
+  - from: 02-internet.ipv4
+    to: 02-internet.ip
+    type: depends_on
+  - from: 02-internet.ipv6
+    to: 02-internet.ip
+    type: depends_on
+  - from: 02-internet.http
+    to: 02-internet.tcp
+    type: depends_on
+  - from: 02-internet.https
+    to: 02-internet.http
+    type: depends_on
+  - from: 02-internet.ssl
+    to: 02-internet.https
+    type: depends_on
+  - from: 02-internet.tls
+    to: 02-internet.https
+    type: depends_on
+  - from: 02-internet.websocket
+    to: 02-internet.http
+    type: depends_on
+  - from: 02-internet.sse
+    to: 02-internet.http
+    type: depends_on
+  - from: 02-internet.http2
+    to: 02-internet.http
+    type: depends_on
+  - from: 02-internet.http3
+    to: 02-internet.http2
+    type: depends_on
+  - from: 02-internet.quic
+    to: 02-internet.udp
+    type: depends_on
+  - from: 02-internet.quic
+    to: 02-internet.tls
+    type: depends_on
+  - from: 02-internet.cookies
+    to: 02-internet.http
+    type: depends_on
+  - from: 02-internet.sessions
+    to: 02-internet.cookies
+    type: depends_on
+  - from: 02-internet.authorization
+    to: 02-internet.authentication
+    type: depends_on
+  - from: 02-internet.rest
+    to: 02-internet.http
+    type: depends_on
+  - from: 02-internet.graphql
+    to: 02-internet.http
+    type: depends_on
+  - from: 02-internet.http-caching
+    to: 02-internet.http
+    type: depends_on
+  - from: 02-internet.cdn-basics
+    to: 02-internet.http-caching
+    type: depends_on
+  - from: 03-browser.multi-process-model
+    to: 03-browser.browser-architecture
+    type: depends_on
+  - from: 03-browser.multi-process-model
+    to: 01-computer-science.process
+    type: depends_on
+  - from: 03-browser.rendering-engine
+    to: 03-browser.browser-architecture
+    type: depends_on
+  - from: 03-browser.javascript-engine
+    to: 03-browser.browser-architecture
+    type: depends_on
+  - from: 03-browser.javascript-engine
+    to: 01-computer-science.runtime
+    type: depends_on
+  - from: 03-browser.v8
+    to: 03-browser.javascript-engine
+    type: depends_on
+  - from: 03-browser.spidermonkey
+    to: 03-browser.javascript-engine
+    type: depends_on
+  - from: 03-browser.javascriptcore
+    to: 03-browser.javascript-engine
+    type: depends_on
+  - from: 03-browser.parsing-html
+    to: 03-browser.rendering-engine
+    type: depends_on
+  - from: 03-browser.parsing-css
+    to: 03-browser.rendering-engine
+    type: depends_on
+  - from: 03-browser.dom
+    to: 03-browser.parsing-html
+    type: depends_on
+  - from: 03-browser.cssom
+    to: 03-browser.parsing-css
+    type: depends_on
+  - from: 03-browser.render-tree
+    to: 03-browser.dom
+    type: depends_on
+  - from: 03-browser.render-tree
+    to: 03-browser.cssom
+    type: depends_on
+  - from: 03-browser.layout
+    to: 03-browser.render-tree
+    type: depends_on
+  - from: 03-browser.paint
+    to: 03-browser.layout
+    type: depends_on
+  - from: 03-browser.composite
+    to: 03-browser.paint
+    type: depends_on
+  - from: 03-browser.gpu
+    to: 03-browser.composite
+    type: depends_on
+  - from: 03-browser.reflow
+    to: 03-browser.layout
+    type: depends_on
+  - from: 03-browser.repaint
+    to: 03-browser.paint
+    type: depends_on
+  - from: 03-browser.critical-rendering-path
+    to: 03-browser.render-tree
+    type: depends_on
+  - from: 03-browser.critical-rendering-path
+    to: 03-browser.layout
+    type: depends_on
+  - from: 03-browser.critical-rendering-path
+    to: 03-browser.paint
+    type: depends_on
+  - from: 03-browser.call-stack
+    to: 01-computer-science.stack
+    type: depends_on
+  - from: 03-browser.task-queue
+    to: 03-browser.call-stack
+    type: depends_on
+  - from: 03-browser.event-loop
+    to: 03-browser.call-stack
+    type: depends_on
+  - from: 03-browser.event-loop
+    to: 03-browser.task-queue
+    type: depends_on
+  - from: 03-browser.event-loop
+    to: 01-computer-science.event-loop-cs
+    type: related_to
+  - from: 03-browser.event-loop
+    to: 06-javascript.event-loop-js
+    type: related_to
+  - from: 03-browser.microtasks
+    to: 03-browser.event-loop
+    type: depends_on
+  - from: 03-browser.macrotasks
+    to: 03-browser.event-loop
+    type: depends_on
+  - from: 03-browser.memory-management
+    to: 01-computer-science.heap
+    type: depends_on
+  - from: 03-browser.garbage-collection-browser
+    to: 03-browser.memory-management
+    type: depends_on
+  - from: 03-browser.garbage-collection-browser
+    to: 01-computer-science.garbage-collection
+    type: depends_on
+  - from: 03-browser.devtools-rendering-panel
+    to: 03-browser.critical-rendering-path
+    type: depends_on
+  - from: 03-browser.devtools-rendering-panel
+    to: 20-observability.chrome-devtools
+    type: related_to
+  - from: 04-html.seo-basics
+    to: 04-html.semantic-html
+    type: depends_on
+  - from: 04-html.seo-basics
+    to: 04-html.metadata
+    type: depends_on
+  - from: 04-html.defer
+    to: 04-html.scripts
+    type: depends_on
+  - from: 04-html.async
+    to: 04-html.scripts
+    type: depends_on
+  - from: 04-html.module-scripts
+    to: 04-html.scripts
+    type: depends_on
+  - from: 04-html.templates-and-slots
+    to: 09-browser-apis.web-components
+    type: related_to
+  - from: 05-css.specificity
+    to: 05-css.cascade
+    type: depends_on
+  - from: 05-css.positioning
+    to: 05-css.box-model
+    type: depends_on
+  - from: 05-css.media-queries
+    to: 05-css.responsive-design
+    type: depends_on
+  - from: 05-css.container-queries
+    to: 05-css.media-queries
+    type: depends_on
+  - from: 05-css.compositing
+    to: 03-browser.composite
+    type: depends_on
+  - from: 05-css.css-architecture
+    to: 15-architecture.design-systems
+    type: related_to
+  - from: 06-javascript.closures
+    to: 06-javascript.scope
+    type: depends_on
+  - from: 06-javascript.hoisting
+    to: 06-javascript.variables
+    type: depends_on
+  - from: 06-javascript.hoisting
+    to: 06-javascript.scope
+    type: depends_on
+  - from: 06-javascript.execution-context
+    to: 06-javascript.scope
+    type: depends_on
+  - from: 06-javascript.lexical-environment
+    to: 06-javascript.execution-context
+    type: depends_on
+  - from: 06-javascript.prototype-chain
+    to: 06-javascript.prototype
+    type: depends_on
+  - from: 06-javascript.classes
+    to: 06-javascript.prototype
+    type: depends_on
+  - from: 06-javascript.es-modules
+    to: 06-javascript.modules
+    type: depends_on
+  - from: 06-javascript.commonjs
+    to: 06-javascript.modules
+    type: depends_on
+  - from: 06-javascript.event-loop-js
+    to: 06-javascript.execution-context
+    type: depends_on
+  - from: 06-javascript.event-loop-js
+    to: 03-browser.event-loop
+    type: related_to
+  - from: 06-javascript.event-loop-js
+    to: 01-computer-science.event-loop-cs
+    type: related_to
+  - from: 06-javascript.event-loop-js
+    to: 03-browser.event-loop
+    type: perspective_of
+  - from: 06-javascript.promise
+    to: 06-javascript.async-programming
+    type: depends_on
+  - from: 06-javascript.async-await
+    to: 06-javascript.promise
+    type: depends_on
+  - from: 06-javascript.fetch-api
+    to: 06-javascript.promise
+    type: depends_on
+  - from: 06-javascript.fetch-api
+    to: 02-internet.http
+    type: depends_on
+  - from: 06-javascript.abortcontroller
+    to: 06-javascript.fetch-api
+    type: depends_on
+  - from: 06-javascript.reflect
+    to: 06-javascript.proxy
+    type: related_to
+  - from: 06-javascript.memory-and-references
+    to: 01-computer-science.stack
+    type: depends_on
+  - from: 06-javascript.memory-and-references
+    to: 01-computer-science.heap
+    type: depends_on
+  - from: 07-typescript.types
+    to: 06-javascript.types-and-values
+    type: depends_on
+  - from: 07-typescript.type-vs-interface
+    to: 07-typescript.types
+    type: depends_on
+  - from: 07-typescript.type-vs-interface
+    to: 07-typescript.interfaces
+    type: depends_on
+  - from: 07-typescript.generics
+    to: 07-typescript.types
+    type: depends_on
+  - from: 07-typescript.utility-types
+    to: 07-typescript.generics
+    type: depends_on
+  - from: 07-typescript.advanced-types
+    to: 07-typescript.generics
+    type: depends_on
+  - from: 07-typescript.compiler
+    to: 01-computer-science.compiler
+    type: depends_on
+  - from: 07-typescript.typescript-with-react
+    to: 10-react.components
+    type: related_to
+  - from: 08-jsx-and-react-runtime.jsx
+    to: 06-javascript.functions
+    type: depends_on
+  - from: 08-jsx-and-react-runtime.ast
+    to: 01-computer-science.compiler
+    type: depends_on
+  - from: 08-jsx-and-react-runtime.jsx-transform
+    to: 08-jsx-and-react-runtime.jsx
+    type: depends_on
+  - from: 08-jsx-and-react-runtime.jsx-transform
+    to: 08-jsx-and-react-runtime.ast
+    type: depends_on
+  - from: 08-jsx-and-react-runtime.react-createelement
+    to: 08-jsx-and-react-runtime.jsx-transform
+    type: depends_on
+  - from: 08-jsx-and-react-runtime.virtual-dom
+    to: 08-jsx-and-react-runtime.react-createelement
+    type: depends_on
+  - from: 08-jsx-and-react-runtime.virtual-dom
+    to: 03-browser.dom
+    type: depends_on
+  - from: 08-jsx-and-react-runtime.fiber
+    to: 08-jsx-and-react-runtime.virtual-dom
+    type: depends_on
+  - from: 08-jsx-and-react-runtime.reconciliation
+    to: 08-jsx-and-react-runtime.fiber
+    type: depends_on
+  - from: 08-jsx-and-react-runtime.diffing-algorithm
+    to: 08-jsx-and-react-runtime.reconciliation
+    type: depends_on
+  - from: 08-jsx-and-react-runtime.keys
+    to: 08-jsx-and-react-runtime.diffing-algorithm
+    type: depends_on
+  - from: 09-browser-apis.web-workers
+    to: 01-computer-science.thread
+    type: depends_on
+  - from: 09-browser-apis.service-workers
+    to: 23-pwa-and-offline.service-worker-lifecycle
+    type: related_to
+  - from: 09-browser-apis.web-sockets-api
+    to: 02-internet.websocket
+    type: depends_on
+  - from: 09-browser-apis.custom-elements
+    to: 09-browser-apis.web-components
+    type: depends_on
+  - from: 09-browser-apis.shadow-dom
+    to: 09-browser-apis.web-components
+    type: depends_on
+  - from: 10-react.components
+    to: 08-jsx-and-react-runtime.jsx
+    type: depends_on
+  - from: 10-react.props
+    to: 10-react.components
+    type: depends_on
+  - from: 10-react.state
+    to: 10-react.components
+    type: depends_on
+  - from: 10-react.hooks
+    to: 10-react.state
+    type: depends_on
+  - from: 10-react.rules-of-hooks
+    to: 10-react.hooks
+    type: depends_on
+  - from: 10-react.context
+    to: 10-react.hooks
+    type: depends_on
+  - from: 10-react.reducer
+    to: 10-react.hooks
+    type: depends_on
+  - from: 10-react.react-memo
+    to: 10-react.memoization
+    type: depends_on
+  - from: 10-react.usememo
+    to: 10-react.memoization
+    type: depends_on
+  - from: 10-react.usecallback
+    to: 10-react.memoization
+    type: depends_on
+  - from: 10-react.useref
+    to: 10-react.hooks
+    type: depends_on
+  - from: 10-react.useeffect
+    to: 10-react.hooks
+    type: depends_on
+  - from: 10-react.useeffect
+    to: 03-browser.event-loop
+    type: depends_on
+  - from: 10-react.uselayouteffect
+    to: 10-react.useeffect
+    type: depends_on
+  - from: 10-react.useimperativehandle
+    to: 10-react.useref
+    type: depends_on
+  - from: 10-react.lazy-loading
+    to: 10-react.suspense
+    type: depends_on
+  - from: 10-react.concurrent-rendering
+    to: 08-jsx-and-react-runtime.fiber
+    type: depends_on
+  - from: 10-react.transitions
+    to: 10-react.concurrent-rendering
+    type: depends_on
+  - from: 10-react.deferred-value
+    to: 10-react.concurrent-rendering
+    type: depends_on
+  - from: 10-react.server-components-overview
+    to: 11-nextjs.server-components
+    type: related_to
+  - from: 10-react.effects-vs-events
+    to: 10-react.useeffect
+    type: depends_on
+  - from: 11-nextjs.app-router
+    to: 10-react.components
+    type: depends_on
+  - from: 11-nextjs.routing
+    to: 11-nextjs.app-router
+    type: depends_on
+  - from: 11-nextjs.layouts
+    to: 11-nextjs.app-router
+    type: depends_on
+  - from: 11-nextjs.nested-layouts
+    to: 11-nextjs.layouts
+    type: depends_on
+  - from: 11-nextjs.templates
+    to: 11-nextjs.layouts
+    type: depends_on
+  - from: 11-nextjs.server-components
+    to: 10-react.server-components-overview
+    type: depends_on
+  - from: 11-nextjs.client-components
+    to: 11-nextjs.server-components
+    type: depends_on
+  - from: 11-nextjs.caching
+    to: 02-internet.http-caching
+    type: depends_on
+  - from: 12-rendering.ppr
+    to: 11-nextjs.partial-prerendering
+    type: related_to
+  - from: 12-rendering.progressive-hydration
+    to: 12-rendering.hydration
+    type: depends_on
+  - from: 12-rendering.cdn
+    to: 02-internet.cdn-basics
+    type: related_to
+  - from: 12-rendering.browser-cache
+    to: 02-internet.http-caching
+    type: depends_on
+  - from: 12-rendering.cache-control
+    to: 02-internet.http-caching
+    type: depends_on
+  - from: 12-rendering.etag
+    to: 02-internet.http-caching
+    type: depends_on
+  - from: 12-rendering.stale-while-revalidate
+    to: 02-internet.http-caching
+    type: depends_on
+  - from: 13-performance.chunk
+    to: 13-performance.bundle
+    type: depends_on
+  - from: 13-performance.lcp
+    to: 13-performance.core-web-vitals
+    type: depends_on
+  - from: 13-performance.cls
+    to: 13-performance.core-web-vitals
+    type: depends_on
+  - from: 13-performance.inp
+    to: 13-performance.core-web-vitals
+    type: depends_on
+  - from: 14-build-tools.module-resolution
+    to: 06-javascript.es-modules
+    type: depends_on
+  - from: 14-build-tools.babel
+    to: 08-jsx-and-react-runtime.babel
+    type: related_to
+  - from: 14-build-tools.monorepo-tooling
+    to: 15-architecture.monorepo
+    type: related_to
+  - from: 15-architecture.module-federation
+    to: 15-architecture.micro-frontends
+    type: depends_on
+  - from: 15-architecture.redux
+    to: 15-architecture.state-management
+    type: depends_on
+  - from: 15-architecture.zustand
+    to: 15-architecture.state-management
+    type: depends_on
+  - from: 15-architecture.jotai
+    to: 15-architecture.state-management
+    type: depends_on
+  - from: 16-testing.accessibility-testing
+    to: 18-accessibility.a11y-testing
+    type: related_to
+  - from: 17-security.cors
+    to: 02-internet.http
+    type: depends_on
+  - from: 17-security.oidc
+    to: 17-security.oauth
+    type: depends_on
+  - from: 17-security.cookies-security
+    to: 02-internet.cookies
+    type: depends_on
+  - from: 17-security.samesite
+    to: 17-security.cookies-security
+    type: depends_on
+  - from: 17-security.secure-cookies
+    to: 17-security.cookies-security
+    type: depends_on
+  - from: 17-security.https-security
+    to: 02-internet.https
+    type: depends_on
+  - from: 17-security.prototype-pollution
+    to: 06-javascript.prototype
+    type: depends_on
+  - from: 18-accessibility.aria
+    to: 18-accessibility.wcag
+    type: depends_on
+  - from: 18-accessibility.semantic-html-a11y
+    to: 04-html.semantic-html
+    type: depends_on
+  - from: 18-accessibility.forms-a11y
+    to: 04-html.forms
+    type: depends_on
+  - from: 19-deployment.github-actions
+    to: 19-deployment.ci-cd
+    type: depends_on
+  - from: 20-observability.source-maps-debugging
+    to: 14-build-tools.source-maps
+    type: related_to
+  - from: 20-observability.web-vitals-monitoring
+    to: 13-performance.core-web-vitals
+    type: depends_on
+  - from: 21-frontend-system-design.offline-first
+    to: 23-pwa-and-offline.pwa-overview
+    type: related_to
+  - from: 21-frontend-system-design.realtime-applications
+    to: 02-internet.websocket
+    type: depends_on
+  - from: 21-frontend-system-design.designing-design-systems
+    to: 15-architecture.design-systems
+    type: related_to
+  - from: 23-pwa-and-offline.service-worker-lifecycle
+    to: 09-browser-apis.service-workers
+    type: depends_on
+  - from: 23-pwa-and-offline.caching-strategies-sw
+    to: 23-pwa-and-offline.service-worker-lifecycle
+    type: depends_on
