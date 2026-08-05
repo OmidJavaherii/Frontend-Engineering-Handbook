@@ -7,6 +7,9 @@ hero:
   name: Frontend Engineering Handbook
   text: How the modern web actually works
   tagline: From the moment a user types a URL until pixels appear on the screen — internals, trade-offs, and production judgment.
+  image:
+    src: /og/banner.png
+    alt: Frontend Engineering Handbook
   actions:
     - theme: brand
       text: Start here

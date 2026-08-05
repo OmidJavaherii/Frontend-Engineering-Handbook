@@ -30,16 +30,15 @@ npx pnpm@9.15.0 verify
 
 ## Deploy (GitHub Pages)
 
-The site deploys from [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) on pushes to `main`.
+One workflow: [`.github/workflows/ci.yml`](.github/workflows/ci.yml) — verify on PRs; verify + deploy on `main`.
 
-**One-time setup** (fixes `Failed to create deployment (status: 404)`):
+**One-time setup** (fixes Pages `404` deploy):
 
 1. Open [Settings → Pages](https://github.com/OmidJavaherii/Frontend-Engineering-Handbook/settings/pages)
-2. Under **Build and deployment → Source**, choose **GitHub Actions**
-3. Re-run the failed Deploy workflow (or push to `main`)
+2. **Source** → **GitHub Actions**
+3. Re-run CI on `main`
 
-Live URL after the first successful deploy:  
-https://omidjavaherii.github.io/Frontend-Engineering-Handbook/
+Live: https://omidjavaherii.github.io/Frontend-Engineering-Handbook/
 
 ## Contributing
 

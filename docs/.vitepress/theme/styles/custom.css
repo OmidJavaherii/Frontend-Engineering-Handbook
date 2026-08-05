@@ -79,3 +79,15 @@
   border-radius: 8px;
   text-decoration: none;
 }
+
+/* Mermaid: keep diagram containers visible while client JS hydrates */
+.mermaid,
+.vp-doc .mermaid {
+  margin: 1.25rem 0;
+  overflow-x: auto;
+}
+
+.mermaid svg {
+  max-width: 100%;
+  height: auto;
+}

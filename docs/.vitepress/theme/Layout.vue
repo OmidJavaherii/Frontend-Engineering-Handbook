@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import DefaultTheme from 'vitepress/theme'
-import { useData } from 'vitepress'
+import { useData, withBase } from 'vitepress'
 
 const { Layout } = DefaultTheme
 const { page, frontmatter } = useData()
@@ -38,7 +38,7 @@ const crumbs = computed(() => {
     <template #doc-before>
       <nav v-if="showBreadcrumbs" class="fe-breadcrumbs" aria-label="Breadcrumb">
         <template v-for="(crumb, index) in crumbs" :key="`${crumb.text}-${index}`">
-          <a v-if="crumb.link" :href="crumb.link">{{ crumb.text }}</a>
+          <a v-if="crumb.link" :href="withBase(crumb.link)">{{ crumb.text }}</a>
           <span v-else>{{ crumb.text }}</span>
           <span v-if="index < crumbs.length - 1">/</span>
         </template>

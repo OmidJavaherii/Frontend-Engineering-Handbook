@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { withBase } from 'vitepress'
+
 const paths = [
   { text: 'Beginner', link: '/learning-paths/beginner' },
   { text: 'Junior', link: '/learning-paths/junior' },
@@ -11,6 +13,6 @@ const paths = [
 
 <template>
   <nav class="fe-path-nav" aria-label="Learning paths">
-    <a v-for="path in paths" :key="path.link" :href="path.link">{{ path.text }}</a>
+    <a v-for="path in paths" :key="path.link" :href="withBase(path.link)">{{ path.text }}</a>
   </nav>
 </template>
